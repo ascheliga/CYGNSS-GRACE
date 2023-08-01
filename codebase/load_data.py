@@ -53,7 +53,6 @@ def load_GRACE(grace_filename = 'gsfc.glb_.200204_202211_rl06v2.0_obp-ice6gd.h5'
         cmwe.columns = date_df['date_middle']
         cmwe.index = mascon_df['labels'].astype(int)
     grace_dict['cmwe'] = cmwe
-    print(cmwe.head())
 
     # UNCERTAINTY #
     if uncertainty:
