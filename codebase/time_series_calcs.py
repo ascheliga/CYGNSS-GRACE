@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+from scipy import stats
 import calendar
 from sklearn.metrics import r2_score
 import matplotlib.pyplot as plt
