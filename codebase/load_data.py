@@ -14,6 +14,34 @@ def load_GRACE(grace_filename = 'gsfc.glb_.200204_202211_rl06v2.0_obp-ice6gd.h5'
     land_subset = True,
     uncertainty = False,
     formatting = True):
+    """
+
+    Long description
+    ----------------
+
+
+    Inputs
+    ------
+    grace_filename : str 
+        GRACE HDF5 filename without path location
+        default = 'gsfc.glb_.200204_202211_rl06v2.0_obp-ice6gd.h5'
+    grace_filepath : str
+        absolute filepath to GRACE HDF5
+        default = '/global/scratch/users/ann_scheliga/'
+    land_subset : boolean
+        whether to restrict GRACE output to just land locations
+        default = True
+    uncertainty : boolean
+        whether to include uncertainty data in output.
+        data loading takes much longer when uncertainties are included
+        default = False
+    formatting : boolean 
+        whether to include labeling and dtype formatting options to the output
+        default = True
+
+    Outputs
+    -------
+    """
     import numpy as np
     import pandas as pd
     import h5py
