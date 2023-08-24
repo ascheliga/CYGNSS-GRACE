@@ -69,3 +69,7 @@ def load_GRACE(grace_filename = 'gsfc.glb_.200204_202211_rl06v2.0_obp-ice6gd.h5'
         grace_dict['uncertainty'] = uncertainty_df
 
     return grace_dict
+
+if __name__ == '__main__':
+    test = load_CYGNSS_05()
+    print(test)
