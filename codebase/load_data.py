@@ -115,6 +115,25 @@ def load_GRACE(grace_filename = 'gsfc.glb_.200204_202211_rl06v2.0_obp-ice6gd.h5'
 
     return grace_dict
 
+def load_GRanD(GRanD_filename = 'GRanD_reservoirs_v1_3.shp',
+    GRanD_filepath = '/global/scratch/users/ann_scheliga/dam_datasets/'):
+    """
+    Inputs
+    ------
+    GRanD_filename : str
+        default = 'GRanD_reservoirs_v1_3.shp'
+    GRanD_filepath : str
+        default = '/global/scratch/users/ann_scheliga/dam_datasets/'
+
+    Outputs
+    -------
+    res_shp : GeoDataFrame
+        un-formatted and unedited GRanD reservoir dataset
+    """
+    import geopandas as gpd
+    res_shp = gpd.read_file(datadir + 'GRanD_reservoirs_v1_3.shp')
+    return res_shp
+
 if __name__ == '__main__':
     test = load_GRACE()
     print(test)
