@@ -121,8 +121,10 @@ def load_GRanD(GRanD_filename = 'GRanD_reservoirs_v1_3.shp',
     Inputs
     ------
     GRanD_filename : str
+        reservoir data filename without filepath
         default = 'GRanD_reservoirs_v1_3.shp'
     GRanD_filepath : str
+        absolute filepath
         default = '/global/scratch/users/ann_scheliga/dam_datasets/'
 
     Outputs
@@ -131,7 +133,7 @@ def load_GRanD(GRanD_filename = 'GRanD_reservoirs_v1_3.shp',
         un-formatted and unedited GRanD reservoir dataset
     """
     import geopandas as gpd
-    res_shp = gpd.read_file(datadir + 'GRanD_reservoirs_v1_3.shp')
+    res_shp = gpd.read_file(GRanD_filepath + GRanD_filename)
     return res_shp
 
 if __name__ == '__main__':
