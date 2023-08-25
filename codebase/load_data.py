@@ -45,6 +45,8 @@ def load_GRACE(grace_filename = 'gsfc.glb_.200204_202211_rl06v2.0_obp-ice6gd.h5'
     import numpy as np
     import pandas as pd
     import h5py
+    import geopandas as gpd
+    from shapely.geometry import Polygon
     f = h5py.File(grace_filepath + grace_filename,'r')
     grace_dict = dict()
 
@@ -61,7 +63,20 @@ def load_GRACE(grace_filename = 'gsfc.glb_.200204_202211_rl06v2.0_obp-ice6gd.h5'
         mascon_df = mascon_df.loc[land_bool,:]
     if formatting:
         mascon_df.index = mascon_df['labels'].astype(int)
-    grace_dict['mascon'] = mascon_df
+   # Convert from lat/lon coordinates to polygons then to GeoDataFrame
+    coord_corners = pd.DataFrame(columns = ['NE','SE','SW','NW','close'])
+    min_lon = mascon_df['lon_center'] - mascon_df['lon_span']/2
+    min_lat = mascon_df['lat_center'] - mascon_df['lat_span']/2
+    max_lon = mascon_df['lon_center'] + mascon_df['lon_span']/2
+    max_lat = mascon_df['lat_center'] + mascon_df['lat_span']/2
+    coord_corners['NE'] = list(zip(max_lon , max_lat))
+    coord_corners['SE'] = list(zip(max_lon , min_lat))
+    coord_corners['SW'] = list(zip(min_lon , min_lat))
+    coord_corners['NW'] = list(zip(min_lon , max_lat))
+    coord_corners['close'] = coord_corners['NE']
+    coord_geom = coord_corners.apply(Polygon,axis=1)
+    mascon_gdf = gpd.GeoDataFrame(data=mascon_df,geometry=coord_geom.values,crs="EPSG:4326")
+    grace_dict['mascon'] = mascon_gdf
 
     # DATES #
     start_date = pd.Timestamp('2001-12-31')
@@ -101,5 +116,5 @@ def load_GRACE(grace_filename = 'gsfc.glb_.200204_202211_rl06v2.0_obp-ice6gd.h5'
     return grace_dict
 
 if __name__ == '__main__':
-    test = load_CYGNSS_05()
+    test = load_GRACE()
     print(test)
