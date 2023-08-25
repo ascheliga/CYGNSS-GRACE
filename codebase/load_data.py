@@ -54,6 +54,8 @@ def load_GRACE(grace_filename = 'gsfc.glb_.200204_202211_rl06v2.0_obp-ice6gd.h5'
     mascon_df = pd.DataFrame()            # create empty pd.DataFrame
     for key in mascon_cols:               # fill df
         mascon_df[key] = np.array(f['mascon'][key]).T.squeeze()
+    # Convert longitude from [0 to 360] to (-180 to 180]
+    mascon_df.loc[mascon_df['lon_center'] >180,'lon_center'] = mascon_df.loc[mascon_df['lon_center'] >180,'lon_center'] - 360
     if land_subset:
         land_bool = mascon_df['location'] == 80
         mascon_df = mascon_df.loc[land_bool,:]
