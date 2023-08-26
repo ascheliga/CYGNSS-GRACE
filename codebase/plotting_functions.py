@@ -59,19 +59,27 @@ def pie_from_series(row,axi,cmaps="BrBG"):
 # In[124]:
 
 
-def statsig_map(input_gdf,ax,count,cmaps="BrBG",title = '',pie_row = [],cbar_flag='', pcut = 0.01,**plot_params):
+def statsig_map(input_gdf,ax,count,cmaps="BrBG",pie_row = [],cbar_flag='', pcut = 0.01,**plot_params):
     """
+    Plots a map of slope values with an option for a pie chart inset.
 
     Long Description
     ----------------
 
     Inputs
     ------
-    input_gdf
-    ax
-    count
-    cmaps="BrBG"
-    title = ''
+    input_gdf : GeoDataFrame
+        plots the 'slope' column from this input gdf
+    ax : axis-object
+        existing axis to plot the map on
+    count : int
+        index/count of the map within a for loop
+        used for indexing plot_params
+        if statsig_map not used within a for loop, try setting count to 0
+    cmaps : Colormap name
+        default = 'BrBG'
+        name of a Matplotlib-accepted Colormap name
+        will use the 90th and 10th percentiles of the colormap
     pie_row : array
         default = []
         data for pie chart using pie_from_series function
@@ -82,13 +90,20 @@ def statsig_map(input_gdf,ax,count,cmaps="BrBG",title = '',pie_row = [],cbar_fla
         looks for 'ver' or 'hor' in the string, respectively
     pcut = 0.01
         Leftover from SLR project, not used
-    **plot_params
+    **plot_params : dict
+        dictionary of plot formatting options and labels
+        Keys used:
+            'titles' : list of strings
+            'x_labels' : list of strings
+            'y_labels' : list of strings
+            'legend_label' : str
+        for dictionary values formatted as lists, the count parameter selects from the list
 
     Outputs
     -------
 
     """
-    # Left over from SLR project. I don't think it is necessary?
+    # Left over from SLR project. I don't think this section is necessary?
     # dry_df , dry_bool = dw_funcs.stat_check(input_gdf,'dry',pcut)
     # wet_df , wet_bool = dw_funcs.stat_check(input_gdf,'wet',pcut)
     # plot_bool = dry_bool + wet_bool
@@ -102,9 +117,13 @@ def statsig_map(input_gdf,ax,count,cmaps="BrBG",title = '',pie_row = [],cbar_fla
     else:
         input_gdf.plot('slope',cmaps,vmin=commin,vmax=commax,ax=ax)
 
-    ax.set_title(title)
-    ax.set_ylabel(plot_params['y_label'][count])
-    ax.set_xlabel(plot_params['x_label'][count])
+    # Go through plotting parameters
+    if 'titles' in plot_params:
+        ax.set_title(plot_params['titles'][count])
+    if 'x_labels' in plot_params:
+        ax.set_xlabel(plot_params['x_labels'][count])
+    if 'y_labels' in plot_params:
+        ax.set_ylabel(plot_params['y_labels'][count])
     ax.set_facecolor('grey')
     
     if pie_row.any():
@@ -119,20 +138,43 @@ def tri_figuremap(input_3gdfs,cmaps="BrBG", n_rows = 3, n_cols = 1, cbar_flag = 
     
     Long Description
     ----------------
+    When subplot grid is 1x3 or 3x1 and cbar_flag given, extra plot_params and formatting are built-in
 
     Inputs
     ------
-    input_3gdfs
-    cmaps="BrBG"
-    n_rows = 3
-    n_cols = 1
-    cbar_flag = 'hor'
-    pcut = 0.01
-    **plot_params
+    input_3gdfs : array-like of 3 GeoDataFrames 
+    cmaps : Colormap name
+        default = 'BrBG'
+        name of a Matplotlib-accepted Colormap name
+        will use the 90th and 10th percentiles of the colormap
+    n_rows : int
+        default = 3
+        number of rows of the subplot grid
+    n_cols : int
+        default = 1
+        number of columns of the subplot grid
+    cbar_flag : str
+        default = 'hor'
+        determines if colorbar on map is vertical or horizontal
+        looks for 'ver' or 'hor' in the string, respectively
+    pcut : float
+        default = 0.01
+        p-value cutoff to determine statistically-significant slopes
+    **plot_params : dict
+        dictionary of plot formatting options and labels
+        Keys used: 
+            'piechart' : boolean
+            'titles' : list of strings
+            'x_labels' : list of strings
+            'y_labels' : listof strings
+            'legend_label' : str
+        each dictionary value formatted as a list of strings
+        count parameter selects string from each dictionary value
     
     Outputs
     -------
-    axs
+    axs : axes object or array of axes
+        formed from plt.subplots()
     """
     if 'titles' not in plot_params: # if no titles provided, create blank variable
         plot_params['titles'] = ['','','']
@@ -153,21 +195,21 @@ def tri_figuremap(input_3gdfs,cmaps="BrBG", n_rows = 3, n_cols = 1, cbar_flag = 
 
     if n_rows == 3 and 'hor' in cbar_flag: # if statement to not break the subplots if only one row
         fig, axs = plt.subplots(n_rows,n_cols,gridspec_kw={'height_ratios': [1, 1, 1.5]},figsize=[10,18],facecolor='white')
-        plot_params['x_label'] = ['','','Longitude (\N{DEGREE SIGN})']
-        plot_params['y_label'] = ['Latitude (\N{DEGREE SIGN})','Latitude (\N{DEGREE SIGN})','Latitude (\N{DEGREE SIGN})']
+        plot_params['x_labels'] = ['','','Longitude (\N{DEGREE SIGN})']
+        plot_params['y_labels'] = ['Latitude (\N{DEGREE SIGN})','Latitude (\N{DEGREE SIGN})','Latitude (\N{DEGREE SIGN})']
     elif n_cols == 3 and 'ver' in cbar_flag:
         fig, axs = plt.subplots(n_rows,n_cols,gridspec_kw={'width_ratios': [1, 1, 1.2]},figsize=[9,2],facecolor='white')
-        plot_params['x_label'] = ['Longitude (\N{DEGREE SIGN})','Longitude (\N{DEGREE SIGN})','Longitude (\N{DEGREE SIGN})']
-        plot_params['y_label'] = ['Latitude (\N{DEGREE SIGN})','','']
+        plot_params['x_labels'] = ['Longitude (\N{DEGREE SIGN})','Longitude (\N{DEGREE SIGN})','Longitude (\N{DEGREE SIGN})']
+        plot_params['y_labels'] = ['Latitude (\N{DEGREE SIGN})','','']
     else:
         fig, axs = plt.subplots(n_rows,n_cols,figsize=[10,18],facecolor='white')
 
-    for count, axi, gdf, title, x_label, y_label, pie_idx in zip(range(len(axs)), axs,input_3gdfs,plot_params['titles'],plot_params['x_label'],plot_params['y_label'],frac_df.index):
+    for count, axi, gdf, pie_idx in zip(range(len(axs)), axs,input_3gdfs,frac_df.index):
         # create trend map for each input_gdf. Will add a colorbar to the last plot unless plot_params['cbar_off'] is True
         if axi == axs[-1] and cbar_flag:
-            statsig_map(gdf,axi,count,cmaps,title=title,pie_row=frac_df.loc[pie_idx],
+            statsig_map(gdf,axi,count,cmaps,pie_row=frac_df.loc[pie_idx],
                         cbar_flag=cbar_flag,**plot_params)
         else:
-            statsig_map(gdf,axi,count,cmaps,title=title,pie_row=frac_df.loc[pie_idx],**plot_params)
+            statsig_map(gdf,axi,count,cmaps,pie_row=frac_df.loc[pie_idx],**plot_params)
         
     return axs
