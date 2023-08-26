@@ -1,20 +1,20 @@
 
 # Define directories
 
-calcdir = '/global/home/users/ann_scheliga/globalTWStrends/GRACEFO/'
+func_dir = '/global/home/users/ann_scheliga/CYGNSS-GRACE/codebase/'
 
 # In[49]:
 
 # Import packages
 import os
+import sys
 import pandas as pd
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 import geopandas as gpd
 
-os.chdir(calcdir)
-import dry_wet_areas as dw_funcs
+import area_calcs
 
 
 # In[3]:
@@ -101,11 +101,11 @@ def statsig_map(input_gdf,ax,count,cmaps="BrBG",pie_row = [],cbar_flag='', pcut 
 
     Outputs
     -------
-
+    None
     """
     # Left over from SLR project. I don't think this section is necessary?
-    # dry_df , dry_bool = dw_funcs.stat_check(input_gdf,'dry',pcut)
-    # wet_df , wet_bool = dw_funcs.stat_check(input_gdf,'wet',pcut)
+    # dry_df , dry_bool = area_calcs.stat_check(input_gdf,'dry',pcut)
+    # wet_df , wet_bool = area_calcs.stat_check(input_gdf,'wet',pcut)
     # plot_bool = dry_bool + wet_bool
 
     if 'hor' in cbar_flag.lower():
@@ -186,7 +186,7 @@ def tri_figuremap(input_3gdfs,cmaps="BrBG", n_rows = 3, n_cols = 1, cbar_flag = 
             area_calc_type = 'wet_dry'
         elif cmaps == "RdBu":
             area_calc_type = 'pos_neg'
-        frac_df, __ = dw_funcs.area_frac_calc(input_3gdfs,
+        frac_df, __ = area_calcs.area_frac_calc(input_3gdfs,
                    pcut,
                    area_calc_type)
     else:
