@@ -1,11 +1,3 @@
-# In[1]:
-
-
-## Define directories
-
-helpdir = '/global/home/users/ann_scheliga/time_series_metrics_pipeline/'
-
-
 # In[2]:
 
 
@@ -15,7 +7,6 @@ import pandas as pd
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
-import geopandas as gpd
 
 # In[3]:
 
@@ -88,10 +79,10 @@ def pos_neg_area_calc(input_df,pcut):
 # In[55]:
 
 
-def area_frac_calc(metrics_3dfs,pcut,label_type=['pos','neg'],idx_labels=[0,1,2]):
+def area_frac_calc(metrics_3dfs,pcut,col_labels=['pos','neg'],idx_labels=[0,1,2]):
     """
     Wrapper function
-    Provide fractional and total land area with a statisticaly significant trend for three input datasets.
+    Provides fractional and total land area with a statisticaly significant trend for three input datasets.
 
     Long Description
     ----------------
@@ -99,27 +90,32 @@ def area_frac_calc(metrics_3dfs,pcut,label_type=['pos','neg'],idx_labels=[0,1,2]
     Inputs
     ------
     metrics_3dfs : list of DataFrames
-        must have 3 dataframes
+        must have 3 dataframes in list
+        each dataframe must contain a 'slope', 'p-value', and 'area' column
     pcut : float
         p-value cutoff to determine statistically-significant slopes
-    label_type : list
-        default = 'pos_neg'
-        column labels
+    col_labels : list
+        default = ['pos','neg']
+        first two column labels of output dataframe
+    idx_labels : list
+        default = [0,1,2]
+
+    Outputs
+    -------
+    frac_df : Pandas DataFrame
+        3x3 dataframe containing positive, negative, and non-significant trend areas as fraction of total area
+    frac_df, km2_df : Pandas DataFrame
+        3x3 dataframe containing positive, negative, and non-significant trend areas in units of square kilometers 
     """
-    if 'wet_dry' in label_type:
-        col_labels = ['wet','dry']
-        idx_labels = ['FO','DA','OL']
-    elif 'pos_neg' in label_type:
-        col_labels = ['pos','neg']
-        idx_labels = ['FOOL','DAOL','FODA']
-    FO_poskm2 , FO_negkm2 = pos_neg_area_calc(metrics_3dfs[0],pcut)
-    DA_poskm2 , DA_negkm2 = pos_neg_area_calc(metrics_3dfs[1],pcut)
-    OL_poskm2 , OL_negkm2 = pos_neg_area_calc(metrics_3dfs[2],pcut)
-
-
-    km2_data = [[FO_poskm2 , FO_negkm2],
-                [DA_poskm2 , DA_negkm2],
-                [OL_poskm2 , OL_negkm2]]
+    km2_data = [pos_neg_area_calc(df,pcut) for df in metrics_3dfs]
+    
+    # Back-up version of km2_data calc
+    # pos_area_0 , neg_area_0 = pos_neg_area_calc(metrics_3dfs[0],pcut)
+    # pos_area_1 , neg_area_1 = pos_neg_area_calc(metrics_3dfs[1],pcut)
+    # pos_area_2 , neg_area_2 = pos_neg_area_calc(metrics_3dfs[2],pcut)
+    # km2_data = [[pos_area_0 , neg_area_0],
+    #             [pos_area_1 , neg_area_1],
+    #             [pos_area_2 , neg_area_2]]
     km2_df = pd.DataFrame(km2_data,
                           columns = col_labels,
                           index = idx_labels).astype(int)
@@ -129,9 +125,9 @@ def area_frac_calc(metrics_3dfs,pcut,label_type=['pos','neg'],idx_labels=[0,1,2]
     area_cols = [[df.columns.get_loc(col) for col in df.columns if 'area' in col][0] for df in metrics_3dfs]
     
     # divide km2 values by total area
-    frac_data = [[FO_poskm2 , FO_negkm2]/(metrics_3dfs[0].iloc[:,area_cols[0]].sum()),
-            [DA_poskm2 , DA_negkm2]/metrics_3dfs[1].iloc[:,area_cols[1]].sum(),
-            [OL_poskm2 , OL_negkm2]/metrics_3dfs[2].iloc[:,area_cols[2]].sum()]
+    frac_data = [km2_data.iloc[0,:]/(metrics_3dfs[0].iloc[:,area_cols[0]].sum()),
+            km2_data.iloc[1,:]/metrics_3dfs[1].iloc[:,area_cols[1]].sum(),
+            km2_data.iloc[2,:]/metrics_3dfs[2].iloc[:,area_cols[2]].sum()]
     # Add in non-significant fraction
     full_frac_data = [np.append(arr , 1-np.sum(arr)) for arr in frac_data]
     
