@@ -14,6 +14,35 @@ def _object2float(*inputs):
 def normalize(df):
     return (df-df.mean())/df.std()
 
+def toYearFraction(date):
+    """
+    Convert date-time objects to deciml year
+
+    Inputs
+    ------
+    date : date object
+
+    Outputs
+    -------
+    decYear : float
+    """
+    from datetime import datetime as dt
+    import time
+    def sinceEpoch(date): # returns seconds since epoch
+        return time.mktime(date.timetuple())
+    s = sinceEpoch
+
+    year = date.year
+    startOfThisYear = dt(year=year, month=1, day=1)
+    startOfNextYear = dt(year=year+1, month=1, day=1)
+
+    yearElapsed = s(date) - s(startOfThisYear)
+    yearDuration = s(startOfNextYear) - s(startOfThisYear)
+    fraction = yearElapsed/yearDuration
+
+    decYear = date.year + fraction
+    return decYear
+
 def linregress_wrap(x_input,y_input_df):
     """
     Run linear regression on each pixel/mascon time series and return metrics of interest.
