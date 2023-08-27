@@ -3,8 +3,6 @@
 
 func_dir = '/global/home/users/ann_scheliga/CYGNSS-GRACE/codebase/'
 
-# In[49]:
-
 # Import packages
 import os
 import sys
@@ -15,9 +13,6 @@ import numpy as np
 import geopandas as gpd
 
 import area_calcs
-
-
-# In[3]:
 
 def pie_from_series(row,axi,cmaps="BrBG"):
     """
@@ -54,10 +49,6 @@ def pie_from_series(row,axi,cmaps="BrBG"):
             wedgeprops = {"edgecolor" : "black",
                           "linewidth": 1,
                           'antialiased': True})
-
-
-# In[124]:
-
 
 def statsig_map(input_gdf,ax,count,cmaps="BrBG",pie_row = [],cbar_flag='', pcut = 0.01,**plot_params):
     """
@@ -97,6 +88,8 @@ def statsig_map(input_gdf,ax,count,cmaps="BrBG",pie_row = [],cbar_flag='', pcut 
             'x_labels' : list of strings
             'y_labels' : list of strings
             'legend_label' : str
+            'vmin' : float
+            'vmax' : float
         for dictionary values formatted as lists, the count parameter selects from the list
 
     Outputs
@@ -107,6 +100,16 @@ def statsig_map(input_gdf,ax,count,cmaps="BrBG",pie_row = [],cbar_flag='', pcut 
     # dry_df , dry_bool = area_calcs.stat_check(input_gdf,'dry',pcut)
     # wet_df , wet_bool = area_calcs.stat_check(input_gdf,'wet',pcut)
     # plot_bool = dry_bool + wet_bool
+
+    if 'vmin' in plot_params:
+        commin = plot_params['vmin']
+    else:
+        commin = None
+
+    if 'vmax' in plot_params:
+        commax = plot_params['vmax']
+    else:
+        commax = None
 
     if 'hor' in cbar_flag.lower():
         input_gdf.plot('slope',cmaps,vmin=commin,vmax=commax,ax=ax,legend=True,
@@ -129,9 +132,6 @@ def statsig_map(input_gdf,ax,count,cmaps="BrBG",pie_row = [],cbar_flag='', pcut 
     if pie_row.any():
         small = ax.inset_axes([0.05 , 0.1 , 0.13 , 0.26])
         pie_from_series(pie_row,small,cmaps)
-
-# In[131]:
-
 
 def tri_figuremap(input_3gdfs,cmaps="BrBG", n_rows = 3, n_cols = 1, cbar_flag = 'hor',pcut = 0.01, **plot_params):
     """
