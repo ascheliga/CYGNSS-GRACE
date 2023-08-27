@@ -50,7 +50,7 @@ def pie_from_series(row,axi,cmaps="BrBG"):
                           "linewidth": 1,
                           'antialiased': True})
 
-def statsig_map(input_gdf,ax,count,cmaps="BrBG",pie_row = [],cbar_flag='', pcut = 0.01,**plot_params):
+def statsig_map(input_gdf,ax,count,cmaps="BrBG",pie_row = [],cbar_flag='', **plot_params):
     """
     Plots a map of slope values with an option for a pie chart inset.
 
@@ -67,7 +67,7 @@ def statsig_map(input_gdf,ax,count,cmaps="BrBG",pie_row = [],cbar_flag='', pcut 
         index/count of the map within a for loop
         used for indexing plot_params
         if statsig_map not used within a for loop, try setting count to 0
-    cmaps : Colormap name
+    cmaps : Colormap name or Colomap object
         default = 'BrBG'
         name of a Matplotlib-accepted Colormap name
         will use the 90th and 10th percentiles of the colormap
@@ -79,8 +79,6 @@ def statsig_map(input_gdf,ax,count,cmaps="BrBG",pie_row = [],cbar_flag='', pcut 
         default = ''
         determines if colorbar on map is vertical or horizontal
         looks for 'ver' or 'hor' in the string, respectively
-    pcut = 0.01
-        Leftover from SLR project, not used
     **plot_params : dict
         dictionary of plot formatting options and labels
         Keys used:
@@ -96,29 +94,29 @@ def statsig_map(input_gdf,ax,count,cmaps="BrBG",pie_row = [],cbar_flag='', pcut 
     -------
     None
     """
-    # Left over from SLR project. I don't think this section is necessary?
-    # dry_df , dry_bool = area_calcs.stat_check(input_gdf,'dry',pcut)
-    # wet_df , wet_bool = area_calcs.stat_check(input_gdf,'wet',pcut)
-    # plot_bool = dry_bool + wet_bool
+    # Create colormap
+    if isinstance(cmaps, str):
+        cmap = mpl.cm.get_cmap(cmaps)
 
+    # Pull colormap bounds
     if 'vmin' in plot_params:
         commin = plot_params['vmin']
     else:
         commin = None
-
     if 'vmax' in plot_params:
         commax = plot_params['vmax']
     else:
         commax = None
 
+    # Plot
     if 'hor' in cbar_flag.lower():
-        input_gdf.plot('slope',cmaps,vmin=commin,vmax=commax,ax=ax,legend=True,
+        input_gdf.plot('slope',cmap,vmin=commin,vmax=commax,ax=ax,legend=True,
                         legend_kwds={'label': plot_params['legend_label'],'orientation': "horizontal"})
     elif 'ver' in cbar_flag.lower():
-        input_gdf.plot('slope',cmaps,vmin=commin,vmax=commax,ax=ax,legend=True,
+        input_gdf.plot('slope',cmap,vmin=commin,vmax=commax,ax=ax,legend=True,
                         legend_kwds={'label': plot_params['legend_label'],'orientation': "vertical"})
     else:
-        input_gdf.plot('slope',cmaps,vmin=commin,vmax=commax,ax=ax)
+        input_gdf.plot('slope',cmap,vmin=commin,vmax=commax,ax=ax)
 
     # Go through plotting parameters
     if 'titles' in plot_params:
@@ -129,7 +127,7 @@ def statsig_map(input_gdf,ax,count,cmaps="BrBG",pie_row = [],cbar_flag='', pcut 
         ax.set_ylabel(plot_params['y_labels'][count])
     ax.set_facecolor('grey')
     
-    if pie_row.any():
+    if len(pie_row) != 0:
         small = ax.inset_axes([0.05 , 0.1 , 0.13 , 0.26])
         pie_from_series(pie_row,small,cmaps)
 
