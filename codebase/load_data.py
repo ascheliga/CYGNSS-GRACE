@@ -5,7 +5,7 @@ def load_CYGNSS_05(cygnss_filename = 'CYGNSS_watermask_0_5_with_lakes.nc',
     sys.path.append(xarray_loc)
     import xarray as xr
     import matplotlib.pyplot as plt
-    cygnss_raw = xr.open_dataset(cygnss_filepath+cygnss_filename, decode_times=False)
+    cygnss_raw = xr.open_dataset(cygnss_filepath+cygnss_filename,decode_coords='all', decode_times=False)
     fw=cygnss_raw['fw']
     return fw
 
