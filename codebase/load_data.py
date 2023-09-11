@@ -136,6 +136,12 @@ def load_GRanD(GRanD_filename = 'GRanD_reservoirs_v1_3.shp',
     res_shp = gpd.read_file(GRanD_filepath + GRanD_filename)
     return res_shp
 
+def load_IMERG(imerg_filename = 'IMERG_allmonths_201801_202304_xr.nc',
+    imerg_filepath = '/global/scratch/users/ann_scheliga/IMERG_monthly_data/'):
+    import xarray as xr
+    imerg_raw = xr.open_dataarray(imerg_filepath+'IMERG_allmonths_201801_202304_xr.nc')
+    return imerg_raw
+
 if __name__ == '__main__':
-    test = load_GRACE()
+    test = load_IMERG()
     print(test)
