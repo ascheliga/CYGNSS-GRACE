@@ -115,7 +115,11 @@ class TimeSeriesMetrics:
         self.ts_detrend = pd.Series(np.squeeze(_detrended_ts.astype(float)),index = self.ts.index.fillna(0))
         self.lintrend_metrics = _ts_linmetrics.iloc[0]
     def cross_corr(self,comparison_ts):
-        assert len(self.ts_detrend) == len(comparison_ts) , 'Mismatch in length of time series'
+        if 'TimeSeriesMetrics' in str(type(comparison_ts)):
+            _y = comparison_ts.ts_detrend
+        else:
+            _y = comparison_ts
+        assert len(self.ts_detrend) == len(_y) , 'Mismatch in length of time series'
         x_mask = ~np.isnan(self.ts_detrend)
         _x = self.ts_detrend[x_mask]
         _y = comparison_ts[x_mask.values]
@@ -192,5 +196,5 @@ class TimeSeriesMetrics:
         y.loc[~x_mask] = np.nan
         if norm:
             y = normalize(y)
-        y = y.zero_start()
+        # y = y.zero_start()
         ax.plot(y,**plot_kwargs)
