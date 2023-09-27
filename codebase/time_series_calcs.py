@@ -77,6 +77,45 @@ def linregress_wrap(x_input,y_input_df):
         output_df.loc[mascon] = stats.linregress(x_input,y_input_df[mascon])
     return output_df    
 
+def intersecting_timeframes(*series,buffer=1):
+    """
+    Slice multiple time series down to a shared timespan.
+
+    Long description
+    ----------------
+    Uses pandas.DateOffset to apply buffer
+    Finds the start and stop date (with buffer) of each input series,
+    then subsets to the maximum start and the minimum stop.
+    First made for res_time_series.ipynb
+
+    Inputs
+    ------
+    *series : variable number of pd.Series
+        time series to subset
+        must have Timestamp indices
+    buffer : int
+        default = 1
+        number of months to extend each time series
+
+    Outputs
+    -------
+    cropped_series_list : list
+        all *series cropped to shared timeframe
+        in the same order as the inputs
+    """
+    series_start_list = [None] *  len(series)
+    series_stop_list = [None] *  len(series)
+    for idx , ts in enumerate(series):
+        series_start_list[idx] = ts.index.min() + pd.DateOffset(months=-buffer)
+        series_stop_list[idx] = ts.index.max() + pd.DateOffset(months=buffer)
+
+    combined_start = max(series_start_list)
+    combined_stop = min(series_stop_list)
+
+    cropped_series_list = [None] * len(series)
+    for idx , ts in enumerate(series):
+        cropped_series_list[idx] = ts.loc[(ts.index >= combined_start) & (ts.index <= combined_stop)]
+    return cropped_series_list
 class TimeSeriesMetrics:
     """
     Calculate various metrics on a single time series input as a Pandas Series
