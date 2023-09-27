@@ -1,8 +1,21 @@
 def load_CYGNSS_05(cygnss_filename = 'CYGNSS_watermask_0_5_with_lakes.nc',
     cygnss_filepath = '/global/scratch/users/cgerlein/fc_ecohydrology_scratch/CYGNSS/Data/CYGNSS_L1_v3_1_data_products/Monthly_maps_watermasks_glob_netCDF/WetCHARTs_size_0_5_deg/',
-    xarray_loc = '/global/home/users/ann_scheliga/.local/lib/python3.7/site-packages/xarray'):
+    # xarray_loc = '/global/home/users/ann_scheliga/.local/lib/python3.7/site-packages/xarray'
+    ):
+    """
+    Inputs
+    ------
+    cygnss_filename : str
+        default = 'CYGNSS_watermask_0_5_with_lakes.nc'
+    cygnss_filepath : str
+        default = '/global/scratch/users/cgerlein/fc_ecohydrology_scratch/CYGNSS/Data/CYGNSS_L1_v3_1_data_products/Monthly_maps_watermasks_glob_netCDF/WetCHARTs_size_0_5_deg/'
+    
+    Outputs
+    -------
+    fw : xarray.DataArray
+    """
     import sys
-    sys.path.append(xarray_loc)
+    # sys.path.append(xarray_loc)
     import xarray as xr
     import matplotlib.pyplot as plt
     cygnss_raw = xr.open_dataset(cygnss_filepath+cygnss_filename,decode_coords='all', decode_times=False)
@@ -138,6 +151,18 @@ def load_GRanD(GRanD_filename = 'GRanD_reservoirs_v1_3.shp',
 
 def load_IMERG(imerg_filename = 'IMERG_allmonths_201801_202304_xr.nc',
     imerg_filepath = '/global/scratch/users/ann_scheliga/IMERG_monthly_data/'):
+    """
+    Inputs
+    ------
+    imerg_filename : str
+        default = 'IMERG_allmonths_201801_202304_xr.nc'
+    imerg_filepath : str
+        default = '/global/scratch/users/ann_scheliga/IMERG_monthly_data/'
+    
+    Outputs
+    -------
+    imerg_raw : xarray.DataArray
+    """
     import xarray as xr
     imerg_raw = xr.open_dataarray(imerg_filepath+'IMERG_allmonths_201801_202304_xr.nc')
     return imerg_raw
