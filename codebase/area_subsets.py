@@ -1,4 +1,4 @@
-def reservoir_name_to_point(dam_name,idx = 0):
+def reservoir_name_to_point(dam_name,res_shp,idx = 0):
     """
     Must have already run: `res_shp = load_data.load_GRanD()`
 
@@ -29,7 +29,7 @@ def reservoir_name_to_point(dam_name,idx = 0):
         print('idx input too large. idx =',idx, 'for',n_rows, 'total dam rows')
     coords_oi = tuple(np.array(res_shp.loc[dam_row,['LAT_DD','LONG_DD']])[0])
     return coords_oi
-def grace_point_subset(coords_i,buffer=0):
+def grace_point_subset(coords_i,grace_dict,buffer=0):
     """
     Must have already run: `grace_dict = load_data.load_GRACE()`
     
@@ -66,13 +66,14 @@ def grace_point_subset(coords_i,buffer=0):
     mascon_i = grace_dict['mascon'].loc[range_bool]
     cmwe_i = grace_dict['cmwe'].loc[mascon_i.index].squeeze()
     return cmwe_i , mascon_i
-def precip_point_subset(coords_i):
+def precip_point_subset(coords_i,precip):
     """
     Must have already run: `precip = load_data.load_IMERG()`
     
     Inputs
     ------
     coords_i: tuple of (lat,lon)
+    precip : xarray 
 
     Outputs
     -------
@@ -85,13 +86,15 @@ def precip_point_subset(coords_i):
         # Time = seconds since 1980 Jan 06 (UTC), per original HDF5 IMERG file units
     precip_ts = pd.Series(data=precip_xr,index=dates_precip)
     return precip_ts
-def cygnss_point_subset(coords_i):
+def cygnss_point_subset(coords_i,fw):
     """
-    Must have already run: `fw = load_data.load_CYGNSS_05()`
-        
+
+
     Inputs
     ------
     coords_i: tuple of (lat,lon)
+    fw : xarray
+        from fw = load_data.load_CYGNSS_05()
 
     Outputs
     -------
