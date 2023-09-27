@@ -18,6 +18,7 @@ def reservoir_name_to_point(dam_name,res_shp,idx = 0):
         form of (latitude , longitude)
         the given lat and lon values of the reservoir in the dataset
     """
+    import numpy as np
     dam_row = (res_shp['DAM_NAME'].str.lower())==(dam_name.lower())
     n_rows = dam_row.sum()
     if n_rows == 0:
