@@ -80,6 +80,8 @@ def precip_point_subset(coords_i,precip):
     precip_ts : Pandas Series
         IMERG timeseries with datetime object index
     """
+    import numpy as np
+    import pandas as pd
     # Select data
     precip_xr = precip.sel(lat=coords_i[0],lon=coords_i[1],method='nearest')
     dates_precip = np.array(list(map(lambda x: pd.Timestamp('1980-01-06') + pd.DateOffset(seconds=x),precip_xr['time'].values)))
@@ -101,6 +103,8 @@ def cygnss_point_subset(coords_i,fw):
     precip_ts : Pandas Series
         CYGNSS timeseries with datetime object index
     """
+    import numpy as np
+    import pandas as pd
     # Select data
     fw_xr = fw.sel(lat=coords_i[0],lon=coords_i[1],method='nearest')
     dates_fw = np.array(list(map(lambda x: pd.Timestamp('2018-08-01') + pd.DateOffset(months=x),fw_xr['time'])))
