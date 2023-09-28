@@ -107,8 +107,8 @@ def load_GRACE(grace_filename = 'gsfc.glb_.200204_202211_rl06v2.0_obp-ice6gd.h5'
     if formatting:
         cmwe.columns = date_df['date_middle']
         cmwe.index = mascon_df['labels'].astype(int)
-    cmwe_gpd = gpd.GeoDataFrame(data=cmwe,geometry=coord_geom.values,crs="EPSG:4326")
-    grace_dict['cmwe'] = cmwe_gpd
+    # cmwe_gpd = gpd.GeoDataFrame(data=cmwe,geometry=coord_geom.values,crs="EPSG:4326")
+    grace_dict['cmwe'] = cmwe
 
     # UNCERTAINTY #
     if uncertainty:
