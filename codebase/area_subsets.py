@@ -1,3 +1,12 @@
+def check_for_multiple_dams(dam_name,res_shp):
+    dam_row = (res_shp['DAM_NAME'].str.lower())==(dam_name.lower())
+    n_rows = dam_row.sum()
+    if n_rows == 0:
+        print('Dam name not found')
+    elif n_rows > 1:
+        print('Dam name',dam_name,'is redundant.',n_rows,'entires found.')
+        dam_row = dam_row[dam_row]
+    return dam_row
 def reservoir_name_to_point(dam_name,res_shp,idx = 0):
     """
     Must have already run: `res_shp = load_data.load_GRanD()`
@@ -30,7 +39,7 @@ def reservoir_name_to_point(dam_name,res_shp,idx = 0):
         print('idx input too large. idx =',idx, 'for',n_rows, 'total dam rows')
     coords_oi = tuple(np.array(res_shp.loc[dam_row,['LAT_DD','LONG_DD']])[0])
     return coords_oi
-def grace_point_subset(coords_i,grace_dict,buffer=0):
+def grace_point_subset(coords_i,grace_dict,buffer_val=0):
     """
     Must have already run: `grace_dict = load_data.load_GRACE()`
     
@@ -38,7 +47,7 @@ def grace_point_subset(coords_i,grace_dict,buffer=0):
     ------
     coords_i: tuple of (lat,lon)
 
-    buffer : float
+    buffer_val : float
         default = 0
         units of decimal degrees
         the extra length to extend the subset in a square from the central coordinate
@@ -54,12 +63,12 @@ def grace_point_subset(coords_i,grace_dict,buffer=0):
     lat = coords_i[0]
     lon = coords_i[1]
     # Check if within longitude range
-    lat_max = grace_dict['mascon']['lat_center'] + grace_dict['mascon']['lat_span']/2 + buffer
-    lat_min = grace_dict['mascon']['lat_center'] - grace_dict['mascon']['lat_span']/2 - buffer
+    lat_max = grace_dict['mascon']['lat_center'] + grace_dict['mascon']['lat_span']/2 + buffer_val
+    lat_min = grace_dict['mascon']['lat_center'] - grace_dict['mascon']['lat_span']/2 - buffer_val
     lat_range = (lat>=lat_min) * (lat <= lat_max)
     # Check if within latitude range
-    lon_max = grace_dict['mascon']['lon_center'] + grace_dict['mascon']['lon_span']/2 + buffer
-    lon_min = grace_dict['mascon']['lon_center'] - grace_dict['mascon']['lon_span']/2 - buffer
+    lon_max = grace_dict['mascon']['lon_center'] + grace_dict['mascon']['lon_span']/2 + buffer_val
+    lon_min = grace_dict['mascon']['lon_center'] - grace_dict['mascon']['lon_span']/2 - buffer_val
     lon_range = (lon>=lon_min) * (lon <= lon_max)
     
     range_bool = lat_range * lon_range
@@ -113,3 +122,10 @@ def cygnss_point_subset(coords_i,fw):
     dates_fw = np.array(list(map(lambda x: pd.Timestamp('2018-08-01') + pd.DateOffset(months=x),fw_xr['time'])))
     fw_ts = pd.Series(data=fw_xr,index=dates_fw)
     return fw_ts
+def grace_shape_subset(dam_name,res_shp,grace_dict,buffer_val=0):
+    shape_row = check_for_multiple_dams(dam_name,res_shp)
+    shape_poly = shape_row['geometry'].buffer(buffer_val).values[0]
+    bool_series = grace_dict['mascon'].intersects(shape_poly)
+    subsetted_mascon = grace_dict['mascon'][bool_series]
+    subsetted_cmwe = grace_dict['cmwe'][bool_series]
+    return subsetted_cmwe , subsetted_mascon
