@@ -5,8 +5,7 @@ def check_for_multiple_dams(dam_name,res_shp):
         print('Dam name not found')
     elif n_rows > 1:
         print('Dam name',dam_name,'is redundant.',n_rows,'entires found.')
-        dam_row = dam_row[dam_row]
-    return dam_row
+    return res_shp[dam_row]
 def reservoir_name_to_point(dam_name,res_shp,idx = 0):
     """
     Must have already run: `res_shp = load_data.load_GRanD()`
