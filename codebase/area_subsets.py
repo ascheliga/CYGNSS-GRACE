@@ -213,7 +213,7 @@ def cygnss_shape_subset(dam_name,res_shp,input_xr,buffer_val=0,crs_code = 4326):
     fw_subset_xr = xr_shape_subset(dam_name,res_shp,input_xr,buffer_val,crs_code)
 
     fw_dates = time_series_calcs.CYGNSS_timestep_to_pdTimestamp(fw_subset_xr['time'])
-    fw_agg = pd.Series(data=fw_subset_xr.mean(dim=['lat','lon']) , index = fw_dates)
+    fw_agg_series = pd.Series(data=fw_subset_xr.mean(dim=['lat','lon']) , index = fw_dates)
     return fw_subset_xr , fw_agg_series
 
 def precip_shape_subset(dam_name,res_shp,input_xr,buffer_val=0,crs_code = 4326):
@@ -225,5 +225,5 @@ def precip_shape_subset(dam_name,res_shp,input_xr,buffer_val=0,crs_code = 4326):
     precip_subset_xr = xr_shape_subset(dam_name,res_shp,input_xr,buffer_val,crs_code)
 
     precip_dates = time_series_calcs.IMERG_timestep_to_pdTimestamp(precip_subset_xr['time'])
-    precip__agg_series = pd.Series(data=precip_subset_xr.sum(dim=['lat','lon']) , index = precip_dates)
+    precip_agg_series = pd.Series(data=precip_subset_xr.sum(dim=['lat','lon']) , index = precip_dates)
     return precip_subset_xr , precip_agg_series
