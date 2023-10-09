@@ -154,13 +154,14 @@ def grace_shape_subset(dam_name,res_shp,grace_dict,buffer_val=0):
     subsetted_cmwe_agg : pd.Series
         areal-weighted average of subsetted_cmwe
     """
+    import area_calcs
     shape_row = check_for_multiple_dams(dam_name,res_shp)
     shape_poly = shape_row['geometry'].buffer(buffer_val).values[0]
     bool_series = grace_dict['mascon'].intersects(shape_poly)
     subsetted_mascon = grace_dict['mascon'][bool_series]
     subsetted_cmwe = grace_dict['cmwe'][bool_series]
 
-    subsetted_cmwe_agg = area_calcs.GRACE_areal_average(cmwe_full_multi , mascon_ts)
+    subsetted_cmwe_agg = area_calcs.GRACE_areal_average(subsetted_cmwe , subsetted_mascon)
 
     return subsetted_cmwe , subsetted_mascon , subsetted_cmwe_agg
 def xr_shape_subset(dam_name,res_shp,input_xr,buffer_val=0,crs_code = 4326):
