@@ -98,9 +98,10 @@ def precip_point_subset(coords_i,precip):
     """
     import numpy as np
     import pandas as pd
+    import time_series_calcs
     # Select data
     precip_xr = precip.sel(lat=coords_i[0],lon=coords_i[1],method='nearest')
-    dates_precip = np.array(list(map(lambda x: pd.Timestamp('1980-01-06') + pd.DateOffset(seconds=x),precip_xr['time'].values)))
+    dates_precip = time_series_calcs.IMERG_timestep_to_pdTimestamp(precip_xr['time'])
         # Time = seconds since 1980 Jan 06 (UTC), per original HDF5 IMERG file units
     precip_ts = pd.Series(data=precip_xr,index=dates_precip)
     return precip_ts
@@ -123,7 +124,7 @@ def cygnss_point_subset(coords_i,fw):
     import pandas as pd
     # Select data
     fw_xr = fw.sel(lat=coords_i[0],lon=coords_i[1],method='nearest')
-    dates_fw = np.array(list(map(lambda x: pd.Timestamp('2018-08-01') + pd.DateOffset(months=x),fw_xr['time'])))
+    dates_fw = time_series_calcs.CYGNSS_timestep_to_pdTimestamp(fw_xr['time'])
     fw_ts = pd.Series(data=fw_xr,index=dates_fw)
     return fw_ts
 def grace_shape_subset(dam_name,res_shp,grace_dict,buffer_val=0):

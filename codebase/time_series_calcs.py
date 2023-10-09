@@ -54,7 +54,7 @@ def IMERG_timestep_to_pdTimestamp(input_xrcoord):
     dates_precip = np.array(list(map(lambda x: pd.Timestamp('1980-01-06') + pd.DateOffset(seconds=x),input_xrcoord.values)))
     return dates_precip
 
-def CYGNYSS_timestep_to_pdTimestamp(input_xrcoord):
+def CYGNSS_timestep_to_pdTimestamp(input_xrcoord):
     """
     Convert xr array of CYGNSS timestep numbers to an array Pandas Timestamp objects
 
