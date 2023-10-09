@@ -139,3 +139,18 @@ def area_frac_calc(metrics_3dfs,pcut,col_labels=['pos','neg'],idx_labels=[0,1,2]
 
     print('\nFraction of total land\n---\n',frac_df)
     return frac_df, km2_df
+
+def GRACE_areal_average(input_cmwe,input_mascon):
+    """
+    Calculate the weighted average from given cmwe and mascons
+
+    Inputs
+    ------
+    input_cmwe : pd.DataFrame
+        GRACE cmwe solutions
+        each row is a mascon, each column is a timestep
+    input_mascon : pd.DataFrame
+        GRACE mascon metadata with a column called 'area_km2'
+    """
+    areal_average = input_cmwe.mul(input_mascon['area_km2'],axis='index').sum(axis=0)/(input_mascon['area_km2'].sum())
+    return areal_average
