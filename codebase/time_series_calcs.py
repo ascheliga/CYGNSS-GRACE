@@ -43,6 +43,28 @@ def toYearFraction(date):
     decYear = date.year + fraction
     return decYear
 
+def IMERG_timestep_to_pdTimestamp(input_xrcoord):
+    """
+    Convert xr array of IMERG timestep numbers to an array Pandas Timestamp objects
+
+    Timestep  = seconds since 1980 Jan 06 (UTC), per original HDF5 IMERG file units
+    """
+    import numpy as np
+    import pandas as pd
+    dates_precip = np.array(list(map(lambda x: pd.Timestamp('1980-01-06') + pd.DateOffset(seconds=x),input_xrcoord.values)))
+    return dates_precip
+
+def CYGNYSS_timestep_to_pdTimestamp(input_xrcoord):
+    """
+    Convert xr array of CYGNSS timestep numbers to an array Pandas Timestamp objects
+
+    Timestep  = months since 2018 Aug 01 (UTC)
+    """
+    import numpy as np
+    import pandas as pd
+    dates_fw = np.array(list(map(lambda x: pd.Timestamp('2018-08-01') + pd.DateOffset(months=x),input_xrcoord)))
+    return dates_fw
+
 def linregress_wrap(x_input,y_input_df):
     """
     Run linear regression on each pixel/mascon time series and return metrics of interest.
