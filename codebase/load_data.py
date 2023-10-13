@@ -18,7 +18,36 @@ def load_CYGNSS_05(cygnss_filename = 'CYGNSS_watermask_0_5_with_lakes.nc',
     cygnss_raw = xr.open_dataset(cygnss_filepath+cygnss_filename,decode_coords='all', decode_times=False)
     fw=cygnss_raw['fw']
     return fw
-
+def load_CYGNSS_001_1month(filename,
+    bbox_vals,
+    filepath='/global/scratch/users/cgerlein/fc_ecohydrology_scratch/CYGNSS/Data/CYGNSS_L1_v3_1_data_products/Monthly_maps_watermasks_glob_netCDF/Native_size_0_01_deg/With_lakes/'
+    ):
+    """
+    """
+    import xarray as xr
+    import rioxarray
+    global_xrDS = xr.open_dataset(filepath+filename, decode_times=False)
+    global_rxr = global_xrDS['Watermask'].rio.write_crs(4326)
+    del global_xrDS
+    global_rxr.rio.set_spatial_dims('lon','lat',inplace=True)
+    clipped_rxr = global_rxr.rio.clip_box(*bbox_vals)
+    del global_rxr
+    return clipped_rxr
+def load_CYGNSS_001_all_months(bbox_vals,
+    filepath='/global/scratch/users/cgerlein/fc_ecohydrology_scratch/CYGNSS/Data/CYGNSS_L1_v3_1_data_products/Monthly_maps_watermasks_glob_netCDF/Native_size_0_01_deg/With_lakes/'
+    ):
+    """
+    """
+    import os
+    import numpy as np
+    import xarray as xr
+    import pandas as pd
+    filenames = os.listdir(filepath)
+    filenames.sort()
+    list_of_xr = [read_CYGNSS_01_1month(filename,test_bbox) for filename in filenames]
+    time_idx = np.arange(len(filenames))
+    cygnss_allmonths_xr = xr.concat(list_of_xr,pd.Index(time_idx , name='time'),combine_attrs="drop_conflicts")
+    return cygnss_allmonths_xr
 def load_GRACE(grace_filename = 'gsfc.glb_.200204_202211_rl06v2.0_obp-ice6gd.h5',
     grace_filepath = '/global/scratch/users/ann_scheliga/',
     land_subset = True,
