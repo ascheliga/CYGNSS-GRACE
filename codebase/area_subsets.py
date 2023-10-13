@@ -127,16 +127,12 @@ def cygnss_point_subset(coords_i,fw):
     dates_fw = time_series_calcs.CYGNSS_timestep_to_pdTimestamp(fw_xr['time'])
     fw_ts = pd.Series(data=fw_xr,index=dates_fw)
     return fw_ts
-def grace_shape_subset(dam_name,res_shp,grace_dict,buffer_val=0):
+def grace_shape_subset(subset_gpd,grace_dict,buffer_val=0):
     """
     Inputs
     ------
-    dam_name : str
-        name of dam in dataset
-    res_shp : GeoPandas GeoDataFrame
-        from `load_data.load_GRanD()` function
-        dataset of GRanD reservoirs
-        used to subset grace_dict mascons
+    subset_gpd : GeoPandas GeoDataFrame
+        row(s) of item(s) to subset the GRACE mascons
     grace_dict : dictionary of GRACE TWS info
         from `load_data.load_GRACE()`
         uses grace_dict 'mascon' and 'cmwe' keys
@@ -155,8 +151,8 @@ def grace_shape_subset(dam_name,res_shp,grace_dict,buffer_val=0):
         areal-weighted average of subsetted_cmwe
     """
     import area_calcs
-    shape_row = check_for_multiple_dams(dam_name,res_shp)
-    shape_poly = shape_row['geometry'].buffer(buffer_val).values[0]
+
+    shape_poly = subset_gpd['geometry'].buffer(buffer_val).unary_union
     bool_series = grace_dict['mascon'].intersects(shape_poly)
     subsetted_mascon = grace_dict['mascon'][bool_series]
     subsetted_cmwe = grace_dict['cmwe'][bool_series]
@@ -164,16 +160,12 @@ def grace_shape_subset(dam_name,res_shp,grace_dict,buffer_val=0):
     subsetted_cmwe_agg = area_calcs.GRACE_areal_average(subsetted_cmwe , subsetted_mascon)
 
     return subsetted_cmwe , subsetted_mascon , subsetted_cmwe_agg
-def xr_shape_subset(dam_name,res_shp,input_xr,buffer_val=0,crs_code = 4326):
+def xr_shape_subset(subset_gpd,input_xr,buffer_val=0,crs_code = 4326):
     """
     Inputs
     ------
-    dam_name : str
-        name of dam in dataset
-    res_shp : GeoPandas GeoDataFrame
-        from `load_data.load_GRanD()` function
-        dataset of GRanD reservoirs
-        used to subset input_xr
+    subset_gpd : GeoPandas GeoDataFrame
+        row(s) of item(s) to subset input_xr
     input_xr : xarray DataArray
         must have 'lat' and 'lon' substrings in coord names
     buffer_val : float
@@ -190,7 +182,6 @@ def xr_shape_subset(dam_name,res_shp,input_xr,buffer_val=0,crs_code = 4326):
     clip_rxr : xarray DataArray
         input_xr subset to the input reservoir
     """
-    subset_gpd = check_for_multiple_dams(dam_name,res_shp)
     # Add crs to xr
     full_rxr = input_xr.rio.write_crs(crs_code)
 
@@ -205,25 +196,25 @@ def xr_shape_subset(dam_name,res_shp,input_xr,buffer_val=0,crs_code = 4326):
     clip_rxr = full_rxr.rio.clip(subset_gpd.geometry.buffer(buffer_val) , subset_gpd.crs)
     return clip_rxr
 
-def cygnss_shape_subset(dam_name,res_shp,input_xr,buffer_val=0,crs_code = 4326):
+def cygnss_shape_subset(subset_gpd,input_xr,buffer_val=0,crs_code = 4326):
     """
     Subset CYGNSS DataArray to a reservoir. Calculate and format the average time series
     """
     import time_series_calcs
     import pandas as pd
-    fw_subset_xr = xr_shape_subset(dam_name,res_shp,input_xr,buffer_val,crs_code)
+    fw_subset_xr = xr_shape_subset(subset_gpd,input_xr,buffer_val,crs_code)
 
     fw_dates = time_series_calcs.CYGNSS_timestep_to_pdTimestamp(fw_subset_xr['time'])
     fw_agg_series = pd.Series(data=fw_subset_xr.mean(dim=['lat','lon']) , index = fw_dates)
     return fw_subset_xr , fw_agg_series
 
-def precip_shape_subset(dam_name,res_shp,input_xr,buffer_val=0,crs_code = 4326):
+def precip_shape_subset(subset_gpd,input_xr,buffer_val=0,crs_code = 4326):
     """
     Subset precip DataArray to a reservoir. Calculate and format the summed time series
     """
     import time_series_calcs
     import pandas as pd
-    precip_subset_xr = xr_shape_subset(dam_name,res_shp,input_xr,buffer_val,crs_code)
+    precip_subset_xr = xr_shape_subset(subset_gpd,input_xr,buffer_val,crs_code)
 
     precip_dates = time_series_calcs.IMERG_timestep_to_pdTimestamp(precip_subset_xr['time'])
     precip_agg_series = pd.Series(data=precip_subset_xr.sum(dim=['lat','lon']) , index = precip_dates)
