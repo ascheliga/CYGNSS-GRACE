@@ -1,11 +1,35 @@
-def check_for_multiple_dams(dam_name,res_shp):
+def check_for_multiple_dams(dam_name,res_shp,idx=-1):
+    """
+    Subset reservoir dataset by dam name and select one reservoir if multiple of same name.
+
+    Inputs
+    ------
+    dam_name : str
+        Name of dam in reservoir dataset.
+        Case insensitive
+    res_shp : (Geo)DataFrame
+        DataFrame of reservoirs to subset from.
+        Looks for `dam_name` input in column named 'DAM_NAME'
+    idx : int
+        default = -1
+        if `idx` < 0, then will not subset
+        use to select a specific dam by index if the dam name appears more than once
+        ex: the dam name 'Pelican Lake' appears 4 times in the data. use idx = 3 to get the last occurrence
+
+    Outputs
+    -------
+    subset GeoDataFrame
+    """
     dam_row = (res_shp['DAM_NAME'].str.lower())==(dam_name.lower())
     n_rows = dam_row.sum()
     if n_rows == 0:
         print('Dam name not found')
     elif n_rows > 1:
         print('Dam name',dam_name,'is redundant.',n_rows,'entires found.')
-    return res_shp[dam_row]
+    if idx >= 0:
+        return res_shp[dam_row].iloc[[idx]]
+    else:
+        return res_shp[dam_row]
 def reservoir_name_to_point(dam_name,res_shp,idx = 0):
     """
     Must have already run: `res_shp = load_data.load_GRanD()`

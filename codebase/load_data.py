@@ -44,7 +44,7 @@ def load_CYGNSS_001_all_months(bbox_vals,
     import pandas as pd
     filenames = os.listdir(filepath)
     filenames.sort()
-    list_of_xr = [read_CYGNSS_01_1month(filename,test_bbox) for filename in filenames]
+    list_of_xr = [load_CYGNSS_001_1month(filename,bbox_vals) for filename in filenames]
     time_idx = np.arange(len(filenames))
     cygnss_allmonths_xr = xr.concat(list_of_xr,pd.Index(time_idx , name='time'),combine_attrs="drop_conflicts")
     return cygnss_allmonths_xr
