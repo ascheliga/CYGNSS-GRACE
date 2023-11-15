@@ -154,7 +154,6 @@ def load_GRACE(grace_filename = 'gsfc.glb_.200204_202211_rl06v2.0_obp-ice6gd.h5'
         grace_dict['uncertainty'] = uncertainty_df
 
     return grace_dict
-
 def load_GRanD(GRanD_filename = 'GRanD_reservoirs_v1_3.shp',
     GRanD_filepath = '/global/scratch/users/ann_scheliga/dam_datasets/'):
     """
