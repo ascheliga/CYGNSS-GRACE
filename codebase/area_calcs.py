@@ -154,3 +154,82 @@ def GRACE_areal_average(input_cmwe,input_mascon):
     """
     areal_average = input_cmwe.mul(input_mascon['area_km2'],axis='index').sum(axis=0)/(input_mascon['area_km2'].sum())
     return areal_average
+
+def cygnss_convert_to_binary(cygnss_DA, true_val = 2):
+    """
+    Convert categorical CYGNSS maps to binary int.
+
+    Long Description
+    ----------------
+    Does not convert from int to bool because some manipulations and calculations require numeric data.
+    Due to limited xarray-compatible fucntions, uses a two-step process:
+        first, converts non-surface water to 0,
+        second converts remaining non-zero values to 1.
+    The true_val cannot be zero.
+
+    Inputs
+    ------
+    cygnss_DA : xarray.DataArray
+        data array with values 1-4
+    true_val : numeric
+        default = 2
+        the value to become True/1
+
+    Outputs
+    -------
+    convert_TF : DataArray
+        values converted to 0/1 binary int
+        attribute units and comments re-written
+    """
+    import xarray
+    if not isinstance(cygnss_DA,xarray.DataArray):
+        raise('Input must be a DataArray')
+    
+    # Turn != 2 to 0
+    convert_F = cygnss_DA.where(cygnss_DA == true_val,0)
+    # Turn == 2 to 1
+    convert_TF  = convert_F.where(convert_F == 0, 1)
+
+    convert_TF.attrs['units'] = 'Binary mask of surface water'
+    convert_TF.attrs['comments'] = 'Surface water = 1, ocean/land/no data = 0'
+
+    return convert_TF
+
+def CYGNSS_001_areal_average(cygnss_DA, x_dim='x', y_dim='y'):
+    """
+    Calculates the average of values in the provided DataArray.
+
+    Long Description
+    ----------------
+    First reprojects to equal area or checks that the projection is equal area,
+    then takes the unweighted average using np.nanmean.
+
+    Inputs
+    ------
+    cygnss_DA : xarray.DataArray
+        all non-nan values in the dataArray will contribute to the average.
+    """
+    import numpy as np
+    if 'area' not in cygnss_DA.spatial_ref.grid_mapping_name:
+        cygnss_DA = cygnss_DA.rio.reproject("ESRI:54017")
+        # Rename dims
+        x_dim = [dim for dim in cygnss_DA.dims if 'x' in dim][0]
+        y_dim = [dim for dim in cygnss_DA.dims if 'y' in dim][0]
+        print('Projected to equal area')
+    else:
+        # Check that the projection is equal area
+        _x = cygnss_DA.coords[x_dim]
+        _y = cygnss_DA.coords[y_dim]
+
+        _x_widths = np.unique((_x[1:].values - _x[:-1].values).round(decimals=8))
+        _y_widths = np.unique((_y[1:].values - _y[:-1].values).round(decimals=8))
+
+        if len(_x_widths) > 1 or len(_y_widths) > 1:
+            raise('Unequal pixel areas')
+    
+    # Average across spatial dims
+    _x_dim_idx = cygnss_DA.dims.index(x_dim)
+    _y_dim_idx = cygnss_DA.dims.index(y_dim)
+    average = np.nanmean(cygnss_DA.values , axis=(_x_dim_idx , _y_dim_idx))
+
+    return average
