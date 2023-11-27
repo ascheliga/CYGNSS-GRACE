@@ -142,7 +142,10 @@ class TimeSeriesMetrics:
     """
     Calculate various metrics on a single time series input as a Pandas Series
     """
-    def __init__(self,pd_series,dataset_name,remove_seasonality=False):
+    def __init__(self,pd_series,dataset_name,
+                 remove_seasonality=False,
+                 zero_start=True
+                ):
         self.ts = pd_series
         self.ts_raw = pd_series # maintain the input time series
         # allowed_datasets = ['FO' , # GRACE-FO data
@@ -150,8 +153,10 @@ class TimeSeriesMetrics:
         #                     'OL']  # open-loop or model-only
         # assert dataset_name in allowed_datasets
         self.name = dataset_name
-        self.zero_start()
+        
         self.detrend()
+        if zero_start:
+                self.ts_zero_start = self.zero_start()
         if remove_seasonality:
             self.remove_seasonality()
     def zero_start(self):
@@ -159,7 +164,8 @@ class TimeSeriesMetrics:
         Vertical shift of time series to have all time series start at zero.
         Subtracts the first row from the dataset.
         """
-        self.ts = self.ts - self.ts.iloc[0]
+        _ts_zero_start = self.ts - self.ts.iloc[0]
+        return _ts_zero_start
     def detrend(self):
         def detrend_timeseries(df_actuals):
             x_values = df_actuals.index.values
@@ -182,6 +188,8 @@ class TimeSeriesMetrics:
             _y = comparison_ts
         assert len(self.ts_detrend) == len(_y) , 'Mismatch in length of time series'
         x_mask = ~np.isnan(self.ts_detrend)
+        print(x_mask)
+        print(self.ts_detrend)
         _x = self.ts_detrend[x_mask]
         _y = comparison_ts[x_mask.values]
         print(plt.xcorr(_x,_y))
@@ -257,5 +265,5 @@ class TimeSeriesMetrics:
         y.loc[~x_mask] = np.nan
         if norm:
             y = normalize(y)
-        # y = y.zero_start()
+        y = y.zero_start()
         ax.plot(y,**plot_kwargs)
