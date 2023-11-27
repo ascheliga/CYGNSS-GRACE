@@ -181,18 +181,39 @@ class TimeSeriesMetrics:
         _detrended_ts , _ts_linmetrics = detrend_timeseries(self.ts.to_frame())
         self.ts_detrend = pd.Series(np.squeeze(_detrended_ts.astype(float)),index = self.ts.index.fillna(0))
         self.lintrend_metrics = _ts_linmetrics.iloc[0]
-    def cross_corr(self,comparison_ts):
-        if 'TimeSeriesMetrics' in str(type(comparison_ts)):
-            _y = comparison_ts.ts_detrend
-        else:
-            _y = comparison_ts
-        assert len(self.ts_detrend) == len(_y) , 'Mismatch in length of time series'
-        x_mask = ~np.isnan(self.ts_detrend)
-        print(x_mask)
-        print(self.ts_detrend)
-        _x = self.ts_detrend[x_mask]
-        _y = comparison_ts[x_mask.values]
-        print(plt.xcorr(_x,_y))
+    def cross_corr(self,comparison_ts, ts_type='detrend',plot_on=True):
+        if 'detrend' in ts_type:
+            if 'TimeSeriesMetrics' in str(type(comparison_ts)):
+                _y = comparison_ts.ts_detrend
+            else:
+                _y = comparison_ts
+            _x = self.ts_detrend
+        elif 'season' in ts_type:
+            if 'TimeSeriesMetrics' in str(type(comparison_ts)):
+                _y = comparison_ts.seasonality
+            else:
+                _y = comparison_ts
+            _x = self.seasonality
+            print(len(_x),len(_y))
+
+        assert len(_x) == len(_y) , 'Mismatch in length of time series'
+        x_mask = ~np.isnan(_x)
+        _x = _x[x_mask]
+        _y = _y[x_mask.values]
+        
+        lag_time , lag_corr , _ , _= plt.xcorr(_x,_y)
+        
+        # Print results
+        ytrue_name = getattr(self, 'name', 'Base (true) time series')
+        ypred_name = getattr(comparison_ts, 'name', 'Comparison (pred) time series')
+        print('---cross correlation----')
+        print('Between',ytrue_name,'and',ypred_name)
+        y_max = np.max(lag_corr)
+        idx_y_max = np.argmax(lag_corr)
+        print('Max correlation of',np.round(y_max,3),'occurs with time shift of ',lag_time[idx_y_max])
+        if plot_on:
+            plt.show()
+        return lag_time , lag_corr
     def coef_determination(self,comparison_ts,**kwargs):
         y_true = self.ts_detrend
         if 'TimeSeriesMetrics' in str(type(comparison_ts)):
@@ -265,5 +286,4 @@ class TimeSeriesMetrics:
         y.loc[~x_mask] = np.nan
         if norm:
             y = normalize(y)
-        y = y.zero_start()
         ax.plot(y,**plot_kwargs)
