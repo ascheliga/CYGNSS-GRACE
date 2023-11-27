@@ -181,7 +181,7 @@ class TimeSeriesMetrics:
         _detrended_ts , _ts_linmetrics = detrend_timeseries(self.ts.to_frame())
         self.ts_detrend = pd.Series(np.squeeze(_detrended_ts.astype(float)),index = self.ts.index.fillna(0))
         self.lintrend_metrics = _ts_linmetrics.iloc[0]
-    def cross_corr(self,comparison_ts, ts_type='detrend',plot_on=True):
+    def cross_corr(self,comparison_ts, ax, ts_type='detrend',plot_on=True):
         if 'detrend' in ts_type:
             if 'TimeSeriesMetrics' in str(type(comparison_ts)):
                 _y = comparison_ts.ts_detrend
@@ -194,14 +194,16 @@ class TimeSeriesMetrics:
             else:
                 _y = comparison_ts
             _x = self.seasonality
-            print(len(_x),len(_y))
 
         assert len(_x) == len(_y) , 'Mismatch in length of time series'
         x_mask = ~np.isnan(_x)
         _x = _x[x_mask]
         _y = _y[x_mask.values]
         
-        lag_time , lag_corr , _ , _= plt.xcorr(_x,_y)
+        try:
+            lag_time , lag_corr , _ , _= ax.xcorr(_x,_y)
+        except:
+            lag_time , lag_corr , _ , _= plt.xcorr(_x,_y)
         
         # Print results
         ytrue_name = getattr(self, 'name', 'Base (true) time series')
@@ -239,7 +241,7 @@ class TimeSeriesMetrics:
         print('Between',ytrue_name,'and',ypred_name)
         print(coef_det)
         return coef_det
-    def remove_seasonality(self,reps=12):
+    def remove_seasonality(self,reps=12,overwrite=False):
         """
         Use for time series that haven't had seasonality removed (typically non-TWS time series)
         Inputs
@@ -257,30 +259,46 @@ class TimeSeriesMetrics:
             same size as input
         means = the climatology values removed from the input
         """
-        l_input = self.ts_detrend.shape[0]; # time length
-        # if len(self.ts_detrend.shape)>1:
-        #     w_input = self.ts_detrend.shape[1] # number of independent tiles/iterations/components
-        # else:
-        #     self.ts_detrend = self.ts_detrend.reshape(-1,1)
-        w_input = 1  
-        m_add = reps - (l_input % reps)
-        n_cycles = (l_input + m_add)/reps
-        filler = np.empty([m_add,w_input])
-        filler[:]=np.nan
-        in_div = np.concatenate((self.ts_detrend.values.reshape(-1,1),filler),axis=0)      # adds nans to end to make divisible
-        in_mat = in_div.reshape(-1,reps,w_input)                 # size[n_cycles (axis to be averaged), reps, w_input]
-        m_mean = np.nanmean(in_mat,0)                            # mean of each month
-        m_mean_mat = np.repeat(m_mean[np.newaxis,:,:],n_cycles,axis=0)   
-        out_mat = in_mat - m_mean_mat
-        out_div = np.reshape(out_mat,(int(reps*n_cycles),w_input))    # contains nans to make divisible
-        output = out_div[:-m_add,:]
-        mean= m_mean
+        if overwrite:
+            del self.seasonality
+            print('Seasonality already calculated. Overwriting previous calculation.')
+        try:
+            self.seasonality
+            print('Seasonality already calculated. Add overwrite=True to overwrite')
+        except:
+            print('Calculating seasonality.')
+            l_input = self.ts_detrend.shape[0]; # time length
+            # if len(self.ts_detrend.shape)>1:
+            #     w_input = self.ts_detrend.shape[1] # number of independent tiles/iterations/components
+            # else:
+            #     self.ts_detrend = self.ts_detrend.reshape(-1,1)
+            w_input = 1  
+            m_add = reps - (l_input % reps)
+            n_cycles = (l_input + m_add)/reps
+            filler = np.empty([m_add,w_input])
+            filler[:]=np.nan
+            in_div = np.concatenate((self.ts_detrend.values.reshape(-1,1),filler),axis=0)      # adds nans to end to make divisible
+            in_mat = in_div.reshape(-1,reps,w_input)                 # size[n_cycles (axis to be averaged), reps, w_input]
+            m_mean = np.nanmean(in_mat,0)                            # mean of each month
+            m_mean_mat = np.repeat(m_mean[np.newaxis,:,:],n_cycles,axis=0)   
+            out_mat = in_mat - m_mean_mat
+            out_div = np.reshape(out_mat,(int(reps*n_cycles),w_input))    # contains nans to make divisible
+            output = out_div[:-m_add,:]
+            mean= m_mean
 
-        self.ts_detrend = pd.DataFrame(output,index=self.ts_detrend.index)[0]
-        months_list = calendar.month_name[1:13]
-        self.seasonality = pd.DataFrame(mean,index=months_list)[0]
+            self.ts_detrend = pd.DataFrame(output,index=self.ts_detrend.index)[0]
+            months_list = calendar.month_name[1:13]
+            self.seasonality = pd.DataFrame(mean,index=months_list)[0]
     def plot_anomalies(self,ax,norm=True,x_mask=None,**plot_kwargs):
         y = self.ts_detrend
+        if x_mask is None:
+            x_mask = np.ones(len(y), dtype=bool)
+        y.loc[~x_mask] = np.nan
+        if norm:
+            y = normalize(y)
+        ax.plot(y,**plot_kwargs)
+    def plot_seasonality(self,ax,norm=True,x_mask=None,**plot_kwargs):
+        y = self.seasonality
         if x_mask is None:
             x_mask = np.ones(len(y), dtype=bool)
         y.loc[~x_mask] = np.nan
