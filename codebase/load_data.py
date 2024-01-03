@@ -1,5 +1,5 @@
 def load_CYGNSS_05(cygnss_filename = 'CYGNSS_watermask_0_5_with_lakes.nc',
-    cygnss_filepath = '/global/scratch/users/cgerlein/fc_ecohydrology_scratch/CYGNSS/Data/CYGNSS_L1_v3_1_data_products/Monthly_maps_watermasks_glob_netCDF/WetCHARTs_size_0_5_deg/'):
+    cygnss_filepath = '/global/scratch/users/cgerlein/fc_ecohydrology_scratch/CYGNSS/Data/CYGNSS_L1_v3_1_data_products/Monthly_maps_watermasks_glob2_netCDF/WetCHARTs_size_0_5_deg/'):
     """
     Inputs
     ------
@@ -20,7 +20,7 @@ def load_CYGNSS_05(cygnss_filename = 'CYGNSS_watermask_0_5_with_lakes.nc',
     return fw
 def load_CYGNSS_001_1month(filename,
     bbox_vals,
-    filepath='/global/scratch/users/cgerlein/fc_ecohydrology_scratch/CYGNSS/Data/CYGNSS_L1_v3_1_data_products/Monthly_maps_watermasks_glob_netCDF/Native_size_0_01_deg/With_lakes/'
+    filepath='/global/scratch/users/cgerlein/fc_ecohydrology_scratch/CYGNSS/Data/CYGNSS_L1_v3_1_data_products/Monthly_maps_watermasks_glob2_netCDF/Native_size_0_01_deg/With_lakes/'
     ):
     """
     """
@@ -34,7 +34,7 @@ def load_CYGNSS_001_1month(filename,
     del global_rxr
     return clipped_rxr
 def load_CYGNSS_001_all_months(bbox_vals,
-    filepath='/global/scratch/users/cgerlein/fc_ecohydrology_scratch/CYGNSS/Data/CYGNSS_L1_v3_1_data_products/Monthly_maps_watermasks_glob_netCDF/Native_size_0_01_deg/With_lakes/'
+    filepath='/global/scratch/users/cgerlein/fc_ecohydrology_scratch/CYGNSS/Data/CYGNSS_L1_v3_1_data_products/Monthly_maps_watermasks_glob2_netCDF/Native_size_0_01_deg/With_lakes/'
     ):
     """
     """
