@@ -9,6 +9,7 @@ import sys
 import pandas as pd
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
 import numpy as np
 import geopandas as gpd
 
@@ -236,34 +237,57 @@ def three_part_timeseries(input3dfs,**plot_params):
     fig, ax = plt.subplots(facecolor='white',figsize=plot_params['figsize'])
     fig.subplots_adjust(right=0.75)
 
+    if len(input3dfs) == 2:
+        print('Only plotting two timeseries')
+        drop_twin2 = True
+    else: drop_twin2=False
+        
+    if 'grid' in plot_params:
+        plt.grid()
+    
     twin1 = ax.twinx()
-    twin2 = ax.twinx()
+    if not drop_twin2:
+        twin2 = ax.twinx()
 
-    # Offset the right spine of twin2.  The ticks and label have already been
-    # placed on the right by twinx above.
-    twin2.spines.right.set_position(("axes", 1.1))
-
+        # Offset the right spine of twin2.  The ticks and label have already been
+        # placed on the right by twinx above.
+        twin2.spines.right.set_position(("axes", 1.1))
+        
     p1, = ax.plot(input3dfs[0],plot_params['line_fmt'][0],label=plot_params['data_labels'][0]) 
     p2, = twin1.plot(input3dfs[1],plot_params['line_fmt'][1],label=plot_params['data_labels'][1])
-    p3, = twin2.plot(input3dfs[2],plot_params['line_fmt'][2],label=plot_params['data_labels'][2])
+    if not drop_twin2:
+        p3, = twin2.plot(input3dfs[2],plot_params['line_fmt'][2],label=plot_params['data_labels'][2])
 
+    if 'x_ticks' in plot_params and 'year' in plot_params['x_ticks']:
+        ax.xaxis.set_major_locator(mdates.YearLocator())
+        myFmt = mdates.DateFormatter('%Y')
+        ax.xaxis.set_major_formatter(myFmt)
+    
     ax.set_title(plot_params['title'])
     ax.set_xlabel(plot_params['x_label'])
     ax.set_ylabel(plot_params['y_labels'][0])
     twin1.set_ylabel(plot_params['y_labels'][1])
-    twin2.set_ylabel(plot_params['y_labels'][2])
+    if not drop_twin2:
+        twin2.set_ylabel(plot_params['y_labels'][2])
 
     ax.yaxis.label.set_color(p1.get_color())
     twin1.yaxis.label.set_color(p2.get_color())
-    twin2.yaxis.label.set_color(p3.get_color())
+    if not drop_twin2:
+        twin2.yaxis.label.set_color(p3.get_color())
 
     tkw = dict(size=4, width=1.5)
+    ax.tick_params(axis='x', **tkw)
     ax.tick_params(axis='y', colors=p1.get_color(), **tkw)
     twin1.tick_params(axis='y', colors=p2.get_color(), **tkw)
-    twin2.tick_params(axis='y', colors=p3.get_color(), **tkw)
-    ax.tick_params(axis='x', **tkw)
+    if not drop_twin2:
+        twin2.tick_params(axis='y', colors=p3.get_color(), **tkw)
+    
 
-    ax.legend(handles=[p1, p2, p3])
+    if drop_twin2:
+        ax.legend(handles=[p1, p2])
+    else:
+        ax.legend(handles=[p1, p2, p3])
+    
 
     plt.show()
     return ax

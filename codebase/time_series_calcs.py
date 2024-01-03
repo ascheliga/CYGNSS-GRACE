@@ -144,7 +144,8 @@ class TimeSeriesMetrics:
     """
     def __init__(self,pd_series,dataset_name,
                  remove_seasonality=False,
-                 zero_start=True
+                 zero_start=True,
+                 start_month=1
                 ):
         self.ts = pd_series
         self.ts_raw = pd_series # maintain the input time series
@@ -158,7 +159,7 @@ class TimeSeriesMetrics:
         if zero_start:
                 self.ts_zero_start = self.zero_start()
         if remove_seasonality:
-            self.remove_seasonality()
+            self.remove_seasonality(start_month=start_month)
     def zero_start(self):
         """
         Vertical shift of time series to have all time series start at zero.
@@ -241,7 +242,7 @@ class TimeSeriesMetrics:
         print('Between',ytrue_name,'and',ypred_name)
         print(coef_det)
         return coef_det
-    def remove_seasonality(self,reps=12,overwrite=False):
+    def remove_seasonality(self,reps=12,overwrite=False,start_month=1):
         """
         Use for time series that haven't had seasonality removed (typically non-TWS time series)
         Inputs
@@ -287,8 +288,9 @@ class TimeSeriesMetrics:
             mean= m_mean
 
             self.ts_detrend = pd.DataFrame(output,index=self.ts_detrend.index)[0]
-            months_list = calendar.month_name[1:13]
-            self.seasonality = pd.DataFrame(mean,index=months_list)[0]
+            months_list = calendar.month_name[start_month:] + calendar.month_name[1:(start_month-13)]
+            _seasonality = pd.DataFrame(mean,index=months_list)[0]
+            self.seasonality = _seasonality.reindex(calendar.month_name[1:13])
     def plot_anomalies(self,ax,norm=True,x_mask=None,**plot_kwargs):
         y = self.ts_detrend
         if x_mask is None:
