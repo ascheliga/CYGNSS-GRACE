@@ -3,21 +3,17 @@
 func_dir = "/global/home/users/ann_scheliga/CYGNSS-GRACE/codebase/"
 
 # Import packages
-import os
-import sys
-import pandas as pd
 import matplotlib as mpl
-import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
-import numpy as np
-import geopandas as gpd
+import matplotlib.pyplot as plt
+import pandas as pd
 
 from . import area_calcs
 
 
 def pie_from_series(row, axi, cmaps="BrBG"):
     """
-    Plots a three-wedge pie chart on an existing axis object
+    Plots a three-wedge pie chart on an existing axis object.
 
     Long Description
     ----------------
@@ -55,7 +51,7 @@ def pie_from_series(row, axi, cmaps="BrBG"):
 
 
 def statsig_map(
-    input_gdf, ax, count, cmaps="BrBG", pie_row=[], cbar_flag="", **plot_params
+    input_gdf, ax, count, cmaps="BrBG", pie_row=None, cbar_flag="", **plot_params
 ):
     """
     Plots a map of slope values with an option for a pie chart inset.
@@ -101,6 +97,8 @@ def statsig_map(
     None
     """
     # Create colormap
+    if pie_row is None:
+        pie_row = []
     if isinstance(cmaps, str):
         cmap = mpl.cm.get_cmap(cmaps)
 
@@ -171,7 +169,7 @@ def tri_figuremap(
 
     Long Description
     ----------------
-    When subplot grid is 1x3 or 3x1 and cbar_flag given, extra plot_params and formatting are built-in
+    When subplot grid is 1x3 or 3x1 and cbar_flag given, extra plot_params and formatting are built-in.
 
     Inputs
     ------
@@ -350,7 +348,7 @@ def three_part_timeseries(input3dfs, **plot_params):
     if not drop_twin2:
         twin2.yaxis.label.set_color(p3.get_color())
 
-    tkw = dict(size=4, width=1.5)
+    tkw = {"size": 4, "width": 1.5}
     ax.tick_params(axis="x", **tkw)
     ax.tick_params(axis="y", colors=p1.get_color(), **tkw)
     twin1.tick_params(axis="y", colors=p2.get_color(), **tkw)

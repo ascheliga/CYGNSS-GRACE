@@ -34,7 +34,7 @@ def check_for_multiple_dams(dam_name, res_shp, idx=-1):
 
 def reservoir_name_to_point(dam_name, res_shp, idx=0):
     """
-    Must have already run: `res_shp = load_data.load_GRanD()`
+    Must have already run: `res_shp = load_data.load_GRanD()`.
 
     Inputs
     ------
@@ -78,7 +78,7 @@ def reservoir_name_to_point(dam_name, res_shp, idx=0):
 
 def grace_point_subset(coords_i, grace_dict, buffer_val=0):
     """
-    Must have already run: `grace_dict = load_data.load_GRACE()`
+    Must have already run: `grace_dict = load_data.load_GRACE()`.
 
     Inputs
     ------
@@ -137,7 +137,7 @@ def grace_point_subset(coords_i, grace_dict, buffer_val=0):
 
 def precip_point_subset(coords_i, precip):
     """
-    Must have already run: `precip = load_data.load_IMERG()`
+    Must have already run: `precip = load_data.load_IMERG()`.
 
     Inputs
     ------
@@ -149,8 +149,8 @@ def precip_point_subset(coords_i, precip):
     precip_ts : Pandas Series
         IMERG timeseries with datetime object index
     """
-    import numpy as np
     import pandas as pd
+
     from . import time_series_calcs
 
     # Select data
@@ -169,14 +169,13 @@ def cygnss_point_subset(coords_i, fw):
     ------
     coords_i: tuple of (lat,lon)
     fw : xarray
-        from fw = load_data.load_CYGNSS_05()
+        from fw = load_data.load_CYGNSS_05().
 
     Outputs
     -------
     precip_ts : Pandas Series
         CYGNSS timeseries with datetime object index
     """
-    import numpy as np
     import pandas as pd
 
     # Select data
@@ -198,7 +197,7 @@ def grace_shape_subset(subset_gpd, grace_dict, buffer_val=0):
     buffer_val : float
         default = 0
         units of decimal degrees
-        the extra length to extend the subset in a square from the central coordinate
+        the extra length to extend the subset in a square from the central coordinate.
 
     Outputs
     -------
@@ -238,7 +237,7 @@ def xr_shape_subset(subset_gpd, input_xr, buffer_val=0, crs_code=4326):
     crs_code : int
         default = 4326 (WGS84)
         EPSG code for coordinate reference system
-        crs_code applied to input_xr
+        crs_code applied to input_xr.
 
     Outputs
     -------
@@ -249,8 +248,8 @@ def xr_shape_subset(subset_gpd, input_xr, buffer_val=0, crs_code=4326):
     full_rxr = input_xr.rio.write_crs(crs_code)
 
     # Grab coordinate names
-    x_name = [dim for dim in list(input_xr.dims) if "lon" in dim][0]
-    y_name = [dim for dim in list(input_xr.dims) if "lat" in dim][0]
+    x_name = next(dim for dim in list(input_xr.dims) if "lon" in dim)
+    y_name = next(dim for dim in list(input_xr.dims) if "lat" in dim)
 
     # Set spatial dimensions to xr
     full_rxr.rio.set_spatial_dims(x_name, y_name, inplace=True)
@@ -261,11 +260,10 @@ def xr_shape_subset(subset_gpd, input_xr, buffer_val=0, crs_code=4326):
 
 
 def cygnss_shape_subset(subset_gpd, input_xr, buffer_val=0, crs_code=4326):
-    """
-    Subset CYGNSS DataArray to a reservoir. Calculate and format the average time series
-    """
-    from . import time_series_calcs
+    """Subset CYGNSS DataArray to a reservoir. Calculate and format the average time series."""
     import pandas as pd
+
+    from . import time_series_calcs
 
     fw_subset_xr = xr_shape_subset(subset_gpd, input_xr, buffer_val, crs_code)
 
@@ -277,11 +275,10 @@ def cygnss_shape_subset(subset_gpd, input_xr, buffer_val=0, crs_code=4326):
 
 
 def precip_shape_subset(subset_gpd, input_xr, buffer_val=0, crs_code=4326):
-    """
-    Subset precip DataArray to a reservoir. Calculate and format the summed time series
-    """
-    from . import time_series_calcs
+    """Subset precip DataArray to a reservoir. Calculate and format the summed time series."""
     import pandas as pd
+
+    from . import time_series_calcs
 
     precip_subset_xr = xr_shape_subset(subset_gpd, input_xr, buffer_val, crs_code)
 

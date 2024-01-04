@@ -1,9 +1,10 @@
-import pandas as pd
-import numpy as np
-from scipy import stats
 import calendar
-from sklearn.metrics import r2_score
+
 import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+from scipy import stats
+from sklearn.metrics import r2_score
 
 
 def _object2float(*inputs):
@@ -19,7 +20,7 @@ def normalize(df):
 
 def toYearFraction(date):
     """
-    Convert date-time objects to deciml year
+    Convert date-time objects to deciml year.
 
     Inputs
     ------
@@ -29,8 +30,8 @@ def toYearFraction(date):
     -------
     decYear : float
     """
-    from datetime import datetime as dt
     import time
+    from datetime import datetime as dt
 
     def sinceEpoch(date):  # returns seconds since epoch
         return time.mktime(date.timetuple())
@@ -51,7 +52,7 @@ def toYearFraction(date):
 
 def IMERG_timestep_to_pdTimestamp(input_xrcoord):
     """
-    Convert xr array of IMERG timestep numbers to an array Pandas Timestamp objects
+    Convert xr array of IMERG timestep numbers to an array Pandas Timestamp objects.
 
     Timestep  = seconds since 1980 Jan 06 (UTC), per original HDF5 IMERG file units
     """
@@ -59,19 +60,17 @@ def IMERG_timestep_to_pdTimestamp(input_xrcoord):
     import pandas as pd
 
     dates_precip = np.array(
-        list(
-            map(
-                lambda x: pd.Timestamp("1980-01-06") + pd.DateOffset(seconds=x),
-                input_xrcoord.values,
-            )
-        )
+        [
+            pd.Timestamp("1980-01-06") + pd.DateOffset(seconds=x)
+            for x in input_xrcoord.values
+        ]
     )
     return dates_precip
 
 
 def CYGNSS_timestep_to_pdTimestamp(input_xrcoord):
     """
-    Convert xr array of CYGNSS timestep numbers to an array Pandas Timestamp objects
+    Convert xr array of CYGNSS timestep numbers to an array Pandas Timestamp objects.
 
     Timestep  = months since 2018 Aug 01 (UTC)
     """
@@ -79,12 +78,7 @@ def CYGNSS_timestep_to_pdTimestamp(input_xrcoord):
     import pandas as pd
 
     dates_fw = np.array(
-        list(
-            map(
-                lambda x: pd.Timestamp("2018-08-01") + pd.DateOffset(months=x),
-                input_xrcoord,
-            )
-        )
+        [pd.Timestamp("2018-08-01") + pd.DateOffset(months=x) for x in input_xrcoord]
     )
     return dates_fw
 
@@ -171,9 +165,7 @@ def intersecting_timeframes(*series, buffer=1):
 
 
 class TimeSeriesMetrics:
-    """
-    Calculate various metrics on a single time series input as a Pandas Series
-    """
+    """Calculate various metrics on a single time series input as a Pandas Series."""
 
     def __init__(
         self,
