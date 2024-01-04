@@ -5,3 +5,13 @@ build-backend = "hatchling.build"
 [project]
 name = "codebase"
 version = "0.1.0"
+
+[project.optional-dependencies]
+lint = [
+    "pre-commit>=2.20.0",
+]
+
+# tools
+[tool.black]
+line-length = 88
+target-version = ["py310", "py311", "py312"]
