@@ -13,7 +13,7 @@ import matplotlib.dates as mdates
 import numpy as np
 import geopandas as gpd
 
-import area_calcs
+from . import area_calcs
 
 def pie_from_series(row,axi,cmaps="BrBG"):
     """
