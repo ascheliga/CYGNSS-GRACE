@@ -2,11 +2,8 @@
 
 
 # Import packages
-import os
-import pandas as pd
-import matplotlib as mpl
-import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 
 # In[3]:
 
@@ -83,7 +80,7 @@ def pos_neg_area_calc(input_df, pcut):
 # In[55]:
 
 
-def area_frac_calc(metrics_3dfs, pcut, col_labels=["pos", "neg"], idx_labels=[0, 1, 2]):
+def area_frac_calc(metrics_3dfs, pcut, col_labels=None, idx_labels=None):
     """
     Wrapper function
     Provides fractional and total land area with a statisticaly significant trend for three input datasets.
@@ -111,6 +108,10 @@ def area_frac_calc(metrics_3dfs, pcut, col_labels=["pos", "neg"], idx_labels=[0,
     frac_df, km2_df : Pandas DataFrame
         3x3 dataframe containing positive, negative, and non-significant trend areas in units of square kilometers
     """
+    if idx_labels is None:
+        idx_labels = [0, 1, 2]
+    if col_labels is None:
+        col_labels = ["pos", "neg"]
     km2_data = [pos_neg_area_calc(df, pcut) for df in metrics_3dfs]
 
     # Back-up version of km2_data calc
@@ -125,7 +126,7 @@ def area_frac_calc(metrics_3dfs, pcut, col_labels=["pos", "neg"], idx_labels=[0,
 
     # get indices of the columns that contain pixel areas
     area_cols = [
-        [df.columns.get_loc(col) for col in df.columns if "area" in col][0]
+        next(df.columns.get_loc(col) for col in df.columns if "area" in col)
         for df in metrics_3dfs
     ]
 
@@ -148,7 +149,7 @@ def area_frac_calc(metrics_3dfs, pcut, col_labels=["pos", "neg"], idx_labels=[0,
 
 def GRACE_areal_average(input_cmwe, input_mascon):
     """
-    Calculate the weighted average from given cmwe and mascons
+    Calculate the weighted average from given cmwe and mascons.
 
     Inputs
     ------
@@ -225,8 +226,8 @@ def CYGNSS_001_areal_average(cygnss_DA, x_dim="x", y_dim="y"):
     if "area" not in cygnss_DA.spatial_ref.grid_mapping_name:
         cygnss_DA = cygnss_DA.rio.reproject("ESRI:54017")
         # Rename dims
-        x_dim = [dim for dim in cygnss_DA.dims if "x" in dim][0]
-        y_dim = [dim for dim in cygnss_DA.dims if "y" in dim][0]
+        x_dim = next(dim for dim in cygnss_DA.dims if "x" in dim)
+        y_dim = next(dim for dim in cygnss_DA.dims if "y" in dim)
         print("Projected to equal area")
     else:
         # Check that the projection is equal area

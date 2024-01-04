@@ -14,9 +14,7 @@ def load_CYGNSS_05(
     -------
     fw : xarray.DataArray
     """
-    import sys
     import xarray as xr
-    import matplotlib.pyplot as plt
 
     cygnss_raw = xr.open_dataset(
         cygnss_filepath + cygnss_filename, decode_coords="all", decode_times=False
@@ -32,7 +30,6 @@ def load_CYGNSS_001_1month(
 ):
     """ """
     import xarray as xr
-    import rioxarray
 
     global_xrDS = xr.open_dataset(filepath + filename, decode_times=False)
     global_rxr = global_xrDS["Watermask"].rio.write_crs(4326)
@@ -49,9 +46,10 @@ def load_CYGNSS_001_all_months(
 ):
     """ """
     import os
+
     import numpy as np
-    import xarray as xr
     import pandas as pd
+    import xarray as xr
 
     filenames = os.listdir(filepath)
     filenames.sort()
@@ -98,14 +96,14 @@ def load_GRACE(
     Outputs
     -------
     """
+    import geopandas as gpd
+    import h5py
     import numpy as np
     import pandas as pd
-    import h5py
-    import geopandas as gpd
     from shapely.geometry import Polygon
 
     f = h5py.File(grace_filepath + grace_filename, "r")
-    grace_dict = dict()
+    grace_dict = {}
 
     # MASCONS #
     mascon_cols = list(f["mascon"])  # grab dataset names in mascon group
