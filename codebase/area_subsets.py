@@ -1,4 +1,4 @@
-def check_for_multiple_dams(dam_name,res_shp,idx=-1):
+def check_for_multiple_dams(dam_name, res_shp, idx=-1):
     """
     Subset reservoir dataset by dam name and select one reservoir if multiple of same name.
 
@@ -20,17 +20,19 @@ def check_for_multiple_dams(dam_name,res_shp,idx=-1):
     -------
     subset GeoDataFrame
     """
-    dam_row = (res_shp['DAM_NAME'].str.lower())==(dam_name.lower())
+    dam_row = (res_shp["DAM_NAME"].str.lower()) == (dam_name.lower())
     n_rows = dam_row.sum()
     if n_rows == 0:
-        print('Dam name not found')
+        print("Dam name not found")
     elif n_rows > 1:
-        print('Dam name',dam_name,'is redundant.',n_rows,'entires found.')
+        print("Dam name", dam_name, "is redundant.", n_rows, "entires found.")
     if idx >= 0:
         return res_shp[dam_row].iloc[[idx]]
     else:
         return res_shp[dam_row]
-def reservoir_name_to_point(dam_name,res_shp,idx = 0):
+
+
+def reservoir_name_to_point(dam_name, res_shp, idx=0):
     """
     Must have already run: `res_shp = load_data.load_GRanD()`
 
@@ -54,21 +56,30 @@ def reservoir_name_to_point(dam_name,res_shp,idx = 0):
         the given lat and lon values of the reservoir in the dataset
     """
     import numpy as np
-    dam_row = (res_shp['DAM_NAME'].str.lower())==(dam_name.lower())
+
+    dam_row = (res_shp["DAM_NAME"].str.lower()) == (dam_name.lower())
     n_rows = dam_row.sum()
     if n_rows == 0:
-        print('Dam name not found')
+        print("Dam name not found")
     elif n_rows > 1 and (n_rows > idx):
-        print('Dam name',dam_name,'is redundant.',n_rows,'entires found. Use idx input to help')
+        print(
+            "Dam name",
+            dam_name,
+            "is redundant.",
+            n_rows,
+            "entires found. Use idx input to help",
+        )
         dam_row = dam_row[dam_row].index[idx]
     elif n_rows <= idx:
-        print('idx input too large. idx =',idx, 'for',n_rows, 'total dam rows')
-    coords_oi = tuple(np.array(res_shp.loc[dam_row,['LAT_DD','LONG_DD']])[0])
+        print("idx input too large. idx =", idx, "for", n_rows, "total dam rows")
+    coords_oi = tuple(np.array(res_shp.loc[dam_row, ["LAT_DD", "LONG_DD"]])[0])
     return coords_oi
-def grace_point_subset(coords_i,grace_dict,buffer_val=0):
+
+
+def grace_point_subset(coords_i, grace_dict, buffer_val=0):
     """
     Must have already run: `grace_dict = load_data.load_GRACE()`
-    
+
     Inputs
     ------
     coords_i: tuple of (lat,lon)
@@ -79,41 +90,59 @@ def grace_point_subset(coords_i,grace_dict,buffer_val=0):
         default = 0
         units of decimal degrees
         the extra length to extend the subset in a square from the central coordinate
-    
+
     Outputs
     -------
     cmwe_i: pd.DataFrame
         GRACE cmwe solution of the mascon containing the input point
     mascon_i: pd.DataFrame
         GRACE mascon metadata of the mascon containing the input point
-    
+
     """
     lat = coords_i[0]
     lon = coords_i[1]
     # Check if within longitude range
-    lat_max = grace_dict['mascon']['lat_center'] + grace_dict['mascon']['lat_span']/2 + buffer_val
-    lat_min = grace_dict['mascon']['lat_center'] - grace_dict['mascon']['lat_span']/2 - buffer_val
-    lat_range = (lat>=lat_min) * (lat <= lat_max)
+    lat_max = (
+        grace_dict["mascon"]["lat_center"]
+        + grace_dict["mascon"]["lat_span"] / 2
+        + buffer_val
+    )
+    lat_min = (
+        grace_dict["mascon"]["lat_center"]
+        - grace_dict["mascon"]["lat_span"] / 2
+        - buffer_val
+    )
+    lat_range = (lat >= lat_min) * (lat <= lat_max)
     # Check if within latitude range
-    lon_max = grace_dict['mascon']['lon_center'] + grace_dict['mascon']['lon_span']/2 + buffer_val
-    lon_min = grace_dict['mascon']['lon_center'] - grace_dict['mascon']['lon_span']/2 - buffer_val
-    lon_range = (lon>=lon_min) * (lon <= lon_max)
-    
+    lon_max = (
+        grace_dict["mascon"]["lon_center"]
+        + grace_dict["mascon"]["lon_span"] / 2
+        + buffer_val
+    )
+    lon_min = (
+        grace_dict["mascon"]["lon_center"]
+        - grace_dict["mascon"]["lon_span"] / 2
+        - buffer_val
+    )
+    lon_range = (lon >= lon_min) * (lon <= lon_max)
+
     range_bool = lat_range * lon_range
-    
-    mascon_i = grace_dict['mascon'].loc[range_bool]
-    cmwe_i = grace_dict['cmwe'].loc[mascon_i.index].squeeze()
-    if 'geometry' in cmwe_i.index:
-        cmwe_i.drop('geometry',axis=index,inplace=True)
-    return cmwe_i , mascon_i
-def precip_point_subset(coords_i,precip):
+
+    mascon_i = grace_dict["mascon"].loc[range_bool]
+    cmwe_i = grace_dict["cmwe"].loc[mascon_i.index].squeeze()
+    if "geometry" in cmwe_i.index:
+        cmwe_i.drop("geometry", axis=index, inplace=True)
+    return cmwe_i, mascon_i
+
+
+def precip_point_subset(coords_i, precip):
     """
     Must have already run: `precip = load_data.load_IMERG()`
-    
+
     Inputs
     ------
     coords_i: tuple of (lat,lon)
-    precip : xarray 
+    precip : xarray
 
     Outputs
     -------
@@ -123,13 +152,16 @@ def precip_point_subset(coords_i,precip):
     import numpy as np
     import pandas as pd
     from . import time_series_calcs
+
     # Select data
-    precip_xr = precip.sel(lat=coords_i[0],lon=coords_i[1],method='nearest')
-    dates_precip = time_series_calcs.IMERG_timestep_to_pdTimestamp(precip_xr['time'])
-        # Time = seconds since 1980 Jan 06 (UTC), per original HDF5 IMERG file units
-    precip_ts = pd.Series(data=precip_xr,index=dates_precip)
+    precip_xr = precip.sel(lat=coords_i[0], lon=coords_i[1], method="nearest")
+    dates_precip = time_series_calcs.IMERG_timestep_to_pdTimestamp(precip_xr["time"])
+    # Time = seconds since 1980 Jan 06 (UTC), per original HDF5 IMERG file units
+    precip_ts = pd.Series(data=precip_xr, index=dates_precip)
     return precip_ts
-def cygnss_point_subset(coords_i,fw):
+
+
+def cygnss_point_subset(coords_i, fw):
     """
 
 
@@ -146,12 +178,15 @@ def cygnss_point_subset(coords_i,fw):
     """
     import numpy as np
     import pandas as pd
+
     # Select data
-    fw_xr = fw.sel(lat=coords_i[0],lon=coords_i[1],method='nearest')
-    dates_fw = time_series_calcs.CYGNSS_timestep_to_pdTimestamp(fw_xr['time'])
-    fw_ts = pd.Series(data=fw_xr,index=dates_fw)
+    fw_xr = fw.sel(lat=coords_i[0], lon=coords_i[1], method="nearest")
+    dates_fw = time_series_calcs.CYGNSS_timestep_to_pdTimestamp(fw_xr["time"])
+    fw_ts = pd.Series(data=fw_xr, index=dates_fw)
     return fw_ts
-def grace_shape_subset(subset_gpd,grace_dict,buffer_val=0):
+
+
+def grace_shape_subset(subset_gpd, grace_dict, buffer_val=0):
     """
     Inputs
     ------
@@ -176,15 +211,19 @@ def grace_shape_subset(subset_gpd,grace_dict,buffer_val=0):
     """
     from . import area_calcs
 
-    shape_poly = subset_gpd['geometry'].buffer(buffer_val).unary_union
-    bool_series = grace_dict['mascon'].intersects(shape_poly)
-    subsetted_mascon = grace_dict['mascon'][bool_series]
-    subsetted_cmwe = grace_dict['cmwe'][bool_series]
+    shape_poly = subset_gpd["geometry"].buffer(buffer_val).unary_union
+    bool_series = grace_dict["mascon"].intersects(shape_poly)
+    subsetted_mascon = grace_dict["mascon"][bool_series]
+    subsetted_cmwe = grace_dict["cmwe"][bool_series]
 
-    subsetted_cmwe_agg = area_calcs.GRACE_areal_average(subsetted_cmwe , subsetted_mascon)
+    subsetted_cmwe_agg = area_calcs.GRACE_areal_average(
+        subsetted_cmwe, subsetted_mascon
+    )
 
-    return subsetted_cmwe , subsetted_mascon , subsetted_cmwe_agg
-def xr_shape_subset(subset_gpd,input_xr,buffer_val=0,crs_code = 4326):
+    return subsetted_cmwe, subsetted_mascon, subsetted_cmwe_agg
+
+
+def xr_shape_subset(subset_gpd, input_xr, buffer_val=0, crs_code=4326):
     """
     Inputs
     ------
@@ -210,36 +249,46 @@ def xr_shape_subset(subset_gpd,input_xr,buffer_val=0,crs_code = 4326):
     full_rxr = input_xr.rio.write_crs(crs_code)
 
     # Grab coordinate names
-    x_name = [dim for dim in list(input_xr.dims) if 'lon' in dim][0]
-    y_name = [dim for dim in list(input_xr.dims) if 'lat' in dim][0]
+    x_name = [dim for dim in list(input_xr.dims) if "lon" in dim][0]
+    y_name = [dim for dim in list(input_xr.dims) if "lat" in dim][0]
 
     # Set spatial dimensions to xr
-    full_rxr.rio.set_spatial_dims(x_name,y_name,inplace=True)
+    full_rxr.rio.set_spatial_dims(x_name, y_name, inplace=True)
 
     # Apply shp subset
-    clip_rxr = full_rxr.rio.clip(subset_gpd.geometry.buffer(buffer_val) , subset_gpd.crs)
+    clip_rxr = full_rxr.rio.clip(subset_gpd.geometry.buffer(buffer_val), subset_gpd.crs)
     return clip_rxr
 
-def cygnss_shape_subset(subset_gpd,input_xr,buffer_val=0,crs_code = 4326):
+
+def cygnss_shape_subset(subset_gpd, input_xr, buffer_val=0, crs_code=4326):
     """
     Subset CYGNSS DataArray to a reservoir. Calculate and format the average time series
     """
     from . import time_series_calcs
     import pandas as pd
-    fw_subset_xr = xr_shape_subset(subset_gpd,input_xr,buffer_val,crs_code)
 
-    fw_dates = time_series_calcs.CYGNSS_timestep_to_pdTimestamp(fw_subset_xr['time'])
-    fw_agg_series = pd.Series(data=fw_subset_xr.mean(dim=['lat','lon']) , index = fw_dates)
-    return fw_subset_xr , fw_agg_series
+    fw_subset_xr = xr_shape_subset(subset_gpd, input_xr, buffer_val, crs_code)
 
-def precip_shape_subset(subset_gpd,input_xr,buffer_val=0,crs_code = 4326):
+    fw_dates = time_series_calcs.CYGNSS_timestep_to_pdTimestamp(fw_subset_xr["time"])
+    fw_agg_series = pd.Series(
+        data=fw_subset_xr.mean(dim=["lat", "lon"]), index=fw_dates
+    )
+    return fw_subset_xr, fw_agg_series
+
+
+def precip_shape_subset(subset_gpd, input_xr, buffer_val=0, crs_code=4326):
     """
     Subset precip DataArray to a reservoir. Calculate and format the summed time series
     """
     from . import time_series_calcs
     import pandas as pd
-    precip_subset_xr = xr_shape_subset(subset_gpd,input_xr,buffer_val,crs_code)
 
-    precip_dates = time_series_calcs.IMERG_timestep_to_pdTimestamp(precip_subset_xr['time'])
-    precip_agg_series = pd.Series(data=precip_subset_xr.sum(dim=['lat','lon']) , index = precip_dates)
-    return precip_subset_xr , precip_agg_series
+    precip_subset_xr = xr_shape_subset(subset_gpd, input_xr, buffer_val, crs_code)
+
+    precip_dates = time_series_calcs.IMERG_timestep_to_pdTimestamp(
+        precip_subset_xr["time"]
+    )
+    precip_agg_series = pd.Series(
+        data=precip_subset_xr.sum(dim=["lat", "lon"]), index=precip_dates
+    )
+    return precip_subset_xr, precip_agg_series

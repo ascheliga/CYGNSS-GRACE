@@ -4,3 +4,4 @@ repos:
     rev: 23.9.1
     hooks:
       - id: black
+        language_version: python3.11
