@@ -122,7 +122,7 @@ def precip_point_subset(coords_i,precip):
     """
     import numpy as np
     import pandas as pd
-    import time_series_calcs
+    from . import time_series_calcs
     # Select data
     precip_xr = precip.sel(lat=coords_i[0],lon=coords_i[1],method='nearest')
     dates_precip = time_series_calcs.IMERG_timestep_to_pdTimestamp(precip_xr['time'])
@@ -174,7 +174,7 @@ def grace_shape_subset(subset_gpd,grace_dict,buffer_val=0):
     subsetted_cmwe_agg : pd.Series
         areal-weighted average of subsetted_cmwe
     """
-    import area_calcs
+    from . import area_calcs
 
     shape_poly = subset_gpd['geometry'].buffer(buffer_val).unary_union
     bool_series = grace_dict['mascon'].intersects(shape_poly)
@@ -224,7 +224,7 @@ def cygnss_shape_subset(subset_gpd,input_xr,buffer_val=0,crs_code = 4326):
     """
     Subset CYGNSS DataArray to a reservoir. Calculate and format the average time series
     """
-    import time_series_calcs
+    from . import time_series_calcs
     import pandas as pd
     fw_subset_xr = xr_shape_subset(subset_gpd,input_xr,buffer_val,crs_code)
 
@@ -236,7 +236,7 @@ def precip_shape_subset(subset_gpd,input_xr,buffer_val=0,crs_code = 4326):
     """
     Subset precip DataArray to a reservoir. Calculate and format the summed time series
     """
-    import time_series_calcs
+    from . import time_series_calcs
     import pandas as pd
     precip_subset_xr = xr_shape_subset(subset_gpd,input_xr,buffer_val,crs_code)
 
