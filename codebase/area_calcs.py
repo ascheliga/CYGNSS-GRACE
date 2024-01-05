@@ -8,7 +8,10 @@ import pandas as pd
 # In[3]:
 
 
-def stat_check(input_df, condition, pcut):
+def stat_check(
+    input_df: pd.DataFrame, condition: str, pcut: float
+) -> tuple[pd.DataFrame, pd.Series | list]:
+    # def stat_check(input_df, condition, pcut):
     """
     Mask dataframe by slope sign (positive or negative) and p-value cutoff.
 
