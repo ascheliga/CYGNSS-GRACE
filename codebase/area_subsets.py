@@ -1,4 +1,7 @@
-def check_for_multiple_dams(dam_name, res_shp, idx=-1):
+import pandas as pd
+# import geopandas as gpd
+
+def check_for_multiple_dams(dam_name :str, res_shp: pd.DataFrame, idx: int =-1) -> pd.DataFrame:
     """
     Subset reservoir dataset by dam name and select one reservoir if multiple of same name.
 
