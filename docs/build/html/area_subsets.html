@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>area_subsets &#8212; CYGNSS-GRACE codebase 0.1.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=4f649999" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=039e1c02" />
+    <script src="_static/documentation_options.js?v=a58bc63e"></script>
+    <script src="_static/doctools.js?v=888ff710"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="module-codebase.area_subsets">
+<span id="area-subsets"></span><h1>area_subsets<a class="headerlink" href="#module-codebase.area_subsets" title="Link to this heading">¶</a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="codebase.area_subsets.check_for_multiple_dams">
+<span class="sig-prename descclassname"><span class="pre">codebase.area_subsets.</span></span><span class="sig-name descname"><span class="pre">check_for_multiple_dams</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dam_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">res_shp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-1</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="headerlink" href="#codebase.area_subsets.check_for_multiple_dams" title="Link to this definition">¶</a></dt>
+<dd><p>Subset reservoir dataset by dam name and select one reservoir if multiple of same name.</p>
+<section id="inputs">
+<h2>Inputs<a class="headerlink" href="#inputs" title="Link to this heading">¶</a></h2>
+<dl class="simple">
+<dt>dam_name<span class="classifier">str</span></dt><dd><p>Name of dam in reservoir dataset.
+Case insensitive</p>
+</dd>
+<dt>res_shp<span class="classifier">(Geo)DataFrame</span></dt><dd><p>DataFrame of reservoirs to subset from.
+Looks for <cite>dam_name</cite> input in column named ‘DAM_NAME’</p>
+</dd>
+<dt>idx<span class="classifier">int</span></dt><dd><p>default = -1
+if <cite>idx</cite> &lt; 0, then will not subset
+use to select a specific dam by index if the dam name appears more than once
+ex: the dam name ‘Pelican Lake’ appears 4 times in the data. use idx = 3 to get the last occurrence</p>
+</dd>
+</dl>
+</section>
+<section id="outputs">
+<h2>Outputs<a class="headerlink" href="#outputs" title="Link to this heading">¶</a></h2>
+<p>subset GeoDataFrame</p>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="codebase.area_subsets.cygnss_point_subset">
+<span class="sig-prename descclassname"><span class="pre">codebase.area_subsets.</span></span><span class="sig-name descname"><span class="pre">cygnss_point_subset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coords_i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fw</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#codebase.area_subsets.cygnss_point_subset" title="Link to this definition">¶</a></dt>
+<dd><section id="id1">
+<h2>Inputs<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h2>
+<p>coords_i: tuple of (lat,lon)
+fw : xarray</p>
+<blockquote>
+<div><p>from fw = load_data.load_CYGNSS_05().</p>
+</div></blockquote>
+</section>
+<section id="id2">
+<h2>Outputs<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h2>
+<dl class="simple">
+<dt>precip_ts<span class="classifier">Pandas Series</span></dt><dd><p>CYGNSS timeseries with datetime object index</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="codebase.area_subsets.cygnss_shape_subset">
+<span class="sig-prename descclassname"><span class="pre">codebase.area_subsets.</span></span><span class="sig-name descname"><span class="pre">cygnss_shape_subset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subset_gpd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_xr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">buffer_val</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">crs_code</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4326</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#codebase.area_subsets.cygnss_shape_subset" title="Link to this definition">¶</a></dt>
+<dd><p>Subset CYGNSS DataArray to a reservoir. Calculate and format the average time series.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="codebase.area_subsets.grace_point_subset">
+<span class="sig-prename descclassname"><span class="pre">codebase.area_subsets.</span></span><span class="sig-name descname"><span class="pre">grace_point_subset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coords_i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grace_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">buffer_val</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#codebase.area_subsets.grace_point_subset" title="Link to this definition">¶</a></dt>
+<dd><p>Must have already run: <cite>grace_dict = load_data.load_GRACE()</cite>.</p>
+<section id="id3">
+<h2>Inputs<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h2>
+<p>coords_i: tuple of (lat,lon)
+grace_dict : dictionary of GRACE TWS info</p>
+<blockquote>
+<div><p>from <cite>load_data.load_GRACE()</cite>
+uses grace_dict ‘mascon’ and ‘cmwe’ keys</p>
+</div></blockquote>
+<dl class="simple">
+<dt>buffer_val<span class="classifier">float</span></dt><dd><p>default = 0
+units of decimal degrees
+the extra length to extend the subset in a square from the central coordinate</p>
+</dd>
+</dl>
+</section>
+<section id="id4">
+<h2>Outputs<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h2>
+<dl class="simple">
+<dt>cmwe_i: pd.DataFrame</dt><dd><p>GRACE cmwe solution of the mascon containing the input point</p>
+</dd>
+<dt>mascon_i: pd.DataFrame</dt><dd><p>GRACE mascon metadata of the mascon containing the input point</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="codebase.area_subsets.grace_shape_subset">
+<span class="sig-prename descclassname"><span class="pre">codebase.area_subsets.</span></span><span class="sig-name descname"><span class="pre">grace_shape_subset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subset_gpd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">grace_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">buffer_val</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#codebase.area_subsets.grace_shape_subset" title="Link to this definition">¶</a></dt>
+<dd><section id="id5">
+<h2>Inputs<a class="headerlink" href="#id5" title="Link to this heading">¶</a></h2>
+<dl class="simple">
+<dt>subset_gpd<span class="classifier">GeoPandas GeoDataFrame</span></dt><dd><p>row(s) of item(s) to subset the GRACE mascons</p>
+</dd>
+<dt>grace_dict<span class="classifier">dictionary of GRACE TWS info</span></dt><dd><p>from <cite>load_data.load_GRACE()</cite>
+uses grace_dict ‘mascon’ and ‘cmwe’ keys</p>
+</dd>
+<dt>buffer_val<span class="classifier">float</span></dt><dd><p>default = 0
+units of decimal degrees
+the extra length to extend the subset in a square from the central coordinate.</p>
+</dd>
+</dl>
+</section>
+<section id="id6">
+<h2>Outputs<a class="headerlink" href="#id6" title="Link to this heading">¶</a></h2>
+<dl class="simple">
+<dt>subsetted_cmwe<span class="classifier">pd.DataFrame</span></dt><dd><p>GRACE cmwe solution of the mascons intersecting the input reservoir</p>
+</dd>
+<dt>subsetted_mascon<span class="classifier">pd.DataFrame</span></dt><dd><p>GRACE mascon metadata of the mascons intersecting the input reservoir</p>
+</dd>
+<dt>subsetted_cmwe_agg<span class="classifier">pd.Series</span></dt><dd><p>areal-weighted average of subsetted_cmwe</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="codebase.area_subsets.precip_point_subset">
+<span class="sig-prename descclassname"><span class="pre">codebase.area_subsets.</span></span><span class="sig-name descname"><span class="pre">precip_point_subset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coords_i</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">precip</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#codebase.area_subsets.precip_point_subset" title="Link to this definition">¶</a></dt>
+<dd><p>Must have already run: <cite>precip = load_data.load_IMERG()</cite>.</p>
+<section id="id7">
+<h2>Inputs<a class="headerlink" href="#id7" title="Link to this heading">¶</a></h2>
+<p>coords_i: tuple of (lat,lon)
+precip : xarray</p>
+</section>
+<section id="id8">
+<h2>Outputs<a class="headerlink" href="#id8" title="Link to this heading">¶</a></h2>
+<dl class="simple">
+<dt>precip_ts<span class="classifier">Pandas Series</span></dt><dd><p>IMERG timeseries with datetime object index</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="codebase.area_subsets.precip_shape_subset">
+<span class="sig-prename descclassname"><span class="pre">codebase.area_subsets.</span></span><span class="sig-name descname"><span class="pre">precip_shape_subset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subset_gpd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_xr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">buffer_val</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">crs_code</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4326</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#codebase.area_subsets.precip_shape_subset" title="Link to this definition">¶</a></dt>
+<dd><p>Subset precip DataArray to a reservoir. Calculate and format the summed time series.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="codebase.area_subsets.reservoir_name_to_point">
+<span class="sig-prename descclassname"><span class="pre">codebase.area_subsets.</span></span><span class="sig-name descname"><span class="pre">reservoir_name_to_point</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dam_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">res_shp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#codebase.area_subsets.reservoir_name_to_point" title="Link to this definition">¶</a></dt>
+<dd><p>Must have already run: <cite>res_shp = load_data.load_GRanD()</cite>.</p>
+<section id="id9">
+<h2>Inputs<a class="headerlink" href="#id9" title="Link to this heading">¶</a></h2>
+<dl class="simple">
+<dt>dam_name<span class="classifier">str</span></dt><dd><p>name of dam in dataset</p>
+</dd>
+<dt>res_shp<span class="classifier">GeoPandas GeoDataFrame</span></dt><dd><p>from <cite>load_data.load_GRanD()</cite> function
+dataset of GRanD reservoirs</p>
+</dd>
+<dt>idx<span class="classifier">int</span></dt><dd><p>default = 0
+use to select a specific dam by index if the dam name appears more than once
+ex: the dam name ‘Pelican Lake’ appears 4 times in the data. use idx = 3 to get the last occurrence</p>
+</dd>
+</dl>
+</section>
+<section id="id10">
+<h2>Outputs<a class="headerlink" href="#id10" title="Link to this heading">¶</a></h2>
+<dl class="simple">
+<dt>coords_oi<span class="classifier">tuple</span></dt><dd><p>coordinates Of Interest
+form of (latitude , longitude)
+the given lat and lon values of the reservoir in the dataset</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="codebase.area_subsets.xr_shape_subset">
+<span class="sig-prename descclassname"><span class="pre">codebase.area_subsets.</span></span><span class="sig-name descname"><span class="pre">xr_shape_subset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">subset_gpd</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_xr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">buffer_val</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">crs_code</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4326</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#codebase.area_subsets.xr_shape_subset" title="Link to this definition">¶</a></dt>
+<dd><section id="id11">
+<h2>Inputs<a class="headerlink" href="#id11" title="Link to this heading">¶</a></h2>
+<dl class="simple">
+<dt>subset_gpd<span class="classifier">GeoPandas GeoDataFrame</span></dt><dd><p>row(s) of item(s) to subset input_xr</p>
+</dd>
+<dt>input_xr<span class="classifier">xarray DataArray</span></dt><dd><p>must have ‘lat’ and ‘lon’ substrings in coord names</p>
+</dd>
+<dt>buffer_val<span class="classifier">float</span></dt><dd><p>default = 0
+units of decimal degrees
+the extra length to extend the subset in a square from the central coordinate</p>
+</dd>
+<dt>crs_code<span class="classifier">int</span></dt><dd><p>default = 4326 (WGS84)
+EPSG code for coordinate reference system
+crs_code applied to input_xr.</p>
+</dd>
+</dl>
+</section>
+<section id="id12">
+<h2>Outputs<a class="headerlink" href="#id12" title="Link to this heading">¶</a></h2>
+<dl class="simple">
+<dt>clip_rxr<span class="classifier">xarray DataArray</span></dt><dd><p>input_xr subset to the input reservoir</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">CYGNSS-GRACE codebase</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2024, Ann Scheliga.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 7.2.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.13</a>
+      
+      |
+      <a href="_sources/area_subsets.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
