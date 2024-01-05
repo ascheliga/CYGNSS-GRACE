@@ -2,9 +2,13 @@
 
 
 # Import packages
+from typing import TYPE_CHECKING
+
 import numpy as np
 import pandas as pd
 
+if TYPE_CHECKING:
+    import xarray as xr
 # In[3]:
 
 
@@ -84,7 +88,10 @@ def pos_neg_area_calc(input_df: pd.DataFrame, pcut: float) -> tuple[float, float
 
 
 def area_frac_calc(
-    metrics_3dfs: list[pd.DataFrame], pcut: float, col_labels=None, idx_labels=None
+    metrics_3dfs: list[pd.DataFrame],
+    pcut: float,
+    col_labels: list | None = None,
+    idx_labels: list | None = None,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     """
     Provide fractional and total land area with a stat-sig trend for 3 datasets.
@@ -154,7 +161,9 @@ def area_frac_calc(
     return frac_df, km2_df
 
 
-def GRACE_areal_average(input_cmwe, input_mascon):
+def GRACE_areal_average(
+    input_cmwe: pd.DataFrame, input_mascon: pd.DataFrame
+) -> pd.Series:
     """
     Calculate the weighted average from given cmwe and mascons.
 
@@ -172,7 +181,9 @@ def GRACE_areal_average(input_cmwe, input_mascon):
     return areal_average
 
 
-def cygnss_convert_to_binary(cygnss_DA, true_val=2):
+def cygnss_convert_to_binary(
+    cygnss_DA: xr.DataArray, true_val: float = 2
+) -> xr.DataArray:
     """
     Convert categorical CYGNSS maps to binary int.
 
@@ -214,7 +225,9 @@ def cygnss_convert_to_binary(cygnss_DA, true_val=2):
     return convert_TF
 
 
-def CYGNSS_001_areal_average(cygnss_DA, x_dim="x", y_dim="y"):
+def CYGNSS_001_areal_average(
+    cygnss_DA: xr.DataArray, x_dim: str = "x", y_dim: str = "y"
+) -> np.ndarray:
     """
     Calculate the average of values in the provided DataArray.
 
