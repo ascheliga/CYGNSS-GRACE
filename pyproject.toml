@@ -7,6 +7,9 @@ name = "codebase"
 version = "0.1.0"
 
 [project.optional-dependencies]
+test = [
+    "pytest>=7,<8",
+]
 lint = [
     "pre-commit>=2.20.0",
 ]
