@@ -6,7 +6,7 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = 'codebase'
+project = 'CYGNSS-GRACE codebase'
 copyright = '2024, Ann Scheliga'
 author = 'Ann Scheliga'
 release = '0.1.1'
@@ -14,7 +14,11 @@ release = '0.1.1'
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-extensions = []
+extensions = ['sphinx.ext.autodoc','sphinx.ext.napoleon']
+
+autodoc_default_options = {'members':True}
+autoclass_content = 'class'
+napoleon_numpy_docstring = True
 
 templates_path = ['_templates']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']

@@ -1,10 +1,10 @@
-.. codebase documentation master file, created by
-   sphinx-quickstart on Fri Jan  5 13:39:31 2024.
+.. CYGNSS-GRACE codebase documentation master file, created by
+   sphinx-quickstart on Fri Jan  5 14:17:33 2024.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to codebase's documentation!
-====================================
+Welcome to CYGNSS-GRACE codebase's documentation!
+=================================================
 
 .. toctree::
    :maxdepth: 2

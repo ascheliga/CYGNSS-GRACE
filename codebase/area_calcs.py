@@ -2,13 +2,9 @@
 
 
 # Import packages
-from typing import TYPE_CHECKING
-
 import numpy as np
 import pandas as pd
-
-if TYPE_CHECKING:
-    import xarray as xr
+import xarray as xr
 # In[3]:
 
 
@@ -209,9 +205,7 @@ def cygnss_convert_to_binary(
         values converted to 0/1 binary int
         attribute units and comments re-written
     """
-    import xarray
-
-    if not isinstance(cygnss_DA, xarray.DataArray):
+    if not isinstance(cygnss_DA, xr.DataArray):
         raise ("Input must be a DataArray")
 
     # Turn != 2 to 0
