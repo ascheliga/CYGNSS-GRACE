@@ -48,9 +48,9 @@ def stat_check(
 # In[4]:
 
 
-def pos_neg_area_calc(input_df, pcut):
+def pos_neg_area_calc(input_df: pd.DataFrame, pcut: float) -> tuple[float, float]:
     """
-    Provide the total area (km^2) that has a significant positive trend and a significant negative trend.
+    Provide the total area (km^2) that has a significant positive or negative trend.
 
     Long Description
     ----------------
@@ -83,13 +83,15 @@ def pos_neg_area_calc(input_df, pcut):
 # In[55]:
 
 
-def area_frac_calc(metrics_3dfs, pcut, col_labels=None, idx_labels=None):
+def area_frac_calc(
+    metrics_3dfs: list[pd.DataFrame], pcut: float, col_labels=None, idx_labels=None
+) -> tuple[pd.DataFrame, pd.DataFrame]:
     """
-    Wrapper function
-    Provides fractional and total land area with a statisticaly significant trend for three input datasets.
+    Provide fractional and total land area with a stat-sig trend for 3 datasets.
 
     Long Description
     ----------------
+    Wrapper function of `pos_neg_area_calc` function for three input dataframes.
 
     Inputs
     ------
@@ -107,9 +109,11 @@ def area_frac_calc(metrics_3dfs, pcut, col_labels=None, idx_labels=None):
     Outputs
     -------
     frac_df : Pandas DataFrame
-        3x3 dataframe containing positive, negative, and non-significant trend areas as fraction of total area
-    frac_df, km2_df : Pandas DataFrame
-        3x3 dataframe containing positive, negative, and non-significant trend areas in units of square kilometers
+        3x3 dataframe containing positive, negative, and non-significant trend areas
+         as fraction of total area
+    km2_df : Pandas DataFrame
+        3x3 dataframe containing positive, negative, and non-significant trend areas
+         in units of square kilometers
     """
     if idx_labels is None:
         idx_labels = [0, 1, 2]
@@ -174,7 +178,7 @@ def cygnss_convert_to_binary(cygnss_DA, true_val=2):
 
     Long Description
     ----------------
-    Does not convert from int to bool because some manipulations and calculations require numeric data.
+    Does not convert from int to bool as some calculations require numeric data.
     Due to limited xarray-compatible fucntions, uses a two-step process:
         first, converts non-surface water to 0,
         second converts remaining non-zero values to 1.
@@ -212,7 +216,7 @@ def cygnss_convert_to_binary(cygnss_DA, true_val=2):
 
 def CYGNSS_001_areal_average(cygnss_DA, x_dim="x", y_dim="y"):
     """
-    Calculates the average of values in the provided DataArray.
+    Calculate the average of values in the provided DataArray.
 
     Long Description
     ----------------
