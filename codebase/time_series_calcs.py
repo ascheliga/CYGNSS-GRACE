@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 from scipy import stats
 from sklearn.metrics import r2_score
+from xarray import DataArray
 
 
 def _object2float(*inputs):
@@ -14,11 +15,11 @@ def _object2float(*inputs):
     return inputs
 
 
-def normalize(df):
+def normalize(df:pd.DataFrame)-> pd.DataFrame:
     return (df - df.mean()) / df.std()
 
 
-def toYearFraction(date):
+def toYearFraction(date)-> float:
     """
     Convert date-time objects to deciml year.
 
@@ -50,7 +51,7 @@ def toYearFraction(date):
     return decYear
 
 
-def IMERG_timestep_to_pdTimestamp(input_xrcoord):
+def IMERG_timestep_to_pdTimestamp(input_xrcoord: DataArray):
     """
     Convert xr array of IMERG timestep numbers to an array Pandas Timestamp objects.
 
@@ -68,7 +69,7 @@ def IMERG_timestep_to_pdTimestamp(input_xrcoord):
     return dates_precip
 
 
-def CYGNSS_timestep_to_pdTimestamp(input_xrcoord):
+def CYGNSS_timestep_to_pdTimestamp(input_xrcoord:DataArray):
     """
     Convert xr array of CYGNSS timestep numbers to an array Pandas Timestamp objects.
 
@@ -83,7 +84,7 @@ def CYGNSS_timestep_to_pdTimestamp(input_xrcoord):
     return dates_fw
 
 
-def linregress_wrap(x_input, y_input_df):
+def linregress_wrap(x_input, y_input_df:pd.DataFrame) -> pd.DataFrame:
     """
     Run linear regression on each pixel/mascon time series and return metrics of interest.
     ----------
@@ -121,7 +122,7 @@ def linregress_wrap(x_input, y_input_df):
     return output_df
 
 
-def intersecting_timeframes(*series, buffer=1):
+def intersecting_timeframes(*series, buffer:int=1)-> list:
     """
     Slice multiple time series down to a shared timespan.
 
