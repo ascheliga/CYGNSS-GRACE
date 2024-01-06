@@ -1,9 +1,14 @@
 import pandas as pd
-# import geopandas as gpd
+from geopandas import GeoDataFrame
+from xarray import DataArray
 
-def check_for_multiple_dams(dam_name :str, res_shp: pd.DataFrame, idx: int =-1) -> pd.DataFrame:
+
+def check_for_multiple_dams(
+    dam_name: str, res_shp: pd.DataFrame, idx: int = -1
+) -> pd.DataFrame:
     """
-    Subset reservoir dataset by dam name and select one reservoir if multiple of same name.
+    Subset reservoir dataset by dam name and
+    select one reser voirif there are multiple of same name.
 
     Inputs
     ------
@@ -17,7 +22,8 @@ def check_for_multiple_dams(dam_name :str, res_shp: pd.DataFrame, idx: int =-1) 
         default = -1
         if `idx` < 0, then will not subset
         use to select a specific dam by index if the dam name appears more than once
-        ex: the dam name 'Pelican Lake' appears 4 times in the data. use idx = 3 to get the last occurrence
+        ex: the dam name 'Pelican Lake' appears 4 times in the data.
+            use idx = 3 to get the last occurrence
 
     Outputs
     -------
@@ -35,7 +41,9 @@ def check_for_multiple_dams(dam_name :str, res_shp: pd.DataFrame, idx: int =-1) 
         return res_shp[dam_row]
 
 
-def reservoir_name_to_point(dam_name, res_shp, idx=0):
+def reservoir_name_to_point(
+    dam_name: str, res_shp: pd.DataFrame, idx: int = 0
+) -> tuple[float, float]:
     """
     Must have already run: `res_shp = load_data.load_GRanD()`.
 
@@ -49,7 +57,8 @@ def reservoir_name_to_point(dam_name, res_shp, idx=0):
     idx : int
         default = 0
         use to select a specific dam by index if the dam name appears more than once
-        ex: the dam name 'Pelican Lake' appears 4 times in the data. use idx = 3 to get the last occurrence
+        ex: the dam name 'Pelican Lake' appears 4 times in the data.
+            use idx = 3 to get the last occurrence
 
     Outputs
     -------
@@ -79,7 +88,9 @@ def reservoir_name_to_point(dam_name, res_shp, idx=0):
     return coords_oi
 
 
-def grace_point_subset(coords_i, grace_dict, buffer_val=0):
+def grace_point_subset(
+    coords_i: tuple[float, float], grace_dict: dict, buffer_val: float = 0
+) -> tuple[pd.DataFrame, pd.DataFrame]:
     """
     Must have already run: `grace_dict = load_data.load_GRACE()`.
 
@@ -138,7 +149,7 @@ def grace_point_subset(coords_i, grace_dict, buffer_val=0):
     return cmwe_i, mascon_i
 
 
-def precip_point_subset(coords_i, precip):
+def precip_point_subset(coords_i: tuple[float, float], precip: DataArray) -> pd.Series:
     """
     Must have already run: `precip = load_data.load_IMERG()`.
 
@@ -164,7 +175,7 @@ def precip_point_subset(coords_i, precip):
     return precip_ts
 
 
-def cygnss_point_subset(coords_i, fw):
+def cygnss_point_subset(coords_i: tuple[float, float], fw: DataArray) -> pd.Series:
     """
 
 
@@ -181,6 +192,8 @@ def cygnss_point_subset(coords_i, fw):
     """
     import pandas as pd
 
+    from . import time_series_calcs
+
     # Select data
     fw_xr = fw.sel(lat=coords_i[0], lon=coords_i[1], method="nearest")
     dates_fw = time_series_calcs.CYGNSS_timestep_to_pdTimestamp(fw_xr["time"])
@@ -188,7 +201,9 @@ def cygnss_point_subset(coords_i, fw):
     return fw_ts
 
 
-def grace_shape_subset(subset_gpd, grace_dict, buffer_val=0):
+def grace_shape_subset(
+    subset_gpd: GeoDataFrame, grace_dict: dict, buffer_val: float = 0
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.Series]:
     """
     Inputs
     ------
@@ -225,7 +240,12 @@ def grace_shape_subset(subset_gpd, grace_dict, buffer_val=0):
     return subsetted_cmwe, subsetted_mascon, subsetted_cmwe_agg
 
 
-def xr_shape_subset(subset_gpd, input_xr, buffer_val=0, crs_code=4326):
+def xr_shape_subset(
+    subset_gpd: GeoDataFrame,
+    input_xr: DataArray,
+    buffer_val: float = 0,
+    crs_code: int = 4326,
+) -> DataArray:
     """
     Inputs
     ------
@@ -262,8 +282,16 @@ def xr_shape_subset(subset_gpd, input_xr, buffer_val=0, crs_code=4326):
     return clip_rxr
 
 
-def cygnss_shape_subset(subset_gpd, input_xr, buffer_val=0, crs_code=4326):
-    """Subset CYGNSS DataArray to a reservoir. Calculate and format the average time series."""
+def cygnss_shape_subset(
+    subset_gpd: GeoDataFrame,
+    input_xr: DataArray,
+    buffer_val: float = 0,
+    crs_code: int = 4326,
+) -> tuple[DataArray, pd.Series]:
+    """
+    Subset CYGNSS DataArray to a reservoir.
+    Calculate and format the average time series.
+    """
     import pandas as pd
 
     from . import time_series_calcs
@@ -277,8 +305,15 @@ def cygnss_shape_subset(subset_gpd, input_xr, buffer_val=0, crs_code=4326):
     return fw_subset_xr, fw_agg_series
 
 
-def precip_shape_subset(subset_gpd, input_xr, buffer_val=0, crs_code=4326):
-    """Subset precip DataArray to a reservoir. Calculate and format the summed time series."""
+def precip_shape_subset(
+    subset_gpd: GeoDataFrame,
+    input_xr: DataArray,
+    buffer_val: float = 0,
+    crs_code: int = 4326,
+) -> tuple[DataArray, pd.Series]:
+    """Subset precip DataArray to a reservoir.
+    Calculate and format the summed time series.
+    """
     import pandas as pd
 
     from . import time_series_calcs

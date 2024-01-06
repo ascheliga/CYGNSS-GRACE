@@ -1,7 +1,11 @@
+from geopandas import GeoDataFrame
+from xarray import DataArray
+
+
 def load_CYGNSS_05(
-    cygnss_filename="CYGNSS_watermask_0_5_with_lakes.nc",
-    cygnss_filepath="/global/scratch/users/cgerlein/fc_ecohydrology_scratch/CYGNSS/Data/CYGNSS_L1_v3_1_data_products/Monthly_maps_watermasks_glob2_netCDF/WetCHARTs_size_0_5_deg/",
-):
+    cygnss_filename: str = "CYGNSS_watermask_0_5_with_lakes.nc",
+    cygnss_filepath: str = "/global/scratch/users/cgerlein/fc_ecohydrology_scratch/CYGNSS/Data/CYGNSS_L1_v3_1_data_products/Monthly_maps_watermasks_glob2_netCDF/WetCHARTs_size_0_5_deg/",
+) -> DataArray:
     """
     Inputs
     ------
@@ -24,10 +28,10 @@ def load_CYGNSS_05(
 
 
 def load_CYGNSS_001_1month(
-    filename,
+    filename: str,
     bbox_vals,
-    filepath="/global/scratch/users/cgerlein/fc_ecohydrology_scratch/CYGNSS/Data/CYGNSS_L1_v3_1_data_products/Monthly_maps_watermasks_glob2_netCDF/Native_size_0_01_deg/With_lakes/",
-):
+    filepath: str = "/global/scratch/users/cgerlein/fc_ecohydrology_scratch/CYGNSS/Data/CYGNSS_L1_v3_1_data_products/Monthly_maps_watermasks_glob2_netCDF/Native_size_0_01_deg/With_lakes/",
+) -> DataArray:
     """ """
     import xarray as xr
 
@@ -42,8 +46,8 @@ def load_CYGNSS_001_1month(
 
 def load_CYGNSS_001_all_months(
     bbox_vals,
-    filepath="/global/scratch/users/cgerlein/fc_ecohydrology_scratch/CYGNSS/Data/CYGNSS_L1_v3_1_data_products/Monthly_maps_watermasks_glob2_netCDF/Native_size_0_01_deg/With_lakes/",
-):
+    filepath: str = "/global/scratch/users/cgerlein/fc_ecohydrology_scratch/CYGNSS/Data/CYGNSS_L1_v3_1_data_products/Monthly_maps_watermasks_glob2_netCDF/Native_size_0_01_deg/With_lakes/",
+) -> DataArray:
     """ """
     import os
 
@@ -62,12 +66,12 @@ def load_CYGNSS_001_all_months(
 
 
 def load_GRACE(
-    grace_filename="gsfc.glb_.200204_202211_rl06v2.0_obp-ice6gd.h5",
-    grace_filepath="/global/scratch/users/ann_scheliga/",
-    land_subset=True,
-    uncertainty=False,
-    formatting=True,
-):
+    grace_filename: str = "gsfc.glb_.200204_202211_rl06v2.0_obp-ice6gd.h5",
+    grace_filepath: str = "/global/scratch/users/ann_scheliga/",
+    land_subset: bool = True,
+    uncertainty: bool = False,
+    formatting: bool = True,
+) -> dict:
     """
 
     Long description
@@ -181,9 +185,9 @@ def load_GRACE(
 
 
 def load_GRanD(
-    GRanD_filename="GRanD_reservoirs_v1_3.shp",
-    GRanD_filepath="/global/scratch/users/ann_scheliga/dam_datasets/",
-):
+    GRanD_filename: str = "GRanD_reservoirs_v1_3.shp",
+    GRanD_filepath: str = "/global/scratch/users/ann_scheliga/dam_datasets/",
+) -> GeoDataFrame:
     """
     Inputs
     ------
@@ -206,9 +210,9 @@ def load_GRanD(
 
 
 def load_IMERG(
-    imerg_filename="IMERG_allmonths_201801_202304_xr.nc",
-    imerg_filepath="/global/scratch/users/ann_scheliga/IMERG_monthly_data/",
-):
+    imerg_filename: str = "IMERG_allmonths_201801_202304_xr.nc",
+    imerg_filepath: str = "/global/scratch/users/ann_scheliga/IMERG_monthly_data/",
+) -> DataArray:
     """
     Inputs
     ------
