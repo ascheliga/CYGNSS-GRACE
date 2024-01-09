@@ -10,7 +10,8 @@ Welcome to CYGNSS-GRACE codebase's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-
+   area_calcs
+   area_subsets
 
 Indices and tables
 ==================
