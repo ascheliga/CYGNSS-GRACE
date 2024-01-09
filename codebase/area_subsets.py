@@ -145,7 +145,7 @@ def grace_point_subset(
     mascon_i = grace_dict["mascon"].loc[range_bool]
     cmwe_i = grace_dict["cmwe"].loc[mascon_i.index].squeeze()
     if "geometry" in cmwe_i.index:
-        cmwe_i.drop("geometry", axis='index', inplace=True)
+        cmwe_i.drop("geometry", axis="index", inplace=True)
     return cmwe_i, mascon_i
 
 
