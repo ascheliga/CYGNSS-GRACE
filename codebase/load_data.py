@@ -14,7 +14,7 @@ def load_CYGNSS_05(
     cygnss_filename : str
         default = 'CYGNSS_watermask_0_5_with_lakes.nc'
     cygnss_filepath : str
-        default = '/global/scratch/users/cgerlein/fc_ecohydrology_scratch/CYGNSS/Data/CYGNSS_L1_v3_1_data_products/Monthly_maps_watermasks_glob_netCDF/WetCHARTs_size_0_5_deg/'
+        default = '/global/scratch/users/cgerlein/fc_ecohydrology_scratch/CYGNSS/Data/CYGNSS_L1_v3_1_data_products/Monthly_maps_watermasks_glob_netCDF/WetCHARTs_size_0_5_deg/'.
 
     Outputs
     -------
@@ -31,10 +31,29 @@ def load_CYGNSS_05(
 
 def load_CYGNSS_001_1month(
     filename: str,
-    bbox_vals,
+    bbox_vals: np.ndarray,
     filepath: str = "/global/scratch/users/cgerlein/fc_ecohydrology_scratch/CYGNSS/Data/CYGNSS_L1_v3_1_data_products/Monthly_maps_watermasks_glob2_netCDF/Native_size_0_01_deg/With_lakes/",
 ) -> DataArray:
-    """ """
+    """
+    Load and subset a single month of data by filename.
+
+    Inputs
+    ------
+    filename : str
+        Name of one month of data
+        Typical form of 'CYGNSS_watermask_2018_08.nc'
+    bbox_vals : np.ndarray
+        order of values: 'minx', 'miny', 'maxx', 'maxy'
+        array of 4 values to feed to DataArray.rio.clip_box()
+    filepath : str
+        default: "/global/scratch/users/cgerlein/fc_ecohydrology_scratch/CYGNSS/Data/CYGNSS_L1_v3_1_data_products/Monthly_maps_watermasks_glob2_netCDF/Native_size_0_01_deg/With_lakes/"
+        filepath to CYGNSS data
+
+    Outputs
+    -------
+    clipped_rxr: xr.DataArray
+
+    """
     import xarray as xr
 
     global_xrDS = xr.open_dataset(filepath + filename, decode_times=False)
@@ -47,10 +66,27 @@ def load_CYGNSS_001_1month(
 
 
 def load_CYGNSS_001_all_months(
-    bbox_vals,
+    bbox_vals: pd.DataFrame,
     filepath: str = "/global/scratch/users/cgerlein/fc_ecohydrology_scratch/CYGNSS/Data/CYGNSS_L1_v3_1_data_products/Monthly_maps_watermasks_glob2_netCDF/Native_size_0_01_deg/With_lakes/",
 ) -> DataArray:
-    """ """
+    """
+    Load all available months of CYGNSS data for a subset area.
+
+    Inputs
+    ------
+    bbox_vals : pd.DataFrame
+        columns of 'minx', 'miny', 'maxx', 'maxy'
+        single row of values
+        default format from the gpd.bounds attribute
+    filepath : str
+        default: "/global/scratch/users/cgerlein/fc_ecohydrology_scratch/CYGNSS/Data/CYGNSS_L1_v3_1_data_products/Monthly_maps_watermasks_glob2_netCDF/Native_size_0_01_deg/With_lakes/"
+        filepath to CYGNSS data
+
+    Outputs
+    -------
+    cygnss_allmonths_xr: xr. DataArray
+
+    """
     import os
 
     import numpy as np
@@ -59,7 +95,9 @@ def load_CYGNSS_001_all_months(
 
     filenames = os.listdir(filepath)
     filenames.sort()
-    list_of_xr = [load_CYGNSS_001_1month(filename, bbox_vals) for filename in filenames]
+    list_of_xr = [
+        load_CYGNSS_001_1month(filename, bbox_vals.values[0]) for filename in filenames
+    ]
     time_idx = np.arange(len(filenames))
     cygnss_allmonths_xr = xr.concat(
         list_of_xr, pd.Index(time_idx, name="time"), combine_attrs="drop_conflicts"
@@ -78,7 +116,7 @@ def load_GRACE(
 
     Long description
     ----------------
-
+    This is a placeholder description.
 
     Inputs
     ------
@@ -132,10 +170,10 @@ def load_GRACE(
     min_lat = mascon_df["lat_center"] - mascon_df["lat_span"] / 2
     max_lon = mascon_df["lon_center"] + mascon_df["lon_span"] / 2
     max_lat = mascon_df["lat_center"] + mascon_df["lat_span"] / 2
-    coord_corners["NE"] = list(zip(max_lon, max_lat))
-    coord_corners["SE"] = list(zip(max_lon, min_lat))
-    coord_corners["SW"] = list(zip(min_lon, min_lat))
-    coord_corners["NW"] = list(zip(min_lon, max_lat))
+    coord_corners["NE"] = list(zip(max_lon, max_lat, strict=True))
+    coord_corners["SE"] = list(zip(max_lon, min_lat, strict=True))
+    coord_corners["SW"] = list(zip(min_lon, min_lat, strict=True))
+    coord_corners["NW"] = list(zip(min_lon, max_lat, strict=True))
     coord_corners["close"] = coord_corners["NE"]
     coord_geom = coord_corners.apply(Polygon, axis=1)
     mascon_gdf = gpd.GeoDataFrame(
@@ -191,6 +229,8 @@ def load_GRanD(
     GRanD_filepath: str = "/global/scratch/users/ann_scheliga/dam_datasets/",
 ) -> GeoDataFrame:
     """
+    Load the Global Reservoir and Dam Database (GRanD) shapefile.
+
     Inputs
     ------
     GRanD_filename : str
@@ -216,6 +256,8 @@ def load_IMERG(
     imerg_filepath: str = "/global/scratch/users/ann_scheliga/IMERG_monthly_data/",
 ) -> DataArray:
     """
+    Load global IMERG precipitation as an xarray.DataArray.
+
     Inputs
     ------
     imerg_filename : str
@@ -238,7 +280,7 @@ def load_IMERG(
 def load_DEM_full(
     dem_filepath: str = "/global/scratch/users/cgerlein/fc_ecohydrology_scratch/CYGNSS/Data/",
     dem_filename: str = "CYGNSS_0_01_deg_Map_DEM_Mask.npy",
-) -> tuple[np.ndarray]:
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
     Read the global 0.01deg DEM file into memory.
 
@@ -268,7 +310,7 @@ def load_DEM_subset(
     bbox_vals: pd.DataFrame,
     dem_filepath: str = "/global/scratch/users/cgerlein/fc_ecohydrology_scratch/CYGNSS/Data/",
     dem_filename: str = "CYGNSS_0_01_deg_Map_DEM_Mask.npy",
-) -> tuple[np.ndarray]:
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
     Read and subset the global 0.01deg DEM file.
 
@@ -288,10 +330,10 @@ def load_DEM_subset(
     """
     dem, lat, lon = load_DEM_full(dem_filepath, dem_filename)
     lat_bool = (lat >= bbox_vals["miny"].values[0]) & (
-                lat <= bbox_vals["maxy"].values[0]
+        lat <= bbox_vals["maxy"].values[0]
     )
     lon_bool = (lon >= bbox_vals["minx"].values[0]) & (
-                lon <= bbox_vals["maxx"].values[0]
+        lon <= bbox_vals["maxx"].values[0]
     )
     dem_subset = dem[np.ix_(lat_bool, lon_bool)]
     del dem
