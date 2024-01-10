@@ -6,15 +6,21 @@ from xarray import DataArray
 
 def load_CYGNSS_05(
     cygnss_filename: str = "CYGNSS_watermask_0_5_with_lakes.nc",
-    cygnss_filepath: str = "/global/scratch/users/cgerlein/fc_ecohydrology_scratch/CYGNSS/Data/CYGNSS_L1_v3_1_data_products/Monthly_maps_watermasks_glob2_netCDF/WetCHARTs_size_0_5_deg/",
+    cygnss_filepath: str = "/global/scratch/users/cgerlein/"
+    "fc_ecohydrology_scratch/CYGNSS/Data/CYGNSS_L1_v3_1_data_products/"
+    "Monthly_maps_watermasks_glob2_netCDF/WetCHARTs_size_0_5_deg/",
 ) -> DataArray:
     """
+    Load the global, full time series CYGNSS watermask at 0.5deg resolution.
+
     Inputs
     ------
     cygnss_filename : str
         default = 'CYGNSS_watermask_0_5_with_lakes.nc'
     cygnss_filepath : str
-        default = '/global/scratch/users/cgerlein/fc_ecohydrology_scratch/CYGNSS/Data/CYGNSS_L1_v3_1_data_products/Monthly_maps_watermasks_glob_netCDF/WetCHARTs_size_0_5_deg/'.
+        default = '/global/scratch/users/cgerlein/"\
+        "fc_ecohydrology_scratch/CYGNSS/Data/CYGNSS_L1_v3_1_data_products/"\
+        "Monthly_maps_watermasks_glob_netCDF/WetCHARTs_size_0_5_deg/'.
 
     Outputs
     -------
@@ -32,7 +38,9 @@ def load_CYGNSS_05(
 def load_CYGNSS_001_1month(
     filename: str,
     bbox_vals: np.ndarray,
-    filepath: str = "/global/scratch/users/cgerlein/fc_ecohydrology_scratch/CYGNSS/Data/CYGNSS_L1_v3_1_data_products/Monthly_maps_watermasks_glob2_netCDF/Native_size_0_01_deg/With_lakes/",
+    filepath: str = "/global/scratch/users/cgerlein/"
+    "fc_ecohydrology_scratch/CYGNSS/Data/CYGNSS_L1_v3_1_data_products/"
+    "Monthly_maps_watermasks_glob2_netCDF/Native_size_0_01_deg/With_lakes/",
 ) -> DataArray:
     """
     Load and subset a single month of data by filename.
@@ -46,7 +54,9 @@ def load_CYGNSS_001_1month(
         order of values: 'minx', 'miny', 'maxx', 'maxy'
         array of 4 values to feed to DataArray.rio.clip_box()
     filepath : str
-        default: "/global/scratch/users/cgerlein/fc_ecohydrology_scratch/CYGNSS/Data/CYGNSS_L1_v3_1_data_products/Monthly_maps_watermasks_glob2_netCDF/Native_size_0_01_deg/With_lakes/"
+        default: "/global/scratch/users/cgerlein/"\
+        "fc_ecohydrology_scratch/CYGNSS/Data/CYGNSS_L1_v3_1_data_products/"\
+        "Monthly_maps_watermasks_glob2_netCDF/Native_size_0_01_deg/With_lakes/"
         filepath to CYGNSS data
 
     Outputs
@@ -67,7 +77,9 @@ def load_CYGNSS_001_1month(
 
 def load_CYGNSS_001_all_months(
     bbox_vals: pd.DataFrame,
-    filepath: str = "/global/scratch/users/cgerlein/fc_ecohydrology_scratch/CYGNSS/Data/CYGNSS_L1_v3_1_data_products/Monthly_maps_watermasks_glob2_netCDF/Native_size_0_01_deg/With_lakes/",
+    filepath: str = "/global/scratch/users/cgerlein/"
+    "fc_ecohydrology_scratch/CYGNSS/Data/CYGNSS_L1_v3_1_data_products/"
+    "Monthly_maps_watermasks_glob2_netCDF/Native_size_0_01_deg/With_lakes/",
 ) -> DataArray:
     """
     Load all available months of CYGNSS data for a subset area.
@@ -79,7 +91,9 @@ def load_CYGNSS_001_all_months(
         single row of values
         default format from the gpd.bounds attribute
     filepath : str
-        default: "/global/scratch/users/cgerlein/fc_ecohydrology_scratch/CYGNSS/Data/CYGNSS_L1_v3_1_data_products/Monthly_maps_watermasks_glob2_netCDF/Native_size_0_01_deg/With_lakes/"
+        default: "/global/scratch/users/cgerlein/"\
+        "fc_ecohydrology_scratch/CYGNSS/Data/CYGNSS_L1_v3_1_data_products/"\
+        "Monthly_maps_watermasks_glob2_netCDF/Native_size_0_01_deg/With_lakes/"
         filepath to CYGNSS data
 
     Outputs
@@ -278,7 +292,8 @@ def load_IMERG(
 
 
 def load_DEM_full(
-    dem_filepath: str = "/global/scratch/users/cgerlein/fc_ecohydrology_scratch/CYGNSS/Data/",
+    dem_filepath: str = "/global/scratch/users/cgerlein/"
+    "fc_ecohydrology_scratch/CYGNSS/Data/",
     dem_filename: str = "CYGNSS_0_01_deg_Map_DEM_Mask.npy",
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
@@ -308,7 +323,8 @@ def load_DEM_full(
 
 def load_DEM_subset(
     bbox_vals: pd.DataFrame,
-    dem_filepath: str = "/global/scratch/users/cgerlein/fc_ecohydrology_scratch/CYGNSS/Data/",
+    dem_filepath: str = "/global/scratch/users/cgerlein/"
+    "fc_ecohydrology_scratch/CYGNSS/Data/",
     dem_filename: str = "CYGNSS_0_01_deg_Map_DEM_Mask.npy",
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
