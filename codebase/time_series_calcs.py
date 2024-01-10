@@ -87,7 +87,6 @@ def CYGNSS_timestep_to_pdTimestamp(input_xrcoord: DataArray):
 def linregress_wrap(x_input, y_input_df: pd.DataFrame) -> pd.DataFrame:
     """
     Run linear regression on each pixel/mascon time series and return metrics of interest.
-    ----------
 
     Long description
     ----------------
