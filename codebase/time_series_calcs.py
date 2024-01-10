@@ -15,11 +15,11 @@ def _object2float(*inputs):
     return inputs
 
 
-def normalize(df:pd.DataFrame)-> pd.DataFrame:
+def normalize(df: pd.DataFrame) -> pd.DataFrame:
     return (df - df.mean()) / df.std()
 
 
-def toYearFraction(date)-> float:
+def toYearFraction(date) -> float:
     """
     Convert date-time objects to deciml year.
 
@@ -69,7 +69,7 @@ def IMERG_timestep_to_pdTimestamp(input_xrcoord: DataArray):
     return dates_precip
 
 
-def CYGNSS_timestep_to_pdTimestamp(input_xrcoord:DataArray):
+def CYGNSS_timestep_to_pdTimestamp(input_xrcoord: DataArray):
     """
     Convert xr array of CYGNSS timestep numbers to an array Pandas Timestamp objects.
 
@@ -84,7 +84,7 @@ def CYGNSS_timestep_to_pdTimestamp(input_xrcoord:DataArray):
     return dates_fw
 
 
-def linregress_wrap(x_input, y_input_df:pd.DataFrame) -> pd.DataFrame:
+def linregress_wrap(x_input, y_input_df: pd.DataFrame) -> pd.DataFrame:
     """
     Run linear regression on each pixel/mascon time series and return metrics of interest.
     ----------
@@ -122,7 +122,7 @@ def linregress_wrap(x_input, y_input_df:pd.DataFrame) -> pd.DataFrame:
     return output_df
 
 
-def intersecting_timeframes(*series, buffer:int=1)-> list:
+def intersecting_timeframes(*series, buffer: int = 1) -> list:
     """
     Slice multiple time series down to a shared timespan.
 
@@ -304,7 +304,7 @@ class TimeSeriesMetrics:
         -------
         output = matrix with climatology removed
             same size as input
-        means = the climatology values removed from the input
+        means = the climatology values removed from the input.
         """
         if overwrite:
             del self.seasonality

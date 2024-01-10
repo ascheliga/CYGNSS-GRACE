@@ -1,7 +1,7 @@
-from geopandas import GeoDataFrame
-from xarray import DataArray
 import numpy as np
 import pandas as pd
+from geopandas import GeoDataFrame
+from xarray import DataArray
 
 
 def load_CYGNSS_05(
@@ -234,8 +234,11 @@ def load_IMERG(
     )
     return imerg_raw
 
-def load_DEM_full(dem_filepath: str = '/global/scratch/users/cgerlein/fc_ecohydrology_scratch/CYGNSS/Data/',
-     dem_filename:str = 'CYGNSS_0_01_deg_Map_DEM_Mask.npy')-> tuple[np.ndarray]:
+
+def load_DEM_full(
+    dem_filepath: str = "/global/scratch/users/cgerlein/fc_ecohydrology_scratch/CYGNSS/Data/",
+    dem_filename: str = "CYGNSS_0_01_deg_Map_DEM_Mask.npy",
+) -> tuple[np.ndarray]:
     """
     Read the global 0.01deg DEM file into memory.
 
@@ -251,17 +254,21 @@ def load_DEM_full(dem_filepath: str = '/global/scratch/users/cgerlein/fc_ecohydr
     lon: np.ndarray
     """
     import numpy as np
-    dem = np.load(dem_filepath+dem_filename)
-    # latitude ranges from -45 to 45, with num = 9001  
-    # longitude ranges from -180 to 180 with num = 36001
-    # thus the coordinates can be set up as follow: 
-    lat = np.linspace(-45,45,dem.shape[0])
-    lon = np.linspace(-180,180,dem.shape[1])
-    return dem , lat , lon
 
-def load_DEM_subset(bbox_vals:pd.DataFrame,
-    dem_filepath: str = '/global/scratch/users/cgerlein/fc_ecohydrology_scratch/CYGNSS/Data/',
-    dem_filename:str = 'CYGNSS_0_01_deg_Map_DEM_Mask.npy') -> tuple[np.ndarray]:
+    dem = np.load(dem_filepath + dem_filename)
+    # latitude ranges from -45 to 45, with num = 9001
+    # longitude ranges from -180 to 180 with num = 36001
+    # thus the coordinates can be set up as follow:
+    lat = np.linspace(-45, 45, dem.shape[0])
+    lon = np.linspace(-180, 180, dem.shape[1])
+    return dem, lat, lon
+
+
+def load_DEM_subset(
+    bbox_vals: pd.DataFrame,
+    dem_filepath: str = "/global/scratch/users/cgerlein/fc_ecohydrology_scratch/CYGNSS/Data/",
+    dem_filename: str = "CYGNSS_0_01_deg_Map_DEM_Mask.npy",
+) -> tuple[np.ndarray]:
     """
     Read and subset the global 0.01deg DEM file.
 
@@ -279,14 +286,19 @@ def load_DEM_subset(bbox_vals:pd.DataFrame,
     lat_subset: np.ndarray
     lon_subset: np.ndarray
     """
-    dem , lat ,lon = load_DEM_full(dem_filepath,dem_filename)
-    lat_bool = (lat > bbox_vals["miny"]) & (lat <bbox_vals["maxy"])
-    lon_bool = (lon > bbox_vals["minx"]) & (lon <bbox_vals["maxx"])
-    dem_subset = dem[np.ix_(lat_bool,lon_bool)]
+    dem, lat, lon = load_DEM_full(dem_filepath, dem_filename)
+    lat_bool = (lat >= bbox_vals["miny"].values[0]) & (
+                lat <= bbox_vals["maxy"].values[0]
+    )
+    lon_bool = (lon >= bbox_vals["minx"].values[0]) & (
+                lon <= bbox_vals["maxx"].values[0]
+    )
+    dem_subset = dem[np.ix_(lat_bool, lon_bool)]
     del dem
     lat_subset = lat[lat_bool]
     lon_subset = lon[lon_bool]
-    return dem_subset , lat_subset ,lon_subset
+    return dem_subset, lat_subset, lon_subset
+
 
 if __name__ == "__main__":
     test = load_IMERG()
