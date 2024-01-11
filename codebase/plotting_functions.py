@@ -1,19 +1,19 @@
-# Define directories
+from typing import Any
 
-func_dir = "/global/home/users/ann_scheliga/CYGNSS-GRACE/codebase/"
-
-# Import packages
 import matplotlib as mpl
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
 import pandas as pd
+from geopandas import GeoDataFrame
+from matplotlib.colors import Colormap
+from numpy.typing import ArrayLike
 
 from . import area_calcs
 
 
-def pie_from_series(row, axi, cmaps="BrBG"):
+def pie_from_series(row: ArrayLike, axi: plt.Axes, cmaps: str = "BrBG") -> None:
     """
-    Plots a three-wedge pie chart on an existing axis object.
+    Plot a three-wedge pie chart on an existing axis object.
 
     Long Description
     ----------------
@@ -51,10 +51,16 @@ def pie_from_series(row, axi, cmaps="BrBG"):
 
 
 def statsig_map(
-    input_gdf, ax, count, cmaps="BrBG", pie_row=None, cbar_flag="", **plot_params
-):
+    input_gdf: GeoDataFrame,
+    ax: plt.Axes,
+    count: int,
+    cmaps: str | Colormap = "BrBG",
+    pie_row: ArrayLike = None,
+    cbar_flag: str = "",
+    **plot_params: dict[str, Any],
+) -> None:
     """
-    Plots a map of slope values with an option for a pie chart inset.
+    Plot a map of slope values with an option for a pie chart inset.
 
     Long Description
     ----------------
@@ -90,7 +96,8 @@ def statsig_map(
             'legend_label' : str
             'vmin' : float
             'vmax' : float
-        for dictionary values formatted as lists, the count parameter selects from the list
+        for values formatted as lists,
+        the count parameter selects from the list
 
     Outputs
     -------
@@ -157,19 +164,20 @@ def statsig_map(
 
 
 def tri_figuremap(
-    input_3gdfs,
-    cmaps="BrBG",
-    n_rows=3,
-    n_cols=1,
-    cbar_flag="hor",
-    pcut=0.01,
-    **plot_params,
-):
+    input_3gdfs: list[GeoDataFrame],
+    cmaps: str = "BrBG",
+    n_rows: int = 3,
+    n_cols: int = 1,
+    cbar_flag: str = "hor",
+    pcut: float = 0.01,
+    **plot_params: dict[str, Any],
+) -> plt.Axes | tuple[plt.Axes, ...]:
     """
 
     Long Description
     ----------------
-    When subplot grid is 1x3 or 3x1 and cbar_flag given, extra plot_params and formatting are built-in.
+    When subplot grid is 1x3 or 3x1 and cbar_flag given,
+    extra plot_params and formatting are built-in.
 
     Inputs
     ------
@@ -211,7 +219,8 @@ def tri_figuremap(
         plot_params["titles"] = ["", "", ""]
 
     if "piechart" in plot_params and plot_params["piechart"]:
-        # if piechart is a plot param and is true calculates total trend areas of each input gdf
+        # if piechart exists and is true,
+        # then calculates total trend areas of each input gdf.
         # pcut value must be defined earlier in script
         if cmaps == "BrBG":
             area_calc_type = "wet_dry"
@@ -219,7 +228,8 @@ def tri_figuremap(
             area_calc_type = "pos_neg"
         frac_df, __ = area_calcs.area_frac_calc(input_3gdfs, pcut, area_calc_type)
     else:
-        # if no piechart or 'piechart' is false, creates empty pd.Series to keep later inputs from breaking
+        # if no piechart or 'piechart' is false,
+        # then creates empty pd.Series to keep later inputs from breaking
         frac_df = pd.Series(index=["", "", ""])
 
     if (
@@ -256,9 +266,10 @@ def tri_figuremap(
         fig, axs = plt.subplots(n_rows, n_cols, figsize=[10, 18], facecolor="white")
 
     for count, axi, gdf, pie_idx in zip(
-        range(len(axs)), axs, input_3gdfs, frac_df.index
+        range(len(axs)), axs, input_3gdfs, frac_df.index, strict=True
     ):
-        # create trend map for each input_gdf. Will add a colorbar to the last plot unless plot_params['cbar_off'] is True
+        # create trend map for each input_gdf.
+        # Will add a colorbar to the last plot unless plot_params['cbar_off'] is True
         if axi == axs[-1] and cbar_flag:
             statsig_map(
                 gdf,
@@ -277,7 +288,9 @@ def tri_figuremap(
     return axs
 
 
-def three_part_timeseries(input3dfs, **plot_params):
+def three_part_timeseries(
+    input3dfs: list[pd.DataFrame], **plot_params: dict
+) -> plt.Axes:
     """
     Plot three time series with one shared x-axis and three separate y-axes.
 
