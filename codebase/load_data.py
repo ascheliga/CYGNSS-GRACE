@@ -290,6 +290,7 @@ def load_IMERG(
     )
     return imerg_raw
 
+
 def load_DEM_full_as_nparray(
     dem_filepath: str = "/global/scratch/users/cgerlein/"
     "fc_ecohydrology_scratch/CYGNSS/Data/",
@@ -318,13 +319,14 @@ def load_DEM_full_as_nparray(
     lat = np.linspace(-45, 45, dem.shape[0])
     lon = np.linspace(-180, 180, dem.shape[1])
 
-    return dem , lat , lon
+    return dem, lat, lon
+
 
 def load_DEM_full_as_rxrDA(
     dem_filepath: str = "/global/scratch/users/cgerlein/"
     "fc_ecohydrology_scratch/CYGNSS/Data/",
     dem_filename: str = "CYGNSS_0_01_deg_Map_DEM_Mask.npy",
-    _crs :int = 4326
+    _crs: int = 4326,
 ) -> DataArray:
     """
     Read the global 0.01deg DEM file into memory.
@@ -341,14 +343,15 @@ def load_DEM_full_as_rxrDA(
     dem_full_rxr : xr.DataArray
         has rioxarray spatial reference
     """
-    import numpy as np
     import xarray as xr
-    import rioxarray
 
-    dem , lat , lon = load_DEM_full_as_nparray(dem_filepath, dem_filename)
+    dem, lat, lon = load_DEM_full_as_nparray(dem_filepath, dem_filename)
 
-    dem_full = xr.DataArray(data = dem , dims = ['lat','lon'], 
-                       coords=dict(lat= (['lat'],lat),lon=(['lon'],lon)))
+    dem_full = xr.DataArray(
+        data=dem,
+        dims=["lat", "lon"],
+        coords={"lat": (["lat"], lat), "lon": (["lon"], lon)},
+    )
     dem_full_rxr = dem_full.rio.write_crs(_crs)
     dem_full_rxr.rio.set_spatial_dims("lon", "lat", inplace=True)
     return dem_full_rxr
@@ -377,7 +380,7 @@ def load_DEM_subset_as_nparray(
     lat_subset: np.ndarray
     lon_subset: np.ndarray
     """
-    dem_full = load_DEM_full_as_nparray(dem_filepath, dem_filename)
+    dem_full, lat, lon = load_DEM_full_as_nparray(dem_filepath, dem_filename)
     lat_bool = (lat >= bbox_vals["miny"].values[0]) & (
         lat <= bbox_vals["maxy"].values[0]
     )
@@ -390,12 +393,13 @@ def load_DEM_subset_as_nparray(
     lon_subset = lon[lon_bool]
     return dem_subset, lat_subset, lon_subset
 
+
 def load_DEM_subset_as_rxrDA(
     bbox_vals: pd.DataFrame,
     dem_filepath: str = "/global/scratch/users/cgerlein/"
     "fc_ecohydrology_scratch/CYGNSS/Data/",
     dem_filename: str = "CYGNSS_0_01_deg_Map_DEM_Mask.npy",
-    _crs: int = 4326
+    _crs: int = 4326,
 ) -> DataArray:
     """
     Read and subset the global 0.01deg DEM file.
@@ -415,6 +419,7 @@ def load_DEM_subset_as_rxrDA(
     dem_full_rxr = load_DEM_full_as_rxrDA(dem_filepath, dem_filename, _crs)
     clipped_rxr = dem_full_rxr.rio.clip_box(*bbox_vals.values[0])
     return clipped_rxr
+
 
 if __name__ == "__main__":
     test = load_IMERG()
