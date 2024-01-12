@@ -70,11 +70,23 @@ def IMERG_timestep_to_pdTimestamp(input_xrcoord: DataArray):
     return dates_precip
 
 
-def CYGNSS_timestep_to_pdTimestamp(input_xrcoord: DataArray):
+def CYGNSS_timestep_to_pdTimestamp(input_xrcoord: DataArray) -> np.ndarray:
     """
     Convert xr array of CYGNSS timestep numbers to an array Pandas Timestamp objects.
 
+    Long Description
+    ----------------
     Timestep  = months since 2018 Aug 01 (UTC)
+
+    Inputs
+    ------
+    input_xrcoord : xr.DataArray
+        1-dimensional array of ints
+
+    Outputs
+    -------
+    dates_fw : np.ndarray
+        1-dimensional array of pd.Timestamp objects
     """
     import numpy as np
     import pandas as pd
