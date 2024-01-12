@@ -344,6 +344,7 @@ def load_DEM_full_as_rxrDA(
         has rioxarray spatial reference
     """
     import xarray as xr
+    import rioxarray
 
     dem, lat, lon = load_DEM_full_as_nparray(dem_filepath, dem_filename)
 
@@ -416,6 +417,8 @@ def load_DEM_subset_as_rxrDA(
     ------
     clipped_rxr: xr.DataArray
     """
+    import rioxarray
+
     dem_full_rxr = load_DEM_full_as_rxrDA(dem_filepath, dem_filename, _crs)
     clipped_rxr = dem_full_rxr.rio.clip_box(*bbox_vals.values[0])
     return clipped_rxr
