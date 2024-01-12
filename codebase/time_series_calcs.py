@@ -16,12 +16,13 @@ def _object2float(*inputs):
 
 
 def normalize(df: pd.DataFrame) -> pd.DataFrame:
+"""Take the z-score normalization of input dataframe."""
     return (df - df.mean()) / df.std()
 
 
 def toYearFraction(date) -> float:
     """
-    Convert date-time objects to deciml year.
+    Convert date-time objects to decimal year.
 
     Inputs
     ------
@@ -69,11 +70,23 @@ def IMERG_timestep_to_pdTimestamp(input_xrcoord: DataArray):
     return dates_precip
 
 
-def CYGNSS_timestep_to_pdTimestamp(input_xrcoord: DataArray):
+def CYGNSS_timestep_to_pdTimestamp(input_xrcoord: DataArray) -> np.ndarray:
     """
     Convert xr array of CYGNSS timestep numbers to an array Pandas Timestamp objects.
 
+    Long Description
+    ----------------
     Timestep  = months since 2018 Aug 01 (UTC)
+
+    Inputs
+    ------
+    input_xrcoord : xr.DataArray
+        1-dimensional array of ints
+
+    Outputs
+    -------
+    dates_fw : np.ndarray
+        1-dimensional array of pd.Timestamp objects
     """
     import numpy as np
     import pandas as pd
@@ -86,12 +99,13 @@ def CYGNSS_timestep_to_pdTimestamp(input_xrcoord: DataArray):
 
 def linregress_wrap(x_input, y_input_df: pd.DataFrame) -> pd.DataFrame:
     """
-    Run linear regression on each pixel/mascon time series and return metrics of interest.
-    ----------
+    Run linear regression on each pixel/mascon time series
+    and return metrics of interest.
 
     Long description
     ----------------
-    Perform column-wise linear regression using scipy.linregress. Creates dataframe to store lin_regress metrics.
+    Perform column-wise linear regression using scipy.linregress.
+    Creates dataframe to store lin_regress metrics.
     Metrics stored are 'slope', 'intercept', 'r_value', 'p_value', 'std_err'.
 
     Inputs
@@ -102,7 +116,8 @@ def linregress_wrap(x_input, y_input_df: pd.DataFrame) -> pd.DataFrame:
         must be same length as y_input_df
     y_input_df : Pandas DataFrame
         the y-component of the linear regression
-        linregress functions needs an array_like input, the wrapper needs a df input to extract columns
+        linregress functions needs an array_like input,
+        the wrapper needs a df input to extract columns
         size: [n_timesteps x n_pixels]
         must be same length as x_input
 
@@ -199,7 +214,18 @@ class TimeSeriesMetrics:
         return _ts_zero_start
 
     def detrend(self):
+        """
+        Inputs
+        ------
+        None
+
+        Outputs
+        -------
+
+        """
+
         def detrend_timeseries(df_actuals):
+            """ """
             x_values = df_actuals.index.values
             x_mask = ~pd.isnull(x_values)
 
@@ -222,6 +248,7 @@ class TimeSeriesMetrics:
         self.lintrend_metrics = _ts_linmetrics.iloc[0]
 
     def cross_corr(self, comparison_ts, ax, ts_type="detrend", plot_on=True):
+        """ """
         if "detrend" in ts_type:
             if "TimeSeriesMetrics" in str(type(comparison_ts)):
                 _y = comparison_ts.ts_detrend
@@ -263,6 +290,7 @@ class TimeSeriesMetrics:
         return lag_time, lag_corr
 
     def coef_determination(self, comparison_ts, **kwargs):
+        """ """
         y_true = self.ts_detrend
         if "TimeSeriesMetrics" in str(type(comparison_ts)):
             y_pred = comparison_ts.ts_detrend
@@ -288,9 +316,13 @@ class TimeSeriesMetrics:
         print(coef_det)
         return coef_det
 
-    def remove_seasonality(self, reps=12, overwrite=False, start_month=1):
+    def remove_seasonality(
+        self, reps: int = 12, overwrite: bool = False, start_month: int = 1
+    ):
         """
-        Use for time series that haven't had seasonality removed (typically non-TWS time series)
+        Use for time series that haven't had seasonality removed
+        (typically non-TWS time series).
+
         Inputs
         ------
         self.ts = matrix to remove climatology on
@@ -317,7 +349,8 @@ class TimeSeriesMetrics:
             l_input = self.ts_detrend.shape[0]
             # time length
             # if len(self.ts_detrend.shape)>1:
-            #     w_input = self.ts_detrend.shape[1] # number of independent tiles/iterations/components
+            #     # number of independent tiles/iterations/components
+            #     w_input = self.ts_detrend.shape[1]
             # else:
             #     self.ts_detrend = self.ts_detrend.reshape(-1,1)
             w_input = 1
@@ -349,6 +382,7 @@ class TimeSeriesMetrics:
             self.seasonality = _seasonality.reindex(calendar.month_name[1:13])
 
     def plot_anomalies(self, ax, norm=True, x_mask=None, **plot_kwargs):
+        """ """
         y = self.ts_detrend
         if x_mask is None:
             x_mask = np.ones(len(y), dtype=bool)
@@ -358,6 +392,7 @@ class TimeSeriesMetrics:
         ax.plot(y, **plot_kwargs)
 
     def plot_seasonality(self, ax, norm=True, x_mask=None, **plot_kwargs):
+        """ """
         y = self.seasonality
         if x_mask is None:
             x_mask = np.ones(len(y), dtype=bool)

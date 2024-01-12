@@ -177,7 +177,7 @@ def precip_point_subset(coords_i: tuple[float, float], precip: DataArray) -> pd.
 
 def cygnss_point_subset(coords_i: tuple[float, float], fw: DataArray) -> pd.Series:
     """
-
+    Subset the given DataArray to the time series at a simgle point.
 
     Inputs
     ------
@@ -205,6 +205,8 @@ def grace_shape_subset(
     subset_gpd: GeoDataFrame, grace_dict: dict, buffer_val: float = 0
 ) -> tuple[pd.DataFrame, pd.DataFrame, pd.Series]:
     """
+    Subset the input GRACE dictionary to the the input geodataframe.
+
     Inputs
     ------
     subset_gpd : GeoPandas GeoDataFrame
@@ -247,6 +249,8 @@ def xr_shape_subset(
     crs_code: int = 4326,
 ) -> DataArray:
     """
+    Subset a generic xarray.DataArray to the provided geodataframe.
+
     Inputs
     ------
     subset_gpd : GeoPandas GeoDataFrame
