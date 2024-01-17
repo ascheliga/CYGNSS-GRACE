@@ -1,3 +1,5 @@
+from typing import Any
+
 import pandas as pd
 from geopandas import GeoDataFrame
 from xarray import DataArray
@@ -43,7 +45,7 @@ def check_for_multiple_dams(
 
 def reservoir_name_to_point(
     dam_name: str, res_shp: pd.DataFrame, idx: int = 0
-) -> tuple[float, float]:
+) -> tuple[Any, ...]:
     """
     Must have already run: `res_shp = load_data.load_GRanD()`.
 
@@ -71,8 +73,11 @@ def reservoir_name_to_point(
 
     dam_row = (res_shp["DAM_NAME"].str.lower()) == (dam_name.lower())
     n_rows = dam_row.sum()
+    coords_array = np.array([np.nan, np.nan])
     if n_rows == 0:
         print("Dam name not found")
+    elif n_rows <= idx:
+        print("idx input too large. idx =", idx, "for", n_rows, "total dam rows")
     elif n_rows > 1 and (n_rows > idx):
         print(
             "Dam name",
@@ -82,10 +87,10 @@ def reservoir_name_to_point(
             "entires found. Use idx input to help",
         )
         dam_row = dam_row[dam_row].index[idx]
-    elif n_rows <= idx:
-        print("idx input too large. idx =", idx, "for", n_rows, "total dam rows")
-    coords_oi = tuple(np.array(res_shp.loc[dam_row, ["LAT_DD", "LONG_DD"]])[0])
-    return coords_oi
+        coords_array = np.array(res_shp.loc[dam_row, ["LAT_DD", "LONG_DD"]])
+    else:
+        coords_array = np.array(res_shp.loc[dam_row, ["LAT_DD", "LONG_DD"]])[0]
+    return tuple(coords_array)
 
 
 def grace_point_subset(
