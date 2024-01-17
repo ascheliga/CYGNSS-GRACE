@@ -1,8 +1,8 @@
+import h5py
 import numpy as np
 import pandas as pd
 from geopandas import GeoDataFrame
 from xarray import DataArray
-import h5py
 
 
 def load_CYGNSS_05(
@@ -119,6 +119,123 @@ def load_CYGNSS_001_all_months(
     )
     return cygnss_allmonths_xr
 
+
+def load_GRACE_uncertainty(f: h5py.File) -> pd.DataFrame:
+    """
+    Load GRACE uncertainty.
+
+    Long Description
+    ----------------
+    Loads the leakage trend, leakage uncertainty, and noise uncertainty.
+    Error of individual mascon: |leakage_trend| + leakage_2sigma + noise_2sigma
+    Error of region of mascons: |spatial_av(leakage_trend)| +
+        (spatial_av(leakage_2sigma) + spatial_av(noise_2sigma))/sqrt(N/Z)
+
+    Inputs
+    ------
+    f : h5py.File
+        GRACE h5 file object
+
+    Outputs
+    -------
+    uncertainty_df : pd.DataFrame
+    """
+    import numpy as np
+    import pandas as pd
+
+    uncertainty_cols = list(f["uncertainty"])
+    uncertainty_df = pd.DataFrame()
+    for key in uncertainty_cols[:-1]:
+        uncertainty_df[key] = np.array(f["uncertainty"][key]).T.squeeze()
+    noise_df = pd.DataFrame(f["uncertainty"]["noise_2sigma"])
+    uncertainty_df = pd.concat([uncertainty_df, noise_df], axis=1)
+    return uncertainty_df
+
+
+def load_GRACE_mascons(f: h5py.File) -> GeoDataFrame:
+    """
+    Load GRACE mascons.
+
+    Inputs
+    ------
+    f : h5py.File
+        GRACE h5 file object
+
+    Outputs
+    -------
+    mascon_gdf : gpd.GeoDataFrame
+    """
+    import pandas as pd
+    from geopandas import GeoDataFrame
+    from shapely.geometry import Polygon
+
+    mascon_cols = list(f["mascon"])  # grab dataset names in mascon group
+    mascon_cols.remove("location_legend")  # remove unused dataset name
+    mascon_df = pd.DataFrame()  # create empty pd.DataFrame
+    for key in mascon_cols:  # fill df
+        mascon_df[key] = np.array(f["mascon"][key]).T.squeeze()
+    # Convert longitude from [0 to 360] to (-180 to 180]
+    mascon_df.loc[mascon_df["lon_center"] > 180, "lon_center"] = (
+        mascon_df.loc[mascon_df["lon_center"] > 180, "lon_center"] - 360
+    )
+    # Convert from lat/lon coordinates to polygons then to GeoDataFrame
+    coord_corners = pd.DataFrame(columns=["NE", "SE", "SW", "NW", "close"])
+    min_lon = mascon_df["lon_center"] - mascon_df["lon_span"] / 2
+    min_lat = mascon_df["lat_center"] - mascon_df["lat_span"] / 2
+    max_lon = mascon_df["lon_center"] + mascon_df["lon_span"] / 2
+    max_lat = mascon_df["lat_center"] + mascon_df["lat_span"] / 2
+    coord_corners["NE"] = list(zip(max_lon, max_lat, strict=True))
+    coord_corners["SE"] = list(zip(max_lon, min_lat, strict=True))
+    coord_corners["SW"] = list(zip(min_lon, min_lat, strict=True))
+    coord_corners["NW"] = list(zip(min_lon, max_lat, strict=True))
+    coord_corners["close"] = coord_corners["NE"]
+    coord_geom = coord_corners.apply(Polygon, axis=1)
+    mascon_gdf = GeoDataFrame(
+        data=mascon_df, geometry=coord_geom.values, crs="EPSG:4326"
+    )
+    return mascon_gdf
+
+
+def load_GRACE_dates(f: h5py.File) -> pd.DataFrame:
+    """
+    Load and format GRACE dates.
+
+    Inputs
+    ------
+    f : h5py.File
+        GRACE h5 file object
+
+    Outputs
+    -------
+    date_df : pd.DataFrame
+    """
+    import numpy as np
+    import pandas as pd
+
+    start_date = pd.Timestamp("2001-12-31")
+    time_cols = list(f["time"])  # grab dataset names in time group
+    time_cols.remove("list_ref_days_solution")  # remove unused dataset name
+    time_df = pd.DataFrame()  # create empty pd.DataFrame for reference dates
+    for key in time_cols[2:-1]:  # fill df with days since reference day
+        time_df[key] = np.array(f["time"][key]).T.squeeze()
+    date_df = time_df.apply(
+        lambda x: pd.to_datetime(x, unit="D", origin=start_date), axis=1
+    )
+    date_df.columns = ["date_first", "date_last", "date_middle"]
+    date_df[["year_middle", "doy_middle", "frac_year_middle"]] = pd.DataFrame(
+        f["time"]["yyyy_doy_yrplot_middle"]
+    ).T
+    return date_df
+
+
+def load_GRACE_cmwe(f: h5py.File) -> pd.DataFrame:
+    """Load GRACE solutions from h5 file."""
+    import pandas as pd
+
+    cmwe = pd.DataFrame(f["solution"]["cmwe"])
+    return cmwe
+
+
 def load_GRACE(
     grace_filename: str = "gsfc.glb_.200204_202211_rl06v2.0_obp-ice6gd.h5",
     grace_filepath: str = "/global/scratch/users/ann_scheliga/",
@@ -153,105 +270,40 @@ def load_GRACE(
 
     Outputs
     -------
+    grace_dict : dict
     """
-    import geopandas as gpd
     import h5py
-    import numpy as np
-    import pandas as pd
-    from shapely.geometry import Polygon
 
     f = h5py.File(grace_filepath + grace_filename, "r")
     grace_dict = {}
 
-    # MASCONS #
-    mascon_cols = list(f["mascon"])  # grab dataset names in mascon group
-    mascon_cols.remove("location_legend")  # remove unused dataset name
-    mascon_df = pd.DataFrame()  # create empty pd.DataFrame
-    for key in mascon_cols:  # fill df
-        mascon_df[key] = np.array(f["mascon"][key]).T.squeeze()
-    # Convert longitude from [0 to 360] to (-180 to 180]
-    mascon_df.loc[mascon_df["lon_center"] > 180, "lon_center"] = (
-        mascon_df.loc[mascon_df["lon_center"] > 180, "lon_center"] - 360
-    )
-    if land_subset:
-        land_bool = mascon_df["location"] == 80
-        mascon_df = mascon_df.loc[land_bool, :]
-    if formatting:
-        mascon_df.index = mascon_df["labels"].astype(int)
-    # Convert from lat/lon coordinates to polygons then to GeoDataFrame
-    coord_corners = pd.DataFrame(columns=["NE", "SE", "SW", "NW", "close"])
-    min_lon = mascon_df["lon_center"] - mascon_df["lon_span"] / 2
-    min_lat = mascon_df["lat_center"] - mascon_df["lat_span"] / 2
-    max_lon = mascon_df["lon_center"] + mascon_df["lon_span"] / 2
-    max_lat = mascon_df["lat_center"] + mascon_df["lat_span"] / 2
-    coord_corners["NE"] = list(zip(max_lon, max_lat, strict=True))
-    coord_corners["SE"] = list(zip(max_lon, min_lat, strict=True))
-    coord_corners["SW"] = list(zip(min_lon, min_lat, strict=True))
-    coord_corners["NW"] = list(zip(min_lon, max_lat, strict=True))
-    coord_corners["close"] = coord_corners["NE"]
-    coord_geom = coord_corners.apply(Polygon, axis=1)
-    mascon_gdf = gpd.GeoDataFrame(
-        data=mascon_df, geometry=coord_geom.values, crs="EPSG:4326"
-    )
-    grace_dict["mascon"] = mascon_gdf
+    mascon_gdf = load_GRACE_mascons(f)
+    date_df = load_GRACE_dates(f)
+    cmwe = load_GRACE_cmwe(f)
 
-    # DATES #
-    start_date = pd.Timestamp("2001-12-31")
-    time_cols = list(f["time"])  # grab dataset names in time group
-    time_cols.remove("list_ref_days_solution")  # remove unused dataset name
-    time_df = pd.DataFrame()  # create empty pd.DataFrame for reference dates
-    for key in time_cols[2:-1]:  # fill df with days since reference day
-        time_df[key] = np.array(f["time"][key]).T.squeeze()
-    date_df = time_df.apply(
-        lambda x: pd.to_datetime(x, unit="D", origin=start_date), axis=1
-    )
-    date_df.columns = ["date_first", "date_last", "date_middle"]
-    date_df[["year_middle", "doy_middle", "frac_year_middle"]] = pd.DataFrame(
-        f["time"]["yyyy_doy_yrplot_middle"]
-    ).T
-    grace_dict["date"] = date_df
-
-    # CMWE SOLUTIONS #
-    cmwe = pd.DataFrame(f["solution"]["cmwe"])
     if land_subset:
+        land_bool = mascon_gdf["location"] == 80
+        mascon_gdf = mascon_gdf.loc[land_bool, :]
         cmwe = cmwe.loc[land_bool, :]
     if formatting:
+        mascon_gdf.index = mascon_gdf["labels"].astype(int)
         cmwe.columns = date_df["date_middle"]
-        cmwe.index = mascon_df["labels"].astype(int)
-    # cmwe_gpd = gpd.GeoDataFrame(data=cmwe,geometry=coord_geom.values,crs="EPSG:4326")
+        cmwe.index = mascon_gdf["labels"].astype(int)
+
+    grace_dict["mascon"] = mascon_gdf
+    grace_dict["date"] = date_df
     grace_dict["cmwe"] = cmwe
 
-    # UNCERTAINTY #
     if uncertainty:
         uncertainty_df = load_GRACE_uncertainty(f)
         if land_subset:
             uncertainty_df = uncertainty_df.loc[land_bool, :]
         if formatting:
-            uncertainty_df.index = mascon_df["labels"].astype(int)
+            uncertainty_df.index = mascon_gdf["labels"].astype(int)
         grace_dict["uncertainty"] = uncertainty_df
 
     return grace_dict
 
-def load_GRACE_uncertainty(f : h5py.File) -> pd.DataFrame:
-    """
-    Load GRACE uncertainty.
-
-    Long Description
-    ----------------
-    Loads the leakage trend, leakage uncertainty, and noise uncertainty.
-    Error of individual mascon: |leakage_trend| + leakage_2sigma + noise_2sigma
-    Error of region of mascons: |spatial_av(leakage_trend)| + 
-        (spatial_av(leakage_2sigma) + spatial_av(noise_2sigma))/sqrt(N/Z)
-    """
-    import numpy as np
-    import pandas as pd
-    uncertainty_cols = list(f["uncertainty"])
-    uncertainty_df = pd.DataFrame()
-    for key in uncertainty_cols[:-1]:
-        uncertainty_df[key] = np.array(f["uncertainty"][key]).T.squeeze()
-    noise_df = pd.DataFrame(f["uncertainty"]["noise_2sigma"])
-    uncertainty_df = pd.concat([uncertainty_df, noise_df], axis=1)
-    return uncertainty_df
 
 def load_GRanD(
     GRanD_filename: str = "GRanD_reservoirs_v1_3.shp",
@@ -440,5 +492,5 @@ def load_DEM_subset_as_rxrDA(
 
 
 if __name__ == "__main__":
-    test = load_GRACE_uncertainty()
+    test = load_GRACE()
     print(test)
