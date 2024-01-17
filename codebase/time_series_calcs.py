@@ -16,7 +16,7 @@ def _object2float(*inputs):
 
 
 def normalize(df: pd.DataFrame) -> pd.DataFrame:
-"""Take the z-score normalization of input dataframe."""
+    """Take the z-score normalization of input dataframe."""
     return (df - df.mean()) / df.std()
 
 

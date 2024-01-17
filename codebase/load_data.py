@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 from geopandas import GeoDataFrame
 from xarray import DataArray
+import h5py
 
 
 def load_CYGNSS_05(
@@ -118,7 +119,6 @@ def load_CYGNSS_001_all_months(
     )
     return cygnss_allmonths_xr
 
-
 def load_GRACE(
     grace_filename: str = "gsfc.glb_.200204_202211_rl06v2.0_obp-ice6gd.h5",
     grace_filepath: str = "/global/scratch/users/ann_scheliga/",
@@ -223,20 +223,35 @@ def load_GRACE(
 
     # UNCERTAINTY #
     if uncertainty:
-        uncertainty_cols = list(f["uncertainty"])
-        uncertainty_df = pd.DataFrame()
-        for key in uncertainty_cols[:-1]:
-            uncertainty_df[key] = np.array(f["uncertainty"][key]).T.squeeze()
-        noise_df = pd.DataFrame(f["uncertainty"]["noise_2sigma"])
-        uncertainty_df = pd.concat([uncertainty_df, noise_df], axis=1)
+        uncertainty_df = load_GRACE_uncertainty(f)
         if land_subset:
             uncertainty_df = uncertainty_df.loc[land_bool, :]
         if formatting:
-            mascon_df.index = mascon_df["labels"].astype(int)
+            uncertainty_df.index = mascon_df["labels"].astype(int)
         grace_dict["uncertainty"] = uncertainty_df
 
     return grace_dict
 
+def load_GRACE_uncertainty(f : h5py.File) -> pd.DataFrame:
+    """
+    Load GRACE uncertainty.
+
+    Long Description
+    ----------------
+    Loads the leakage trend, leakage uncertainty, and noise uncertainty.
+    Error of individual mascon: |leakage_trend| + leakage_2sigma + noise_2sigma
+    Error of region of mascons: |spatial_av(leakage_trend)| + 
+        (spatial_av(leakage_2sigma) + spatial_av(noise_2sigma))/sqrt(N/Z)
+    """
+    import numpy as np
+    import pandas as pd
+    uncertainty_cols = list(f["uncertainty"])
+    uncertainty_df = pd.DataFrame()
+    for key in uncertainty_cols[:-1]:
+        uncertainty_df[key] = np.array(f["uncertainty"][key]).T.squeeze()
+    noise_df = pd.DataFrame(f["uncertainty"]["noise_2sigma"])
+    uncertainty_df = pd.concat([uncertainty_df, noise_df], axis=1)
+    return uncertainty_df
 
 def load_GRanD(
     GRanD_filename: str = "GRanD_reservoirs_v1_3.shp",
@@ -425,5 +440,5 @@ def load_DEM_subset_as_rxrDA(
 
 
 if __name__ == "__main__":
-    test = load_IMERG()
+    test = load_GRACE_uncertainty()
     print(test)
