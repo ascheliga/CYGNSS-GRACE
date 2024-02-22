@@ -217,7 +217,7 @@ class TimeSeriesMetrics:
         """
         Inputs
         ------
-        None
+        None.
 
         Outputs
         -------
