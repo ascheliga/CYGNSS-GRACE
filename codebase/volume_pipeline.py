@@ -75,7 +75,7 @@ def decide_expansion_or_shrinkage_vectorize(
     from xarray import apply_ufunc
 
     change_type_DA = apply_ufunc(
-        decide_expansion_or_shrinkage_vectorize,
+        decide_expansion_or_shrinkage_timestep,
         input_DA,
         input_core_dims=[input_core_dims],
         vectorize=True,
