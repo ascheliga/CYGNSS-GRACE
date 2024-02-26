@@ -66,10 +66,22 @@ def decide_expansion_or_shrinkage_timestep(input_DA: DataArray) -> int:
     else:
         return 0
 
-def decide_expansion_or_shrinkage_vectorize(input_DA: DataArray, input_core_dims=['lat','lon']) -> DataArray:
-    from xarray import apply_unfunc
-    change_type_DA = apply_ufunc(decide_expansion_or_shrinkage,input_DA,input_core_dims=[input_core_dims],vectorize=True)
+
+def decide_expansion_or_shrinkage_vectorize(
+    input_DA: DataArray, input_core_dims=None
+) -> DataArray:
+    if input_core_dims is None:
+        input_core_dims = ["lat", "lon"]
+    from xarray import apply_ufunc
+
+    change_type_DA = apply_ufunc(
+        decide_expansion_or_shrinkage_vectorize,
+        input_DA,
+        input_core_dims=[input_core_dims],
+        vectorize=True,
+    )
     return change_type_DA
+
 
 # 4a. Fit distribution of start timestep DEM
 # 4b. Fit distribution of shrink/expand DEM
