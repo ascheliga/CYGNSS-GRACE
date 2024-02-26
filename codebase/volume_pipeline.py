@@ -56,7 +56,7 @@ def difference_over_time(input_DA: DataArray, dim_label: str = "time") -> DataAr
 
 
 # 3. Assign each time step as shrinking or expanding
-def decide_expansion_or_shrinkage(input_DA: DataArray) -> int:
+def decide_expansion_or_shrinkage_timestep(input_DA: DataArray) -> int:
     expand_count = (input_DA == 1).sum()
     shrink_count = (input_DA == -1).sum()
     if expand_count * 2 <= shrink_count:
@@ -66,6 +66,10 @@ def decide_expansion_or_shrinkage(input_DA: DataArray) -> int:
     else:
         return 0
 
+def decide_expansion_or_shrinkage_vectorize(input_DA: DataArray, input_core_dims=['lat','lon']) -> DataArray:
+    from xarray import apply_unfunc
+    change_type_DA = apply_ufunc(decide_expansion_or_shrinkage,input_DA,input_core_dims=[input_core_dims],vectorize=True)
+    return change_type_DA
 
 # 4a. Fit distribution of start timestep DEM
 # 4b. Fit distribution of shrink/expand DEM
@@ -77,7 +81,7 @@ def grab_data_array_values(input_DA: DataArray) -> ArrayLike:
 
 
 def grab_DEM_of_fw_change_area(dem_DA: DataArray, fw_diff_DA: DataArray) -> DataArray:
-    change_type = decide_expansion_or_shrinkage(fw_diff_DA)
+    change_type = decide_expansion_or_shrinkage_vectorize(fw_diff_DA)
     dem_change_area = dem_DA.where(fw_diff_DA == change_type)
     return dem_change_area
 
