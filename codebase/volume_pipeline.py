@@ -68,7 +68,7 @@ def decide_expansion_or_shrinkage_timestep(input_DA: DataArray) -> int:
 
 
 def decide_expansion_or_shrinkage_vectorize(
-    input_DA: DataArray, input_core_dims=None
+    input_DA: DataArray, input_core_dims: list[str] | None = None
 ) -> DataArray:
     if input_core_dims is None:
         input_core_dims = ["lat", "lon"]
