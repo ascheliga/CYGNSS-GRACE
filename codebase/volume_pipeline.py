@@ -1,6 +1,6 @@
 from geopandas import GeoDataFrame
-from xarray import DataArray
 from numpy.typing import ArrayLike
+from xarray import DataArray
 
 
 # 1a. subset fw data
@@ -50,36 +50,45 @@ def create_aligned_DEM_CYGNSS_subsets(
 
 
 # 2. Create change over time fw dataArray
-def difference_over_time(input_DA: DataArray, dim_label: str = 'time') -> DataArray:
+def difference_over_time(input_DA: DataArray, dim_label: str = "time") -> DataArray:
     diff_DA = input_DA.diff(dim_label)
     return diff_DA
 
+
 # 3. Assign each time step as shrinking or expanding
 def decide_expansion_or_shrinkage(input_DA: DataArray) -> int:
-    expand_count = (input_DA== 1).sum()
-    shrink_count = (input_DA==-1).sum()
-    if   expand_count*2 <= contract_count:
+    expand_count = (input_DA == 1).sum()
+    shrink_count = (input_DA == -1).sum()
+    if expand_count * 2 <= shrink_count:
         return -1
-    elif shrink_count*2 <= expand_count:
+    elif shrink_count * 2 <= expand_count:
         return 1
     else:
         return 0
 
+
 # 4a. Fit distribution of start timestep DEM
 # 4b. Fit distribution of shrink/expand DEM
-def grab_data_array_values(input_DA):
-    vals_nparray = np.squeeze(input_DA.values.reshape((-1,1)))
+def grab_data_array_values(input_DA: DataArray) -> ArrayLike:
+    from numpy import squeeze
+
+    vals_nparray = squeeze(input_DA.values.reshape((-1, 1)))
     return vals_nparray
 
+
 def grab_DEM_of_fw_change_area(dem_DA: DataArray, fw_diff_DA: DataArray) -> DataArray:
-    change_type = decide_expansion_or_shrinkage(fw_DA)
+    change_type = decide_expansion_or_shrinkage(fw_diff_DA)
     dem_change_area = dem_DA.where(fw_diff_DA == change_type)
     return dem_change_area
 
-def fit_distribution_from_dataarray(input_DA: DataArray,distribution_name) -> tuple[float, ...]:
+
+def fit_distribution_from_dataarray(
+    input_DA: DataArray, distribution_name
+) -> tuple[float, ...]:
     data_as_nparray = grab_data_array_values(input_DA)
-    fit_params = function_name.fit(data_as_nparray)
+    fit_params = distribution_name.fit(data_as_nparray)
     return fit_params
+
 
 # 5. Calculate change in height from difference in distribution
 
