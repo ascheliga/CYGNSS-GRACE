@@ -119,7 +119,7 @@ def fit_DEM_distribution_from_conditional_area(
 # 5. Calculate change in height from difference in distribution
 def loop_through_time_series_to_get_fit_params(
     dem_DA: DataArray, cond_DA: DataArray, cond: int | DataArray, distribution_name
-) -> list[tuple[float,...]|float]:
+) -> list[tuple[float, ...] | float]:
     """
     Exists as a loop until I can figure out a way to vectorize this.
     I have not tested if this works.
@@ -142,12 +142,13 @@ def loop_through_time_series_to_get_fit_params(
 
 
 def calculate_height_from_difference_in_norm_dist(
-    norm_params_0: tuple[float, ...], norm_params_1: tuple[float, ...]
+    norm_params_0: tuple[float, ...] | float, norm_params_1: tuple[float, ...] | float
 ) -> float:
     from numpy import isnan
+
     if isnan(norm_params_0).any() or isnan(norm_params_1).any():
-        delta_h = 0
-    else:
+        delta_h = 0.0
+    elif isinstance(norm_params_0, tuple) and isinstance(norm_params_1, tuple):
         delta_h = norm_params_1[0] - norm_params_0[0]  # mean minus mean
     return delta_h
 
