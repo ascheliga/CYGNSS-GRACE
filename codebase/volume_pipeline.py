@@ -86,10 +86,11 @@ def decide_expansion_or_shrinkage_vectorize(
 # 4a. Fit distribution of start timestep DEM
 # 4b. Fit distribution of shrink/expand DEM
 def grab_data_array_values(input_DA: DataArray) -> ArrayLike:
-    from numpy import squeeze
+    from numpy import isnan, squeeze
 
     vals_nparray = squeeze(input_DA.values.reshape((-1, 1)))
-    return vals_nparray
+    vals_nparray_nonnan = vals_nparray[~isnan(vals_nparray)]
+    return vals_nparray_nonnan
 
 
 def grab_DEM_of_conditional_area(
@@ -108,7 +109,7 @@ def fit_distribution_from_dataarray(
 
 
 def fit_DEM_distribution_from_conditional_area(
-    dem_DA: DataArray, cond_DA: DataArray, cond: int, distribution_name
+    distribution_name, dem_DA: DataArray, cond_DA: DataArray, cond: int = 1
 ) -> tuple[float, ...]:
     dem_cond_area = grab_DEM_of_conditional_area(dem_DA, cond_DA, cond)
     fit_params = fit_distribution_from_dataarray(dem_cond_area, distribution_name)
