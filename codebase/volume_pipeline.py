@@ -127,7 +127,7 @@ def loop_through_time_series_to_get_fit_params(
     import numpy as np
 
     t_max = len(cond_DA["time"])
-    fit_params_list = [None] * t_max
+    fit_params_list = [np.nan] * t_max
     for t in np.arange(t_max):
         if isinstance(cond, int):
             cond_i = cond
