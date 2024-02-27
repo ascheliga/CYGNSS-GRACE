@@ -92,10 +92,11 @@ def grab_data_array_values(input_DA: DataArray) -> ArrayLike:
     return vals_nparray
 
 
-def grab_DEM_of_fw_change_area(dem_DA: DataArray, fw_diff_DA: DataArray) -> DataArray:
-    change_type = decide_expansion_or_shrinkage_vectorize(fw_diff_DA)
-    dem_change_area = dem_DA.where(fw_diff_DA == change_type)
-    return dem_change_area
+def grab_DEM_of_conditional_area(
+    dem_DA: DataArray, cond_DA: DataArray, cond: int = 1
+) -> DataArray:
+    dem_cond_area = dem_DA.where(cond_DA == cond)
+    return dem_cond_area
 
 
 def fit_distribution_from_dataarray(
@@ -103,6 +104,14 @@ def fit_distribution_from_dataarray(
 ) -> tuple[float, ...]:
     data_as_nparray = grab_data_array_values(input_DA)
     fit_params = distribution_name.fit(data_as_nparray)
+    return fit_params
+
+
+def fit_DEM_distribution_from_conditional_area(
+    dem_DA: DataArray, cond_DA: DataArray, cond: int, distribution_name
+) -> tuple[float, ...]:
+    dem_cond_area = grab_DEM_of_conditional_area(dem_DA, cond_DA, cond)
+    fit_params = fit_distribution_from_dataarray(dem_cond_area, distribution_name)
     return fit_params
 
 
