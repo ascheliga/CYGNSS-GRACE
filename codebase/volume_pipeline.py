@@ -117,37 +117,62 @@ def fit_DEM_distribution_from_conditional_area(
 
 
 # 5. Calculate change in height from difference in distribution
-def loop_through_time_series_to_get_fit_params(dem_DA, cond_DA: DataArray, cond: int | DataArray, distribution_name):
+def loop_through_time_series_to_get_fit_params(
+    dem_DA: DataArray, cond_DA: DataArray, cond: int | DataArray, distribution_name
+) -> ArrayLike:
     """
     Exists as a loop until I can figure out a way to vectorize this.
     I have not tested if this works.
     """
     import numpy as np
-    t_max = len(cond_DA['time'])
+
+    t_max = len(cond_DA["time"])
     fit_params_array = np.empty(t_max)
     for t in np.arange(t_max):
-        if isinstance(cond,int):
+        if isinstance(cond, int):
             cond_i = cond
         else:
-            cond_i = con.isel(time=t)
-        fit_params_array[t] = fit_DEM_distribution_from_conditional_area(dem_DA, cond_DA.isel(time=t), cond_i, distribution_name)
+            cond_i = cond.isel(time=t)
+        fit_params_array[t] = fit_DEM_distribution_from_conditional_area(
+            dem_DA, cond_DA.isel(time=t), cond_i, distribution_name
+        )
     return fit_params_array
 
-def calculate_height_from_difference_in_norm_dist(norm_params_0: tuple[float,...],norm_params_1: tuple[float,...]) -> float:
-    delta_h = norm_params_1[0] - norm_params_0[0] # mean minus mean
+
+def calculate_height_from_difference_in_norm_dist(
+    norm_params_0: tuple[float, ...], norm_params_1: tuple[float, ...]
+) -> float:
+    delta_h = norm_params_1[0] - norm_params_0[0]  # mean minus mean
     return delta_h
 
-def calculate_height_time_series_from_start_and_change_in_DEM(dem_DA: DataArray,fw_DA: DataArray, fw_diff_DA: DataArray,change_type_DA: DataArray) -> ArrayLike:
+
+def calculate_height_time_series_from_start_and_change_in_DEM(
+    dem_DA: DataArray,
+    fw_DA: DataArray,
+    fw_diff_DA: DataArray,
+    change_type_DA: DataArray,
+) -> ArrayLike:
+    import numpy as np
     from scipy.stats import norm
-    start_timestep_params = loop_through_time_series_to_get_fit_params(dem_DA, fw_DA, 1, norm)
-    change_in_area_params = loop_through_time_series_to_get_fit_params(dem_DA, fw_diff_DA,change_type_DA,norm)
+
+    start_timestep_params = loop_through_time_series_to_get_fit_params(
+        dem_DA, fw_DA, 1, norm
+    )
+    change_in_area_params = loop_through_time_series_to_get_fit_params(
+        dem_DA, fw_diff_DA, change_type_DA, norm
+    )
 
     t_max = len(change_in_area_params)
-    height_array = np.empty(t_max)
+    heights_array = np.empty(t_max)
     i = 0
-    for i_params_0, i_params_1 in zip(start_timestep_params[:t_max] , change_in_area_params):
-        heights_array[i] = calculate_height_from_difference_in_norm_dist(i_params_0, i_params_1)
-        i+=1
+    for i_params_0, i_params_1 in zip(
+        start_timestep_params[:t_max], change_in_area_params, strict=True
+    ):
+        heights_array[i] = calculate_height_from_difference_in_norm_dist(
+            i_params_0, i_params_1
+        )
+        i += 1
+    return heights_array
 
 
 # 6. Calculate area of start timestep DEM
