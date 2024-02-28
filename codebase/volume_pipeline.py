@@ -213,5 +213,6 @@ def project_DA_from_crs_code(input_DA: DataArray, epsg_code: float) -> DataArray
     output_DA = input_DA.rio.reproject(new_crs)
     return output_DA
 
+# Consider looking at areal_average function in area_calc module.
 
 # 7. Calculate volume from change in height x area
