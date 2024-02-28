@@ -5,6 +5,7 @@
 import numpy as np
 import pandas as pd
 import xarray as xr
+from numpy.typing import ArrayLike
 
 # In[3]:
 
@@ -220,6 +221,22 @@ def cygnss_convert_to_binary(
     return convert_TF
 
 
+def grab_pixel_sizes_DA(input_DA: xr.DataArray, x_dim: str = "x", y_dim: str = "y",precision : int= 4) -> tuple[float|ArrayLike,float|ArrayLike]:
+    _x = input_DA.coords[x_dim]
+    _y = input_DA.coords[y_dim]
+
+    x_widths = np.unique((_x[1:].values - _x[:-1].values).round(decimals= precision))
+    y_widths = np.unique((_y[1:].values - _y[:-1].values).round(decimals= precision))
+    return x_widths , y_widths
+def check_equal_area_DA(input_DA: xr.DataArray, pixel_size_kwargs:dict={}) -> bool:
+    from numpy import nan
+    x_widths , y_widths = grab_pixel_sizes_DA(input_DA,**pixel_size_kwargs)
+
+    if len(x_widths) > 1 or len(y_widths) > 1:
+        return nan , nan
+    else:
+        return x_widths , y_widths
+
 def CYGNSS_001_areal_average(
     cygnss_DA: xr.DataArray, x_dim: str = "x", y_dim: str = "y"
 ) -> np.ndarray:
@@ -234,7 +251,7 @@ def CYGNSS_001_areal_average(
     Inputs
     ------
     cygnss_DA : xarray.DataArray
-        all non-nan values in the dataArray will contribute to the average.
+        all non-nan values in the DataArray will contribute to the average.
     """
     import numpy as np
 
@@ -244,16 +261,8 @@ def CYGNSS_001_areal_average(
         x_dim = next(dim for dim in cygnss_DA.dims if "x" in dim)
         y_dim = next(dim for dim in cygnss_DA.dims if "y" in dim)
         print("Projected to equal area")
-    else:
-        # Check that the projection is equal area
-        _x = cygnss_DA.coords[x_dim]
-        _y = cygnss_DA.coords[y_dim]
-
-        _x_widths = np.unique((_x[1:].values - _x[:-1].values).round(decimals=8))
-        _y_widths = np.unique((_y[1:].values - _y[:-1].values).round(decimals=8))
-
-        if len(_x_widths) > 1 or len(_y_widths) > 1:
-            raise ("Unequal pixel areas")
+    elif not check_equal_area_DA(cygnss_DA, x_dim, y_dim):
+        raise ("Unequal pixel areas")
 
     # Average across spatial dims
     _x_dim_idx = cygnss_DA.dims.index(x_dim)
@@ -261,3 +270,5 @@ def CYGNSS_001_areal_average(
     average = np.nanmean(cygnss_DA.values, axis=(_x_dim_idx, _y_dim_idx))
 
     return average
+
+
