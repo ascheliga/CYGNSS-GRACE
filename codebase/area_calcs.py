@@ -221,21 +221,29 @@ def cygnss_convert_to_binary(
     return convert_TF
 
 
-def grab_pixel_sizes_DA(input_DA: xr.DataArray, x_dim: str = "x", y_dim: str = "y",precision : int= 4) -> tuple[float|ArrayLike,float|ArrayLike]:
+def grab_pixel_sizes_DA(
+    input_DA: xr.DataArray, x_dim: str = "x", y_dim: str = "y", precision: int = 4
+) -> tuple[float | ArrayLike, float | ArrayLike]:
     _x = input_DA.coords[x_dim]
     _y = input_DA.coords[y_dim]
 
-    x_widths = np.unique((_x[1:].values - _x[:-1].values).round(decimals= precision))
-    y_widths = np.unique((_y[1:].values - _y[:-1].values).round(decimals= precision))
-    return x_widths , y_widths
-def check_equal_area_DA(input_DA: xr.DataArray, pixel_size_kwargs:dict={}) -> bool:
+    x_widths = np.unique((_x[1:].values - _x[:-1].values).round(decimals=precision))
+    y_widths = np.unique((_y[1:].values - _y[:-1].values).round(decimals=precision))
+    return x_widths, y_widths
+
+
+def check_equal_area_DA(input_DA: xr.DataArray, pixel_size_kwargs: dict | None = None) -> bool:
+    if pixel_size_kwargs is None:
+        pixel_size_kwargs = {}
     from numpy import nan
-    x_widths , y_widths = grab_pixel_sizes_DA(input_DA,**pixel_size_kwargs)
+
+    x_widths, y_widths = grab_pixel_sizes_DA(input_DA, **pixel_size_kwargs)
 
     if len(x_widths) > 1 or len(y_widths) > 1:
-        return nan , nan
+        return nan, nan
     else:
-        return x_widths , y_widths
+        return x_widths, y_widths
+
 
 def CYGNSS_001_areal_average(
     cygnss_DA: xr.DataArray, x_dim: str = "x", y_dim: str = "y"
@@ -270,5 +278,3 @@ def CYGNSS_001_areal_average(
     average = np.nanmean(cygnss_DA.values, axis=(_x_dim_idx, _y_dim_idx))
 
     return average
-
-
