@@ -232,10 +232,11 @@ def grab_pixel_sizes_DA(
     return x_widths, y_widths
 
 
-def check_equal_area_DA(input_DA: xr.DataArray, pixel_size_kwargs: dict | None = None) -> bool:
+def check_equal_area_DA(
+    input_DA: xr.DataArray, pixel_size_kwargs: dict | None = None
+) -> bool:
     if pixel_size_kwargs is None:
         pixel_size_kwargs = {}
-    from numpy import nan
 
     x_widths, y_widths = grab_pixel_sizes_DA(input_DA, **pixel_size_kwargs)
 
@@ -269,7 +270,7 @@ def CYGNSS_001_areal_average(
         x_dim = next(dim for dim in cygnss_DA.dims if "x" in dim)
         y_dim = next(dim for dim in cygnss_DA.dims if "y" in dim)
         print("Projected to equal area")
-    elif not check_equal_area_DA(cygnss_DA, x_dim, y_dim):
+    elif not check_equal_area_DA(cygnss_DA, {"x_dim": x_dim, "y_dim": y_dim}):
         raise Exception("Unequal pixel areas")
 
     # Average across spatial dims
