@@ -208,7 +208,7 @@ def cygnss_convert_to_binary(
         attribute units and comments re-written
     """
     if not isinstance(cygnss_DA, xr.DataArray):
-        raise ("Input must be a DataArray")
+        raise TypeError("Input must be a DataArray")
 
     # Turn != 2 to 0
     convert_F = cygnss_DA.where(cygnss_DA == true_val, 0)
@@ -240,9 +240,9 @@ def check_equal_area_DA(input_DA: xr.DataArray, pixel_size_kwargs: dict | None =
     x_widths, y_widths = grab_pixel_sizes_DA(input_DA, **pixel_size_kwargs)
 
     if len(x_widths) > 1 or len(y_widths) > 1:
-        return nan, nan
+        return False
     else:
-        return x_widths, y_widths
+        return True
 
 
 def CYGNSS_001_areal_average(
@@ -270,7 +270,7 @@ def CYGNSS_001_areal_average(
         y_dim = next(dim for dim in cygnss_DA.dims if "y" in dim)
         print("Projected to equal area")
     elif not check_equal_area_DA(cygnss_DA, x_dim, y_dim):
-        raise ("Unequal pixel areas")
+        raise Exception("Unequal pixel areas")
 
     # Average across spatial dims
     _x_dim_idx = cygnss_DA.dims.index(x_dim)
