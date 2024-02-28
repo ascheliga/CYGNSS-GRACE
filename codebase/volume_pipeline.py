@@ -185,23 +185,33 @@ def calculate_height_time_series_from_start_and_change_in_DEM(
 # 6. Calculate area of start timestep DEM
 def calculate_rough_area_timestep(input_DA: DataArray) -> float:
     """
+    Calculate area based on hard-coded nominal pixel area.
     Placeholder function while I get the pipeline up and running.
     Should replace with function(s) project into 2D space.
     """
     pixel_count = input_DA.sum()
-    area_deg2 = 0.01 *0.01 * pixel_count
+    area_deg2 = 0.01 * 0.01 * pixel_count
     return area_deg2
 
-def calculate_rough_area_vectorize(input_DA: DataArray,kwargs: dict = {'input_core_dims':[['lat','lon']],'vectorize':True}) -> DataArray:
+
+def calculate_rough_area_vectorize(
+    input_DA: DataArray,
+    kwargs: dict | None = None,
+) -> DataArray:
+    if kwargs is None:
+        kwargs = {"input_core_dims": [["lat", "lon"]], "vectorize": True}
     from xarray import apply_ufunc
-    area_DA = apply_ufunc(calculate_rough_area_timestep,input_DA,**kwargs)
+
+    area_DA = apply_ufunc(calculate_rough_area_timestep, input_DA, **kwargs)
     return area_DA
 
-def project_DA_from_crs_code(input_DA: DataArray,epsg_code:float) -> DataArray:
+
+def project_DA_from_crs_code(input_DA: DataArray, epsg_code: float) -> DataArray:
     import pycrs
-    import rioxarray
-    new_crs = pycrs.utils.crscode_to_string("epsg",epsg_code,"ogcwkt")
+
+    new_crs = pycrs.utils.crscode_to_string("epsg", epsg_code, "ogcwkt")
     output_DA = input_DA.rio.reproject(new_crs)
     return output_DA
+
 
 # 7. Calculate volume from change in height x area
