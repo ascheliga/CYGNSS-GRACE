@@ -1,8 +1,10 @@
 import calendar
+from typing import Any
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from numpy.typing import ArrayLike
 from scipy import stats
 from sklearn.metrics import r2_score
 from xarray import DataArray
@@ -35,7 +37,7 @@ def toYearFraction(date) -> float:
     import time
     from datetime import datetime as dt
 
-    def sinceEpoch(date):  # returns seconds since epoch
+    def sinceEpoch(date) -> float:  # returns seconds since epoch
         return time.mktime(date.timetuple())
 
     s = sinceEpoch
@@ -52,7 +54,7 @@ def toYearFraction(date) -> float:
     return decYear
 
 
-def IMERG_timestep_to_pdTimestamp(input_xrcoord: DataArray):
+def IMERG_timestep_to_pdTimestamp(input_xrcoord: DataArray) -> ArrayLike:
     """
     Convert xr array of IMERG timestep numbers to an array Pandas Timestamp objects.
 
@@ -97,7 +99,7 @@ def CYGNSS_timestep_to_pdTimestamp(input_xrcoord: DataArray) -> np.ndarray:
     return dates_fw
 
 
-def linregress_wrap(x_input, y_input_df: pd.DataFrame) -> pd.DataFrame:
+def linregress_wrap(x_input: ArrayLike, y_input_df: pd.DataFrame) -> pd.DataFrame:
     """
     Run linear regression on each pixel/mascon time series
     and return metrics of interest.
@@ -205,7 +207,7 @@ class TimeSeriesMetrics:
         if remove_seasonality:
             self.remove_seasonality(start_month=start_month)
 
-    def zero_start(self):
+    def zero_start(self) -> pd.DataFrame:
         """
         Vertical shift of time series to have all time series start at zero.
         Subtracts the first row from the dataset.
@@ -215,6 +217,8 @@ class TimeSeriesMetrics:
 
     def detrend(self):
         """
+        Remove linear trend from time series.
+
         Inputs
         ------
         None.
@@ -225,7 +229,7 @@ class TimeSeriesMetrics:
         """
 
         def detrend_timeseries(df_actuals):
-            """ """
+            """Caluclate and remove linear trend from time series."""
             x_values = df_actuals.index.values
             x_mask = ~pd.isnull(x_values)
 
@@ -248,7 +252,7 @@ class TimeSeriesMetrics:
         self.lintrend_metrics = _ts_linmetrics.iloc[0]
 
     def cross_corr(self, comparison_ts, ax, ts_type="detrend", plot_on=True):
-        """ """
+        """Plot cross-correlation time lag plots against comparison input."""
         if "detrend" in ts_type:
             if "TimeSeriesMetrics" in str(type(comparison_ts)):
                 _y = comparison_ts.ts_detrend
@@ -269,7 +273,7 @@ class TimeSeriesMetrics:
 
         try:
             lag_time, lag_corr, _, _ = ax.xcorr(_x, _y)
-        except:
+        except Exception:
             lag_time, lag_corr, _, _ = plt.xcorr(_x, _y)
 
         # Print results
@@ -289,8 +293,11 @@ class TimeSeriesMetrics:
             plt.show()
         return lag_time, lag_corr
 
-    def coef_determination(self, comparison_ts, **kwargs):
-        """ """
+    def coef_determination(self, comparison_ts, **kwargs: dict[str, Any]) -> float:
+        """
+        Calculate and print coefficient of determination
+        against comparison time series.
+        """
         y_true = self.ts_detrend
         if "TimeSeriesMetrics" in str(type(comparison_ts)):
             y_pred = comparison_ts.ts_detrend
@@ -318,7 +325,7 @@ class TimeSeriesMetrics:
 
     def remove_seasonality(
         self, reps: int = 12, overwrite: bool = False, start_month: int = 1
-    ):
+    ) -> None:
         """
         Use for time series that haven't had seasonality removed
         (typically non-TWS time series).
@@ -342,9 +349,9 @@ class TimeSeriesMetrics:
             del self.seasonality
             print("Seasonality already calculated. Overwriting previous calculation.")
         try:
-            self.seasonality
+            _test_exist = self.seasonality
             print("Seasonality already calculated. Add overwrite=True to overwrite")
-        except:
+        except Exception:
             print("Calculating seasonality.")
             l_input = self.ts_detrend.shape[0]
             # time length
@@ -381,8 +388,10 @@ class TimeSeriesMetrics:
             _seasonality = pd.DataFrame(mean, index=months_list)[0]
             self.seasonality = _seasonality.reindex(calendar.month_name[1:13])
 
-    def plot_anomalies(self, ax, norm=True, x_mask=None, **plot_kwargs):
-        """ """
+    def plot_anomalies(
+        self, ax, norm: bool = True, x_mask: ArrayLike | None = None, **plot_kwargs
+    ) -> None:
+        """Plot detrended time series."""
         y = self.ts_detrend
         if x_mask is None:
             x_mask = np.ones(len(y), dtype=bool)
@@ -391,8 +400,10 @@ class TimeSeriesMetrics:
             y = normalize(y)
         ax.plot(y, **plot_kwargs)
 
-    def plot_seasonality(self, ax, norm=True, x_mask=None, **plot_kwargs):
-        """ """
+    def plot_seasonality(
+        self, ax, norm: bool = True, x_mask: ArrayLike | None = None, **plot_kwargs
+    ) -> None:
+        """Plot seasonality attribute."""
         y = self.seasonality
         if x_mask is None:
             x_mask = np.ones(len(y), dtype=bool)
