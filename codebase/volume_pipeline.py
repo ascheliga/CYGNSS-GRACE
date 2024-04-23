@@ -400,6 +400,28 @@ def loop_through_time_series_to_get_fit_params(
 def calculate_height_from_difference_in_norm_dist(
     norm_params_0: tuple[float, ...] | float, norm_params_1: tuple[float, ...] | float
 ) -> float:
+    """
+    Calculate change in height from two normal distribution sets of parameters.
+
+    Long Description
+    ----------------
+    Subtracts norm0 mean from norm1 mean (mean_1 - mean_0).
+    If any parameters are nans, returns a value of 0.
+    Does not use the standard deviations.
+
+    Inputs
+    ------
+    norm_params_0, norm_params_1 : float or tuple of floats
+        fit parameters from the scipy.stats.norm
+        (mean , standard deviation)
+        accepts floats in case a np.nan is input
+
+    Outputs
+    -------
+    delta_h : float
+        difference between means
+        returns 0 if any np.nan values provided.
+    """
     from numpy import isnan
 
     if isnan(norm_params_0).any() or isnan(norm_params_1).any():
@@ -415,6 +437,10 @@ def calculate_height_time_series_from_start_and_change_in_DEM(
     fw_diff_DA: DataArray,
     change_type_DA: DataArray,
 ) -> ArrayLike:
+    """
+    Calculate change in heights for full time series.
+    Wrapper function, placeholder, semi-tested.
+    """
     import numpy as np
     from scipy.stats import norm
 
@@ -454,6 +480,10 @@ def calculate_rough_area_vectorize(
     input_DA: DataArray,
     kwargs: dict | None = None,
 ) -> DataArray:
+    """
+    Calculate area from nominal pixel area. PLACEHOLDER.
+    Applies vectorization by default along time dimension.
+    """
     if kwargs is None:
         kwargs = {"input_core_dims": [["lat", "lon"]], "vectorize": True}
     from xarray import apply_ufunc
@@ -463,6 +493,7 @@ def calculate_rough_area_vectorize(
 
 
 def project_DA_from_crs_code(input_DA: DataArray, epsg_code: float) -> DataArray:
+    """Project input to given crs. It works."""
     import pycrs
 
     new_crs = pycrs.utils.crscode_to_string("epsg", epsg_code, "ogcwkt")
