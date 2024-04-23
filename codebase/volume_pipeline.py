@@ -1,5 +1,6 @@
 from geopandas import GeoDataFrame
 from numpy.typing import ArrayLike
+from scipy.stats import rv_continuous
 from xarray import DataArray
 
 
@@ -165,10 +166,9 @@ def difference_over_time(input_DA: DataArray, dim_label: str = "time") -> DataAr
     return diff_DA
 
 
-# 3. Assign each time step as shrinking or expanding
 def decide_expansion_or_shrinkage_timestep(input_DA: DataArray) -> int:
     """
-    Assign each time step as shrinking or expanding.
+    Assign a single time step as shrinking or expanding.
 
     Long Description
     ----------------
@@ -201,6 +201,32 @@ def decide_expansion_or_shrinkage_timestep(input_DA: DataArray) -> int:
 def decide_expansion_or_shrinkage_vectorize(
     input_DA: DataArray, input_core_dims: list[str] | None = None
 ) -> DataArray:
+    """
+    Assign every time step as shrinking or expanding.
+
+    Long Description
+    ----------------
+    Implement the `decide_expansion_or_shrinkage_timestep` function
+    along the non-spatial dimension, i.e. time.
+
+    Inputs
+    ------
+    input_DA : DataArray
+        contains spatial and temporal dimensions
+        will vectorize along temporal dimension
+    input_core_dims : list
+        default = ["lat","lon"]
+        dimensions to NOT vectorize across
+        should have one dimension less than `input_DA`
+
+    Outputs
+    -------
+    change_type_DA: DataArray
+        dimension is equal to the vectorized dimension
+        -1 is shrinkage
+        1 is expansion
+        0 is neither
+    """
     if input_core_dims is None:
         input_core_dims = ["lat", "lon"]
     from xarray import apply_ufunc
@@ -217,6 +243,26 @@ def decide_expansion_or_shrinkage_vectorize(
 # 4a. Fit distribution of start timestep DEM
 # 4b. Fit distribution of shrink/expand DEM
 def grab_data_array_values(input_DA: DataArray) -> ArrayLike:
+    """
+    Convert DataArray values into 1-D array.
+
+    Long Description
+    ----------------
+    Grab, reshape, and remove nan values of input_DA data.
+    Purpose is preprocessing for functions,
+    such as statistical distributions, that need
+    the data without spatial info.
+
+    Inputs
+    ------
+    input_DA : DataArray
+        array to grab values from
+
+    Outputs
+    -------
+    vals_nparray_nonnan : np.ndarray
+        1-D array of input data
+    """
     from numpy import isnan, squeeze
 
     vals_nparray = squeeze(input_DA.values.reshape((-1, 1)))
@@ -227,29 +273,108 @@ def grab_data_array_values(input_DA: DataArray) -> ArrayLike:
 def grab_DEM_of_conditional_area(
     dem_DA: DataArray, cond_DA: DataArray, cond: int = 1
 ) -> DataArray:
+    """
+    Mask the DEM to just pixels where condition is met.
+
+    Long Description
+    ----------------
+    Use the DataArray.where() method to mask the DEM data
+    to where the conditional DataArray EQUALS the given condition.
+    Used to mask to just shrinking or just expanding areas.
+
+    Inputs
+    ------
+    dem_DA : DataArray
+        input to be masked and returned
+    cond_DA : DataArray
+        DA to test against condition
+        must have same dimensions as dem_DA
+    cond : int
+        default = 1
+        value to test against `cond_DA`
+
+    Outputs
+    -------
+    dem_cond_area : DataArray
+        masked version of input `dem_DA`
+        contains np.nan where condition is false
+        values maintained where condition is true
+    """
     dem_cond_area = dem_DA.where(cond_DA == cond)
     return dem_cond_area
 
 
 def fit_distribution_from_dataarray(
-    input_DA: DataArray, distribution_name
+    input_DA: DataArray, distribution_scipy: rv_continuous
 ) -> tuple[float, ...]:
+    """
+    Fit given statistical distribution to all data in `input_DA`.
+
+    Long Description
+    ----------------
+    Grab values from input DataArray,
+    then fit the values with a continuous distribution.
+    Use the output parameters to assess degree of change
+    between heights at different time steps.
+
+    Inputs
+    ------
+    input_DA : DataArray
+        all non-nan values to fit the distribution
+    distribution_scipy : rv_continuous
+        a scipy.stats continuous distribution with a .fit() method
+
+    Outputs
+    -------
+    fit_params : tuple of floats
+        shape parameters of the fitted distribution
+        ex: (mean, std) for normal distribution
+    """
     data_as_nparray = grab_data_array_values(input_DA)
-    fit_params = distribution_name.fit(data_as_nparray)
+    fit_params = distribution_scipy.fit(data_as_nparray)
     return fit_params
 
 
 def fit_DEM_distribution_from_conditional_area(
-    dem_DA: DataArray, cond_DA: DataArray, cond: int, distribution_name
+    dem_DA: DataArray, cond_DA: DataArray, cond: int, distribution_scipy: rv_continuous
 ) -> tuple[float, ...]:
+    """
+    Fit a stat distribution to input data after masking to a given condition.
+
+    Long Description
+    ----------------
+    Mask input `dem_DA` by conditions.
+    Fit given statistical distribution to masked data.
+
+    Inputs
+    ------
+    dem_DA : DataArray
+        input to be masked
+        masked data fitted to distribution
+    cond_DA : DataArray
+        DA to test against condition
+        must have same dimensions as dem_DA
+    cond : int
+        default = 1
+        value to test against `cond_DA`
+
+    Outputs
+    -------
+    fit_params : tuple of floats
+        shape parameters of the fitted distribution
+        ex: (mean, std) for normal distribution
+    """
     dem_cond_area = grab_DEM_of_conditional_area(dem_DA, cond_DA, cond)
-    fit_params = fit_distribution_from_dataarray(dem_cond_area, distribution_name)
+    fit_params = fit_distribution_from_dataarray(dem_cond_area, distribution_scipy)
     return fit_params
 
 
 # 5. Calculate change in height from difference in distribution
 def loop_through_time_series_to_get_fit_params(
-    dem_DA: DataArray, cond_DA: DataArray, cond: int | DataArray, distribution_name
+    dem_DA: DataArray,
+    cond_DA: DataArray,
+    cond: int | DataArray,
+    distribution_scipy: rv_continuous,
 ) -> list[tuple[float, ...] | float]:
     """
     Exists as a loop until I can figure out a way to vectorize this.
@@ -267,7 +392,7 @@ def loop_through_time_series_to_get_fit_params(
             if cond_i == 0:
                 continue
         fit_params_list[t] = fit_DEM_distribution_from_conditional_area(
-            dem_DA, cond_DA.isel(time=t), cond_i, distribution_name
+            dem_DA, cond_DA.isel(time=t), cond_i, distribution_scipy
         )
     return fit_params_list
 
