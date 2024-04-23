@@ -1,4 +1,7 @@
+from __future__ import annotations
+
 import calendar
+from datetime import date
 from typing import Any
 
 import matplotlib.pyplot as plt
@@ -10,7 +13,7 @@ from sklearn.metrics import r2_score
 from xarray import DataArray
 
 
-def _object2float(*inputs):
+def _object2float(*inputs: Any) -> Any:
     for each in inputs:
         s = each.select_dtypes(include=object).columns
         each[s] = each[s].astype(float)
@@ -22,13 +25,13 @@ def normalize(df: pd.DataFrame) -> pd.DataFrame:
     return (df - df.mean()) / df.std()
 
 
-def toYearFraction(date) -> float:
+def toYearFraction(input_date: date) -> float:
     """
-    Convert date-time objects to decimal year.
+    Convert input_date-time objects to decimal year.
 
     Inputs
     ------
-    date : date object
+    input_date : date object
 
     Outputs
     -------
@@ -37,20 +40,20 @@ def toYearFraction(date) -> float:
     import time
     from datetime import datetime as dt
 
-    def sinceEpoch(date) -> float:  # returns seconds since epoch
-        return time.mktime(date.timetuple())
+    def sinceEpoch(input_date: date) -> float:  # returns seconds since epoch
+        return time.mktime(input_date.timetuple())
 
     s = sinceEpoch
 
-    year = date.year
+    year = input_date.year
     startOfThisYear = dt(year=year, month=1, day=1)
     startOfNextYear = dt(year=year + 1, month=1, day=1)
 
-    yearElapsed = s(date) - s(startOfThisYear)
+    yearElapsed = s(input_date) - s(startOfThisYear)
     yearDuration = s(startOfNextYear) - s(startOfThisYear)
     fraction = yearElapsed / yearDuration
 
-    decYear = date.year + fraction
+    decYear = input_date.year + fraction
     return decYear
 
 
@@ -139,14 +142,14 @@ def linregress_wrap(x_input: ArrayLike, y_input_df: pd.DataFrame) -> pd.DataFram
     return output_df
 
 
-def intersecting_timeframes(*series, buffer: int = 1) -> list:
+def intersecting_timeframes(*series: pd.Series, buffer: int = 1) -> list:
     """
     Slice multiple time series down to a shared timespan.
 
     Long description
     ----------------
     Uses pandas.DateOffset to apply buffer
-    Finds the start and stop date (with buffer) of each input series,
+    Finds the start and stop input_date (with buffer) of each input series,
     then subsets to the maximum start and the minimum stop.
     First made for res_time_series.ipynb
 
@@ -165,8 +168,8 @@ def intersecting_timeframes(*series, buffer: int = 1) -> list:
         all *series cropped to shared timeframe
         in the same order as the inputs
     """
-    series_start_list = [None] * len(series)
-    series_stop_list = [None] * len(series)
+    series_start_list = [np.nan] * len(series)
+    series_stop_list = [np.nan] * len(series)
     for idx, ts in enumerate(series):
         series_start_list[idx] = ts.index.min() + pd.DateOffset(months=-buffer)
         series_stop_list[idx] = ts.index.max() + pd.DateOffset(months=buffer)
@@ -187,11 +190,11 @@ class TimeSeriesMetrics:
 
     def __init__(
         self,
-        pd_series,
-        dataset_name,
-        remove_seasonality=False,
-        zero_start=True,
-        start_month=1,
+        pd_series: pd.Series,
+        dataset_name: str,
+        remove_seasonality: bool = False,
+        zero_start: bool = True,
+        start_month: int = 1,
     ):
         self.ts = pd_series
         self.ts_raw = pd_series  # maintain the input time series
@@ -215,7 +218,7 @@ class TimeSeriesMetrics:
         _ts_zero_start = self.ts - self.ts.iloc[0]
         return _ts_zero_start
 
-    def detrend(self):
+    def detrend(self) -> None:
         """
         Remove linear trend from time series.
 
@@ -228,7 +231,9 @@ class TimeSeriesMetrics:
 
         """
 
-        def detrend_timeseries(df_actuals):
+        def detrend_timeseries(
+            df_actuals: pd.DataFrame,
+        ) -> tuple[ArrayLike, pd.DataFrame]:
             """Caluclate and remove linear trend from time series."""
             x_values = df_actuals.index.values
             x_mask = ~pd.isnull(x_values)
@@ -251,7 +256,13 @@ class TimeSeriesMetrics:
         )
         self.lintrend_metrics = _ts_linmetrics.iloc[0]
 
-    def cross_corr(self, comparison_ts, ax, ts_type="detrend", plot_on=True):
+    def cross_corr(
+        self,
+        comparison_ts: TimeSeriesMetrics | ArrayLike,
+        ax: plt.Axes,
+        ts_type: str = "detrend",
+        plot_on: bool = True,
+    ) -> tuple[ArrayLike, ArrayLike]:
         """Plot cross-correlation time lag plots against comparison input."""
         if "detrend" in ts_type:
             if "TimeSeriesMetrics" in str(type(comparison_ts)):
@@ -293,7 +304,9 @@ class TimeSeriesMetrics:
             plt.show()
         return lag_time, lag_corr
 
-    def coef_determination(self, comparison_ts, **kwargs: dict[str, Any]) -> float:
+    def coef_determination(
+        self, comparison_ts: TimeSeriesMetrics | ArrayLike, **kwargs: dict[str, Any]
+    ) -> float:
         """
         Calculate and print coefficient of determination
         against comparison time series.
@@ -381,15 +394,20 @@ class TimeSeriesMetrics:
             mean = m_mean
 
             self.ts_detrend = pd.DataFrame(output, index=self.ts_detrend.index)[0]
-            months_list = (
-                calendar.month_name[start_month:]
-                + calendar.month_name[1 : (start_month - 13)]
+            months_list = list(calendar.month_name[start_month:]) + list(
+                calendar.month_name[1 : (start_month - 13)]
             )
             _seasonality = pd.DataFrame(mean, index=months_list)[0]
-            self.seasonality = _seasonality.reindex(calendar.month_name[1:13])
+            self.seasonality: pd.DataFrame = _seasonality.reindex(
+                calendar.month_name[1:13]
+            )
 
     def plot_anomalies(
-        self, ax, norm: bool = True, x_mask: ArrayLike | None = None, **plot_kwargs
+        self,
+        ax: plt.Axes,
+        norm: bool = True,
+        x_mask: ArrayLike | None = None,
+        **plot_kwargs: dict[str, Any],
     ) -> None:
         """Plot detrended time series."""
         y = self.ts_detrend
@@ -401,7 +419,11 @@ class TimeSeriesMetrics:
         ax.plot(y, **plot_kwargs)
 
     def plot_seasonality(
-        self, ax, norm: bool = True, x_mask: ArrayLike | None = None, **plot_kwargs
+        self,
+        ax: plt.Axes,
+        norm: bool = True,
+        x_mask: ArrayLike | None = None,
+        **plot_kwargs: dict[str, Any],
     ) -> None:
         """Plot seasonality attribute."""
         y = self.seasonality
