@@ -505,3 +505,16 @@ def project_DA_from_crs_code(input_DA: DataArray, epsg_code: float) -> DataArray
 
 
 # 7. Calculate volume from change in height x area
+def calculate_rough_volume(
+    dem_DA: DataArray,
+    fw_DA: DataArray,
+    fw_diff_DA: DataArray,
+    change_type_DA: DataArray,
+) -> DataArray:
+    """Calculate volume from area and height functions."""
+    area_DA = calculate_rough_area_vectorize(fw_DA)
+    height_array = calculate_height_time_series_from_start_and_change_in_DEM(
+        dem_DA, fw_DA, fw_diff_DA, change_type_DA
+    )
+    vol_DA = area_DA[:-1] * height_array
+    return vol_DA
