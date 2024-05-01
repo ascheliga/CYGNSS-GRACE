@@ -5,7 +5,7 @@ from xarray import DataArray
 from codebase.volume_pipeline import align_DEM_and_CYGNSS_coordinates
 
 
-def create_sampleDA_2D(rand_seed) -> DataArray:
+def create_sampleDA_2D(rand_seed: int) -> DataArray:
     np.random.seed(rand_seed)
     data = 12 * np.random.randn(2, 2)
     lon = np.array([[-99.83, -99.32], [-99.79, -99.23]]) + np.random.uniform() * 1e-8
@@ -21,7 +21,7 @@ def create_sampleDA_2D(rand_seed) -> DataArray:
     return da
 
 
-def create_sampleDA_3D(rand_seed) -> DataArray:
+def create_sampleDA_3D(rand_seed: int) -> DataArray:
     np.random.seed(rand_seed)
     data = 12 * np.random.randn(2, 2, 3)
     lon = np.array([[-99.83, -99.32], [-99.79, -99.23]]) + np.random.uniform() * 1e-8
@@ -65,6 +65,16 @@ def test_close_2Darray() -> None:
     )
 
 
-# def test_misaligned_3Darray() -> None:
+def test_misaligned_3Darray() -> None:
+    DA1 = create_sampleDA_3D(0)
+    DA2 = create_sampleDA_3D(1)
+    DA2_shift = DA2.assign_coords(
+        lat=(["x", "y"], np.array([[2.25, 2.21], [2.63, 2.59]]))
+    )
+    DA1_aligned, DA2_aligned = align_DEM_and_CYGNSS_coordinates(DA1, DA2_shift)
+    np.testing.assert_allclose(
+        DA1_aligned.coords["lat"].values, DA2_aligned.coords["lat"].values + 40
+    )
+
 
 # # def test_far_3Darray() -> None:
