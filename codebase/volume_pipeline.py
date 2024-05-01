@@ -66,14 +66,25 @@ def align_DEM_and_CYGNSS_coordinates(
     dem_DA , fw_DA : rxr.DataArray
         same size with exactly equal coordinates
     """
-    from numpy import testing
+    from numpy import allclose
 
     if coord_names is None:
         coord_names = ["lat", "lon"]
 
-    for coord_name in coord_names:
-        testing.assert_allclose(dem_DA[coord_name].values, fw_DA[coord_name].values)
-        dem_DA[coord_name] = fw_DA[coord_name]
+    coord_cond = [
+        allclose(dem_DA[coord_name].values, fw_DA[coord_name].values)
+        for coord_name in coord_names
+    ]
+
+    if all(coord_cond):
+        for coord_name in coord_names:
+            dem_DA[coord_name] = fw_DA[coord_name]
+    else:
+        print(
+            "Returning original DataArrays. \
+            DataArray coordinates are not closely aligned."
+        )
+
     return dem_DA, fw_DA
 
 
