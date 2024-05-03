@@ -180,7 +180,7 @@ def GRACE_areal_average(
 
 
 def cygnss_convert_to_binary(
-    cygnss_DA: xr.DataArray, true_val: float = 2
+    cygnss_DA: xr.DataArray, true_val: float | str = 2
 ) -> xr.DataArray:
     """
     Convert categorical CYGNSS maps to binary int.
