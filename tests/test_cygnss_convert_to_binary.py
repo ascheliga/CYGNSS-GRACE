@@ -7,7 +7,7 @@ from codebase.area_calcs import cygnss_convert_to_binary
 
 def create_sampleDA_3D(rand_seed: int) -> DataArray:
     np.random.seed(rand_seed)
-    data = np.random.randint(0, 5, size=(2, 2, 3))
+    data = np.random.randint(0, 3, size=(2, 2, 3))
     lon = np.array([[-99.83, -99.32], [-99.79, -99.23]]) + np.random.uniform() * 1e-8
     lat = np.array([[42.25, 42.21], [42.63, 42.59]]) + np.random.uniform() * 1e-8
     time = pd.date_range("2014-09-06", periods=3)
@@ -31,9 +31,7 @@ def test_string_input_coords() -> None:
 
     np.testing.assert_allclose(da.coords["lat"].values, da_binary.coords["lat"].values)
     np.testing.assert_allclose(da.coords["lon"].values, da_binary.coords["lon"].values)
-    np.testing.assert_equal(
-        da.coords["time"].values, da_binary.coords["time"].values
-    )
+    np.testing.assert_equal(da.coords["time"].values, da_binary.coords["time"].values)
 
 
 def test_string_input_values() -> None:
@@ -49,9 +47,7 @@ def test_numeric_input_coords() -> None:
 
     np.testing.assert_allclose(da.coords["lat"].values, da_binary.coords["lat"].values)
     np.testing.assert_allclose(da.coords["lon"].values, da_binary.coords["lon"].values)
-    np.testing.assert_equal(
-        da.coords["time"].values, da_binary.coords["time"].values
-    )
+    np.testing.assert_equal(da.coords["time"].values, da_binary.coords["time"].values)
 
 
 def test_numeric_input_values() -> None:
