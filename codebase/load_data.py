@@ -411,7 +411,6 @@ def load_DEM_full_as_rxrDA(
         has rioxarray spatial reference
     """
     import xarray as xr
-    import rioxarray
 
     dem, lat, lon = load_DEM_full_as_nparray(dem_filepath, dem_filename)
 
@@ -484,11 +483,53 @@ def load_DEM_subset_as_rxrDA(
     ------
     clipped_rxr: xr.DataArray
     """
-    import rioxarray
-
     dem_full_rxr = load_DEM_full_as_rxrDA(dem_filepath, dem_filename, _crs)
     clipped_rxr = dem_full_rxr.rio.clip_box(*bbox_vals.values[0])
     return clipped_rxr
+
+
+def load_usbr_data(
+    name: str, file_dir: str = "/global/scratch/users/ann_scheliga/dam_datasets/"
+) -> pd.DataFrame:
+    import os
+
+    try:
+        # test if `name` input is a filename
+        pd.read_csv(file_dir + name)
+    except Exception:
+        # if `name` input is a reservoir name, find the filename in the folder
+        # list comp looks for reservoir name and "usbr" in file strings
+        list_of_filenames = os.listdir(file_dir)
+        filename = next(
+            fname
+            for fname in list_of_filenames
+            if name.lower() in fname.lower() and "usbr" in fname.lower()
+        )
+    else:
+        filename = name
+    finally:
+        raw_data = pd.read_csv(file_dir + filename, header=7)
+    return raw_data
+
+
+def usbr_dataprocessing(df: pd.DataFrame) -> pd.DataFrame:
+    from utils import convert_to_num
+
+    df = df.drop(columns="Location")
+    df.dropna(axis=0, how="any", inplace=True)
+    df = df[df["Timestep"] != "Timestep"]  # remove repeat header rows
+    df["Variable"] = df["Parameter"] + " [" + df["Units"] + "]"
+    df["Result"] = df["Result"].apply(convert_to_num)
+    df_pivot = df.pivot(columns="Variable", index="Datetime (UTC)", values="Result")
+    return df_pivot
+
+
+def load_formatted_usbr_data(
+    name: str, file_dir: str = "/global/scratch/users/ann_scheliga/dam_datasets/"
+) -> pd.DataFrame:
+    raw_data = load_usbr_data(name, file_dir)
+    data = usbr_dataprocessing(raw_data)
+    return data
 
 
 if __name__ == "__main__":
