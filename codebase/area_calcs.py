@@ -1,13 +1,8 @@
-# In[2]:
-
-
 # Import packages
 import numpy as np
 import pandas as pd
 import xarray as xr
 from numpy.typing import ArrayLike
-
-# In[3]:
 
 
 def stat_check(
@@ -47,9 +42,6 @@ def stat_check(
     return output_df, bool_vec
 
 
-# In[4]:
-
-
 def pos_neg_area_calc(input_df: pd.DataFrame, pcut: float) -> tuple[float, float]:
     """
     Provide the total area (km^2) that has a significant positive or negative trend.
@@ -80,9 +72,6 @@ def pos_neg_area_calc(input_df: pd.DataFrame, pcut: float) -> tuple[float, float
     neg_area_km2 = neg_df.iloc[:, areacol].sum()
     pos_area_km2 = pos_df.iloc[:, areacol].sum()
     return pos_area_km2, neg_area_km2
-
-
-# In[55]:
 
 
 def area_frac_calc(
