@@ -10,3 +10,10 @@ def convert_to_num(single_value):
         return np.nan
     else:
         return float(single_value.replace(",", ""))
+
+
+def _object2float(*inputs: Any) -> Any:
+    for each in inputs:
+        s = each.select_dtypes(include=object).columns
+        each[s] = each[s].astype(float)
+    return inputs

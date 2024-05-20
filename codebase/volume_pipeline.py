@@ -251,8 +251,6 @@ def decide_expansion_or_shrinkage_vectorize(
     return change_type_DA
 
 
-# 4a. Fit distribution of start timestep DEM
-# 4b. Fit distribution of shrink/expand DEM
 def grab_data_array_values(input_DA: DataArray) -> ArrayLike:
     """
     Convert DataArray values into 1-D array.
@@ -380,7 +378,6 @@ def fit_DEM_distribution_from_conditional_area(
     return fit_params
 
 
-# 5. Calculate change in height from difference in distribution
 def loop_through_time_series_to_get_fit_params(
     dem_DA: DataArray,
     cond_DA: DataArray,
@@ -475,7 +472,6 @@ def calculate_height_time_series_from_start_and_change_in_DEM(
     return heights_array
 
 
-# 6. Calculate area of start timestep DEM
 def calculate_rough_area_timestep(input_DA: DataArray) -> float:
     """
     Calculate area based on hard-coded nominal pixel area.
@@ -514,8 +510,6 @@ def project_DA_from_crs_code(input_DA: DataArray, epsg_code: float) -> DataArray
 
 # Consider looking at areal_average function in area_calc module.
 
-
-# 7. Calculate volume from change in height x area
 def calculate_rough_volume(
     dem_DA: DataArray,
     fw_DA: DataArray,

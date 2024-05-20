@@ -13,13 +13,6 @@ from sklearn.metrics import r2_score
 from xarray import DataArray
 
 
-def _object2float(*inputs: Any) -> Any:
-    for each in inputs:
-        s = each.select_dtypes(include=object).columns
-        each[s] = each[s].astype(float)
-    return inputs
-
-
 def normalize(df: pd.DataFrame) -> pd.DataFrame:
     """Take the z-score normalization of input dataframe."""
     return (df - df.mean()) / df.std()
