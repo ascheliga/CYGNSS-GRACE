@@ -506,6 +506,7 @@ def calculate_rough_area_vectorize(
 def project_DA_from_crs_code(input_DA: DataArray, epsg_code: float) -> DataArray:
     """Project input to given crs. It works."""
     import pycrs
+    import rioxarray as rio
 
     new_crs = pycrs.utils.crscode_to_string("epsg", epsg_code, "ogcwkt")
     output_DA = input_DA.rio.reproject(new_crs)
