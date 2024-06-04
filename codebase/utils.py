@@ -3,7 +3,7 @@ from typing import Any
 import numpy as np
 
 
-def convert_to_num(single_value):
+def convert_to_num(single_value: Any) -> float|int:
     if isinstance(single_value, float | int):
         return single_value
     try:
