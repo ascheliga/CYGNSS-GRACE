@@ -122,7 +122,7 @@ def format_CYGNSS_data_to_binary(fw_DA: DataArray, true_val: float = 2) -> DataA
 
 
 def create_aligned_DEM_CYGNSS_subsets(
-    dam_name: str, res_shp: GeoDataFrame
+    dam_name: str, res_shp: GeoDataFrame, epsg_code: int = 0,
 ) -> tuple[DataArray, DataArray]:
     """
     Create DEM and formatted CYGNSS rxr.DataArrays for reservoir subset.
@@ -141,6 +141,8 @@ def create_aligned_DEM_CYGNSS_subsets(
     res_shp : (Geo)DataFrame
         DataFrame of reservoirs to subset from.
         Looks for `dam_name` input in column named 'DAM_NAME'
+    epsg_code : int
+        if epsg_code is not 0, will reproject DataArrays to designated projection.
 
     Outputs
     -------
@@ -152,6 +154,9 @@ def create_aligned_DEM_CYGNSS_subsets(
     dem_DA, fw_DA = subset_DEM_and_CYGNSS_data_from_name(dam_name, res_shp)
     dem_DA, fw_DA = align_DEM_and_CYGNSS_coordinates(dem_DA, fw_DA)
     fw_DA = format_CYGNSS_data_to_binary(fw_DA)
+    if epsg_code != 0:
+        dem_DA = project_DA_from_crs_code(dem_DA,epsg_code)
+        fw_DA = project_DA_from_crs_code(fw_DA,epsg_code)
     return dem_DA, fw_DA
 
 
@@ -184,8 +189,8 @@ def decide_expansion_or_shrinkage_timestep(input_DA: DataArray) -> int:
     Long Description
     ----------------
     Uses the entire input to determine if shrinking (-1), expanding (1), or neither (0).
-    Determines expanding if 2/3 of pixels are positive.
-    Determines shrinking if 2/3 of pixels are negative.
+    Determines expanding if 1/2 of pixels are positive.
+    Determines shrinking if 1/2 of pixels are negative.
 
     Inputs
     ------
@@ -201,9 +206,9 @@ def decide_expansion_or_shrinkage_timestep(input_DA: DataArray) -> int:
     """
     expand_count = (input_DA == 1).sum()
     shrink_count = (input_DA == -1).sum()
-    if expand_count * 2 <= shrink_count:
+    if expand_count  <= shrink_count:
         return -1
-    elif shrink_count * 2 <= expand_count:
+    elif shrink_count  < expand_count:
         return 1
     else:
         return 0
@@ -491,7 +496,7 @@ def calculate_rough_area_vectorize(
     Calculate area from nominal pixel area. PLACEHOLDER.
     Applies vectorization by default along time dimension.
     """
-    if kwargs is None:
+    if kwargs is None or (not kwargs):
         kwargs = {"input_core_dims": [["lat", "lon"]], "vectorize": True}
     from xarray import apply_ufunc
 
@@ -511,14 +516,18 @@ def project_DA_from_crs_code(input_DA: DataArray, epsg_code: float) -> DataArray
 
 # Consider looking at areal_average function in area_calc module.
 
+
 def calculate_rough_volume(
     dem_DA: DataArray,
     fw_DA: DataArray,
     fw_diff_DA: DataArray,
     change_type_DA: DataArray,
+    area_kwargs: dict | None = None,
 ) -> DataArray:
     """Calculate volume from area and height functions."""
-    area_DA = calculate_rough_area_vectorize(fw_DA)
+    if area_kwargs is None:
+        area_kwargs = {}
+    area_DA = calculate_rough_area_vectorize(fw_DA, area_kwargs)
     height_array = calculate_height_time_series_from_start_and_change_in_DEM(
         dem_DA, fw_DA, fw_diff_DA, change_type_DA
     )
