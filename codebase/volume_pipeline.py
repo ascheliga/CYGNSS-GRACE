@@ -122,7 +122,9 @@ def format_CYGNSS_data_to_binary(fw_DA: DataArray, true_val: float = 2) -> DataA
 
 
 def create_aligned_DEM_CYGNSS_subsets(
-    dam_name: str, res_shp: GeoDataFrame, epsg_code: int = 0,
+    dam_name: str,
+    res_shp: GeoDataFrame,
+    epsg_code: int = 0,
 ) -> tuple[DataArray, DataArray]:
     """
     Create DEM and formatted CYGNSS rxr.DataArrays for reservoir subset.
@@ -155,8 +157,8 @@ def create_aligned_DEM_CYGNSS_subsets(
     dem_DA, fw_DA = align_DEM_and_CYGNSS_coordinates(dem_DA, fw_DA)
     fw_DA = format_CYGNSS_data_to_binary(fw_DA)
     if epsg_code != 0:
-        dem_DA = project_DA_from_crs_code(dem_DA,epsg_code)
-        fw_DA = project_DA_from_crs_code(fw_DA,epsg_code)
+        dem_DA = project_DA_from_crs_code(dem_DA, epsg_code)
+        fw_DA = project_DA_from_crs_code(fw_DA, epsg_code)
     return dem_DA, fw_DA
 
 
@@ -206,9 +208,9 @@ def decide_expansion_or_shrinkage_timestep(input_DA: DataArray) -> int:
     """
     expand_count = (input_DA == 1).sum()
     shrink_count = (input_DA == -1).sum()
-    if expand_count  <= shrink_count:
+    if expand_count <= shrink_count:
         return -1
-    elif shrink_count  < expand_count:
+    elif shrink_count < expand_count:
         return 1
     else:
         return 0
@@ -507,7 +509,6 @@ def calculate_rough_area_vectorize(
 def project_DA_from_crs_code(input_DA: DataArray, epsg_code: float) -> DataArray:
     """Project input to given crs. It works."""
     import pycrs
-    import rioxarray as rio
 
     new_crs = pycrs.utils.crscode_to_string("epsg", epsg_code, "ogcwkt")
     output_DA = input_DA.rio.reproject(new_crs)
