@@ -7,6 +7,7 @@ import pandas as pd
 from geopandas import GeoDataFrame
 from matplotlib.colors import Colormap
 from numpy.typing import ArrayLike
+from xarray import DataArray
 
 from . import area_calcs
 
@@ -48,6 +49,47 @@ def pie_from_series(row: ArrayLike, axi: plt.Axes, cmaps: str = "BrBG") -> None:
         colors=[cmap(0.9), cmap(0.1), "white"],
         wedgeprops={"edgecolor": "black", "linewidth": 1, "antialiased": True},
     )
+
+
+def map_with_cbar_formatting(
+    input_gdf: GeoDataFrame,
+    cbar_flag: str,
+    cmap: Colormap,
+    commin: float | None,
+    commax: float | None,
+    ax: plt.Axes,
+    plot_params: dict[str, Any],
+) -> plt.Axes:
+    # Plot
+    if "hor" in cbar_flag.lower():
+        formatted_ax = input_gdf.plot(
+            "slope",
+            cmap,
+            vmin=commin,
+            vmax=commax,
+            ax=ax,
+            legend=True,
+            legend_kwds={
+                "label": plot_params["legend_label"],
+                "orientation": "horizontal",
+            },
+        )
+    elif "ver" in cbar_flag.lower():
+        formatted_ax = input_gdf.plot(
+            "slope",
+            cmap,
+            vmin=commin,
+            vmax=commax,
+            ax=ax,
+            legend=True,
+            legend_kwds={
+                "label": plot_params["legend_label"],
+                "orientation": "vertical",
+            },
+        )
+    else:
+        formatted_ax = input_gdf.plot("slope", cmap, vmin=commin, vmax=commax, ax=ax)
+    return formatted_ax
 
 
 def statsig_map(
@@ -110,44 +152,18 @@ def statsig_map(
         cmap = mpl.cm.get_cmap(cmaps)
 
     # Pull colormap bounds
-    if "vmin" in plot_params:
-        commin = plot_params["vmin"]
-    else:
-        commin = None
-    if "vmax" in plot_params:
-        commax = plot_params["vmax"]
-    else:
-        commax = None
+    if "vmin" not in plot_params:
+        plot_params["vmin"] = None
+    if "vmax" not in plot_params:
+        plot_params["vmax"] = None
+
+    commin = plot_params["vmin"]
+    commax = plot_params["vmax"]
 
     # Plot
-    if "hor" in cbar_flag.lower():
-        input_gdf.plot(
-            "slope",
-            cmap,
-            vmin=commin,
-            vmax=commax,
-            ax=ax,
-            legend=True,
-            legend_kwds={
-                "label": plot_params["legend_label"],
-                "orientation": "horizontal",
-            },
-        )
-    elif "ver" in cbar_flag.lower():
-        input_gdf.plot(
-            "slope",
-            cmap,
-            vmin=commin,
-            vmax=commax,
-            ax=ax,
-            legend=True,
-            legend_kwds={
-                "label": plot_params["legend_label"],
-                "orientation": "vertical",
-            },
-        )
-    else:
-        input_gdf.plot("slope", cmap, vmin=commin, vmax=commax, ax=ax)
+    ax = map_with_cbar_formatting(
+        input_gdf, cbar_flag, cmap, commin, commax, ax, plot_params
+    )
 
     # Go through plotting parameters
     if "titles" in plot_params:
@@ -375,3 +391,63 @@ def three_part_timeseries(
 
     plt.show()
     return ax
+
+
+def plot_hist_from_nparray(
+    vals_nparray: ArrayLike,
+    plt_kwargs: dict[str, Any] | None = None,
+    ax: plt.Axes = None,
+) -> tuple[Any, ...]:
+    """
+    Plot histogram whether axes object is provided or not.
+
+    Used for exploratory elevation calculations.
+    """
+    if plt_kwargs is None:
+        plt_kwargs = {}
+    if ax is None:
+        ax = plt.gca()
+    n, bins, patches = ax.hist(vals_nparray, **plt_kwargs)
+    return n, bins, patches
+
+
+def plot_data_array_hist(
+    input_DA: DataArray, plt_kwargs: dict[str, Any] | None = None, ax: plt.Axes = None
+) -> tuple[tuple[Any, ...], plt.Axes]:
+    """
+    Plot histogram of DataArray values.
+
+    Used for exploratory elevation calculations.
+    """
+    from codebase.volume_pipeline import grab_data_array_values
+
+    if plt_kwargs is None:
+        plt_kwargs = {}
+    if ax is None:
+        ax = plt.gca()
+    vals_nparray = grab_data_array_values(input_DA)
+    n, bins, patches = plot_hist_from_nparray(vals_nparray, plt_kwargs, ax=ax)
+    return (n, bins, vals_nparray), ax
+
+
+def map_data_array_values(
+    input_DA: DataArray,
+    fig_kwargs: dict[str, Any] | None = None,
+    map_kwargs: dict[str, Any] | None = None,
+    hist_kwargs: dict[str, Any] | None = None,
+) -> tuple[tuple[Any, ...], tuple[plt.Axes, plt.Axes]]:
+    """
+    Plot DataArray and histogram of DataArray values.
+
+    Used for exploratory elevation calculations.
+    """
+    if hist_kwargs is None:
+        hist_kwargs = {}
+    if map_kwargs is None:
+        map_kwargs = {}
+    if fig_kwargs is None:
+        fig_kwargs = {}
+    ax_map = input_DA.plot(**map_kwargs)
+    plt.figure(**fig_kwargs)
+    vals, ax_hist = plot_data_array_hist(input_DA, hist_kwargs)
+    return vals, (ax_map, ax_hist)
