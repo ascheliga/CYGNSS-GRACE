@@ -271,8 +271,8 @@ def CYGNSS_001_areal_average(
 
 
 def CYGNSS_001_area_calculation(
-    cygnss_DA: xr.DataArray, x_dim: str = "x", y_dim: str = "y"
-) -> np.ndarray:
+    cygnss_DA: xr.DataArray, x_dim: str = "x", y_dim: str = "y", with_index=True
+) -> np.ndarray | pd.Series:
     """
     Calculate the average of values in the provided DataArray.
 
@@ -287,6 +287,7 @@ def CYGNSS_001_area_calculation(
         all non-nan values in the DataArray will contribute to the average.
     """
     import numpy as np
+    from pandas import Series
 
     if "area" not in cygnss_DA.spatial_ref.grid_mapping_name:
         cygnss_DA = cygnss_DA.rio.reproject("ESRI:54017")
@@ -304,5 +305,6 @@ def CYGNSS_001_area_calculation(
     area_array = np.sum(cygnss_DA.values, axis=(_x_dim_idx, _y_dim_idx)) * (
         np.abs(_x_width) * np.abs(_y_width)
     )
-
+    if with_index:
+        area_array = Series(data=area_array, index=cygnss_DA["time"])
     return area_array
