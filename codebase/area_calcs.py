@@ -302,7 +302,7 @@ def CYGNSS_001_area_calculation(
     _x_dim_idx = cygnss_DA.dims.index(x_dim)
     _y_dim_idx = cygnss_DA.dims.index(y_dim)
     area_array = np.sum(cygnss_DA.values, axis=(_x_dim_idx, _y_dim_idx)) * (
-        _x_width * _y_width
+        np.abs(_x_width) * np.abs(_y_width)
     )
 
     return area_array
