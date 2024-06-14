@@ -55,3 +55,15 @@ def convert_from_m3s_to_cfs(value_m3s: float | int) -> float:
     """Convert from cubic meters per second to cubis feet per second."""
     value_cfs = value_m3s * 35.315
     return value_cfs
+
+
+def convert_from_ac_to_m2(value_ac: float | int) -> float:
+    """Convert from acres to square meters."""
+    value_m2 = value_ac * 4046.856
+    return value_m2
+
+
+def convert_from_m2_to_ac(value_m2: float | int) -> float:
+    """Convert from acres to square meters."""
+    value_ac = value_m2 / 4046.856
+    return value_ac
