@@ -268,3 +268,41 @@ def CYGNSS_001_areal_average(
     average = np.nanmean(cygnss_DA.values, axis=(_x_dim_idx, _y_dim_idx))
 
     return average
+
+
+def CYGNSS_001_area_calculation(
+    cygnss_DA: xr.DataArray, x_dim: str = "x", y_dim: str = "y"
+) -> np.ndarray:
+    """
+    Calculate the average of values in the provided DataArray.
+
+    Long Description
+    ----------------
+    First reprojects to equal area or checks that the projection is equal area,
+    then takes the unweighted average using np.nanmean.
+
+    Inputs
+    ------
+    cygnss_DA : xarray.DataArray
+        all non-nan values in the DataArray will contribute to the average.
+    """
+    import numpy as np
+
+    if "area" not in cygnss_DA.spatial_ref.grid_mapping_name:
+        cygnss_DA = cygnss_DA.rio.reproject("ESRI:54017")
+        # Rename dims
+        x_dim = next(dim for dim in cygnss_DA.dims if "x" in dim)
+        y_dim = next(dim for dim in cygnss_DA.dims if "y" in dim)
+        print("Projected to equal area")
+    elif not check_equal_area_DA(cygnss_DA, {"x_dim": x_dim, "y_dim": y_dim}):
+        raise Exception("Unequal pixel areas")
+
+    _x_width, _y_width = grab_pixel_sizes_DA(cygnss_DA, x_dim, y_dim)
+
+    _x_dim_idx = cygnss_DA.dims.index(x_dim)
+    _y_dim_idx = cygnss_DA.dims.index(y_dim)
+    area_array = np.sum(cygnss_DA.values, axis=(_x_dim_idx, _y_dim_idx)) * (
+        _x_width * _y_width
+    )
+
+    return area_array
