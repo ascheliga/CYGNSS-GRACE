@@ -229,7 +229,7 @@ def check_equal_area_DA(
 
     x_widths, y_widths = grab_pixel_sizes_DA(input_DA, **pixel_size_kwargs)
 
-    if len(x_widths) > 1 or len(y_widths) > 1:
+    if (len(x_widths) > 1) or (len(y_widths) > 1):
         return False
     else:
         return True
@@ -271,7 +271,7 @@ def CYGNSS_001_areal_average(
 
 
 def CYGNSS_001_area_calculation(
-    cygnss_DA: xr.DataArray, x_dim: str = "x", y_dim: str = "y", with_index=True
+    cygnss_DA: xr.DataArray, x_dim: str = "x", y_dim: str = "y", with_index: bool = True
 ) -> np.ndarray | pd.Series:
     """
     Calculate the average of values in the provided DataArray.
