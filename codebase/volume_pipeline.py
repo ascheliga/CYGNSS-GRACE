@@ -145,6 +145,7 @@ def create_aligned_DEM_CYGNSS_subsets(
         Looks for `dam_name` input in column named 'DAM_NAME'
     epsg_code : int
         if epsg_code is not 0, will reproject DataArrays to designated projection.
+        if epsg_code is 0, keep initial projection.
 
     Outputs
     -------
@@ -153,12 +154,15 @@ def create_aligned_DEM_CYGNSS_subsets(
         have matching spatial coordinates (typ. "lat" , "lon")
         "time" coord formatted as pd.Timestamp
     """
+    from codebase.area_calcs import project_DA_from_crs_code
+
     dem_DA, fw_DA = subset_DEM_and_CYGNSS_data_from_name(dam_name, res_shp)
     dem_DA, fw_DA = align_DEM_and_CYGNSS_coordinates(dem_DA, fw_DA)
     fw_DA = format_CYGNSS_data_to_binary(fw_DA)
-    if epsg_code != 0:
-        dem_DA = project_DA_from_crs_code(dem_DA, epsg_code)
-        fw_DA = project_DA_from_crs_code(fw_DA, epsg_code)
+
+    dem_DA = project_DA_from_crs_code(dem_DA, epsg_code)
+    fw_DA = project_DA_from_crs_code(fw_DA, epsg_code)
+
     return dem_DA, fw_DA
 
 
@@ -504,15 +508,6 @@ def calculate_rough_area_vectorize(
 
     area_DA = apply_ufunc(calculate_rough_area_timestep, input_DA, **kwargs)
     return area_DA
-
-
-def project_DA_from_crs_code(input_DA: DataArray, epsg_code: float) -> DataArray:
-    """Project input to given crs. It works."""
-    import pycrs
-
-    new_crs = pycrs.utils.crscode_to_string("epsg", epsg_code, "ogcwkt")
-    output_DA = input_DA.rio.reproject(new_crs)
-    return output_DA
 
 
 # Consider looking at areal_average function in area_calc module.

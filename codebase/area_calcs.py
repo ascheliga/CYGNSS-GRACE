@@ -221,7 +221,7 @@ def grab_pixel_sizes_DA(
     return x_widths, y_widths
 
 
-def check_equal_area_DA(
+def check_regular_area_DA(
     input_DA: xr.DataArray, pixel_size_kwargs: dict | None = None
 ) -> bool:
     if pixel_size_kwargs is None:
@@ -233,6 +233,24 @@ def check_equal_area_DA(
         return False
     else:
         return True
+
+
+def grab_dims(input_DA: xr.DataArray) -> tuple[str, str]:
+    try:
+        x_dim = next(dim for dim in input_DA.dims if "x" in dim)
+        y_dim = next(dim for dim in input_DA.dims if "y" in dim)
+        print("Grabbed x/y dims")
+    except Exception:
+        try:
+            x_dim = next(dim for dim in input_DA.dims if "lon" in dim)
+            y_dim = next(dim for dim in input_DA.dims if "lat" in dim)
+            print("Grabbed lat/lon dims. Consider reprojecting!")
+        except Exception:
+            raise ValueError("No dimensions found") from Exception
+    finally:
+        if not check_regular_area_DA(input_DA, {"x_dim": x_dim, "y_dim": y_dim}):
+            raise Exception("Unequal pixel areas")
+    return x_dim, y_dim
 
 
 def CYGNSS_001_areal_average(
@@ -259,7 +277,7 @@ def CYGNSS_001_areal_average(
         x_dim = next(dim for dim in cygnss_DA.dims if "x" in dim)
         y_dim = next(dim for dim in cygnss_DA.dims if "y" in dim)
         print("Projected to equal area")
-    elif not check_equal_area_DA(cygnss_DA, {"x_dim": x_dim, "y_dim": y_dim}):
+    elif not check_regular_area_DA(cygnss_DA, {"x_dim": x_dim, "y_dim": y_dim}):
         raise Exception("Unequal pixel areas")
 
     # Average across spatial dims
@@ -295,7 +313,7 @@ def CYGNSS_001_area_calculation(
         x_dim = next(dim for dim in cygnss_DA.dims if "x" in dim)
         y_dim = next(dim for dim in cygnss_DA.dims if "y" in dim)
         print("Projected to equal area")
-    elif not check_equal_area_DA(cygnss_DA, {"x_dim": x_dim, "y_dim": y_dim}):
+    elif not check_regular_area_DA(cygnss_DA, {"x_dim": x_dim, "y_dim": y_dim}):
         raise Exception("Unequal pixel areas")
 
     _x_width, _y_width = grab_pixel_sizes_DA(cygnss_DA, x_dim, y_dim)
@@ -308,3 +326,29 @@ def CYGNSS_001_area_calculation(
     if with_index:
         area_array = Series(data=area_array, index=cygnss_DA["time"])
     return area_array
+
+
+def project_DA_from_crs_code(input_DA: xr.DataArray, epsg_code: float) -> xr.DataArray:
+    """
+    Project input to given crs. It works.
+
+    Inputs
+    ------
+    input_DA: xr.DataArray
+        DataArray to reproject.
+    epsg_code: float
+        if epsg_code=0, will return input_DA without reprojection
+
+    Outputs
+    -------
+    output_DA: DataArray
+        reprojected DataArray
+    """
+    import pycrs
+
+    if epsg_code == 0:
+        output_DA = input_DA
+    else:
+        new_crs = pycrs.utils.crscode_to_string("epsg", epsg_code, "ogcwkt")
+        output_DA = input_DA.rio.reproject(new_crs)
+    return output_DA
