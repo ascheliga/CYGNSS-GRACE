@@ -276,12 +276,13 @@ def xr_shape_subset(
     clip_rxr : xarray DataArray
         input_xr subset to the input reservoir
     """
+    from codebase.area_calcs import grab_dims
+
     # Add crs to xr
     full_rxr = input_xr.rio.write_crs(crs_code)
 
     # Grab coordinate names
-    x_name = next(dim for dim in list(input_xr.dims) if "lon" in dim)
-    y_name = next(dim for dim in list(input_xr.dims) if "lat" in dim)
+    x_name, y_name = grab_dims(input_xr)
 
     # Set spatial dimensions to xr
     full_rxr.rio.set_spatial_dims(x_name, y_name, inplace=True)
