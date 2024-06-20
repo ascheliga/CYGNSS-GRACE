@@ -410,17 +410,11 @@ def load_DEM_full_as_rxrDA(
     dem_full_rxr : xr.DataArray
         has rioxarray spatial reference
     """
-    import xarray as xr
+    from codebase.dataprocessing import convert_from_np_to_rxr
 
     dem, lat, lon = load_DEM_full_as_nparray(dem_filepath, dem_filename)
 
-    dem_full = xr.DataArray(
-        data=dem,
-        dims=["lat", "lon"],
-        coords={"lat": (["lat"], lat), "lon": (["lon"], lon)},
-    )
-    dem_full_rxr = dem_full.rio.write_crs(_crs)
-    dem_full_rxr.rio.set_spatial_dims("lon", "lat", inplace=True)
+    dem_full_rxr = convert_from_np_to_rxr(dem, lat=lat, lon=lon, _crs=_crs)
     return dem_full_rxr
 
 
