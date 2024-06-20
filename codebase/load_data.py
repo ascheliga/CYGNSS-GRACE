@@ -404,17 +404,22 @@ def load_DEM_full_as_rxrDA(
     dem_filename : str
     _crs : int
         default : 4326 (WGS84 lat/lon)
+        Not used if reading a geospatial file (ie .tif)
 
     Outputs
     ------
     dem_full_rxr : xr.DataArray
         has rioxarray spatial reference
     """
+    import rioxarray as rxr
+
     from codebase.dataprocessing import convert_from_np_to_rxr
 
-    dem, lat, lon = load_DEM_full_as_nparray(dem_filepath, dem_filename)
-
-    dem_full_rxr = convert_from_np_to_rxr(dem, lat=lat, lon=lon, _crs=_crs)
+    try:
+        dem_full_rxr = rxr.open_rasterio(dem_filepath + dem_filename)
+    except Exception:
+        dem, lat, lon = load_DEM_full_as_nparray(dem_filepath, dem_filename)
+        dem_full_rxr = convert_from_np_to_rxr(dem, lat=lat, lon=lon, _crs=_crs)
     return dem_full_rxr
 
 
