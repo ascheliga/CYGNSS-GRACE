@@ -96,10 +96,10 @@ def statsig_map(
     input_gdf: GeoDataFrame,
     ax: plt.Axes,
     count: int,
-    plot_params: dict[str, Any],
     cmaps: str | Colormap = "BrBG",
     pie_row: ArrayLike = None,
     cbar_flag: str = "",
+    plot_params: dict[str, Any] | None = None,
 ) -> None:
     """
     Plot a map of slope values with an option for a pie chart inset.
@@ -145,6 +145,9 @@ def statsig_map(
     -------
     None
     """
+    if plot_params is None:
+        plot_params = {}
+
     # Create colormap
     if pie_row is None:
         pie_row = []
@@ -186,7 +189,7 @@ def tri_figuremap(
     n_cols: int = 1,
     cbar_flag: str = "hor",
     pcut: float = 0.01,
-    **plot_params: dict[str, Any],
+    plot_params: dict[str, Any] | None = None,
 ) -> plt.Axes | tuple[plt.Axes, ...]:
     """
 
@@ -231,6 +234,9 @@ def tri_figuremap(
     axs : axes object or array of axes
         formed from plt.subplots()
     """
+    if plot_params is None:
+        plot_params = {}
+
     if "titles" not in plot_params:  # if no titles provided, create blank variable
         plot_params["titles"] = ["", "", ""]
 
@@ -239,9 +245,9 @@ def tri_figuremap(
         # then calculates total trend areas of each input gdf.
         # pcut value must be defined earlier in script
         if cmaps == "BrBG":
-            area_calc_type = "wet_dry"
+            area_calc_type = ["wet", "dry"]
         elif cmaps == "RdBu":
-            area_calc_type = "pos_neg"
+            area_calc_type = ["pos", "neg"]
         frac_df, __ = area_calcs.area_frac_calc(input_3gdfs, pcut, area_calc_type)
     else:
         # if no piechart or 'piechart' is false,
