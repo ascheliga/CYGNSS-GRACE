@@ -5,7 +5,7 @@ from xarray import DataArray
 
 
 def subset_DEM_and_CYGNSS_data_from_name(
-    dam_name: str, res_shp: GeoDataFrame
+    dam_name: str, res_shp: GeoDataFrame, dem_kwargs: dict | None = None
 ) -> tuple[DataArray, DataArray]:
     """
     Load clipped DEM and CYGNSS data by name of dam.
@@ -24,6 +24,9 @@ def subset_DEM_and_CYGNSS_data_from_name(
     res_shp : (Geo)DataFrame
         DataFrame of reservoirs to subset from.
         Looks for `dam_name` input in column named 'DAM_NAME'
+    dem_kwargs: dict
+        Optional dictionary passed to load_DEM_subset_asrxrDA()
+        Accepted keys: 'dem_filepath', 'dem_filename', and '_crs'
 
     Outputs
     -------
@@ -34,9 +37,12 @@ def subset_DEM_and_CYGNSS_data_from_name(
     """
     from . import area_subsets, load_data
 
+    if dem_kwargs is None:
+        dem_kwargs = {}
+
     subset_gpd = area_subsets.check_for_multiple_dams(dam_name, res_shp)
     subset_bbox = subset_gpd.geometry.buffer(0).bounds
-    dem_DA = load_data.load_DEM_subset_as_rxrDA(subset_bbox)
+    dem_DA = load_data.load_DEM_subset_as_rxrDA(subset_bbox, **dem_kwargs)
     fw_DA = load_data.load_CYGNSS_001_all_months(subset_bbox)
     return dem_DA, fw_DA
 

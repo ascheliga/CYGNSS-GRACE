@@ -477,6 +477,10 @@ def load_DEM_subset_as_rxrDA(
         default format from the gpd.bounds attribute
     dem_filepath : str
     dem_filename : str
+    _crs: int
+        default : 4326 (WGS84 lat/lon)
+        Not used if reading a geospatial file (ie .tif)
+
 
     Outputs
     ------
