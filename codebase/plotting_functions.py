@@ -96,10 +96,10 @@ def statsig_map(
     input_gdf: GeoDataFrame,
     ax: plt.Axes,
     count: int,
+    plot_params: dict[str, Any],
     cmaps: str | Colormap = "BrBG",
     pie_row: ArrayLike = None,
     cbar_flag: str = "",
-    **plot_params: dict[str, Any],
 ) -> None:
     """
     Plot a map of slope values with an option for a pie chart inset.
@@ -129,7 +129,7 @@ def statsig_map(
         default = ''
         determines if colorbar on map is vertical or horizontal
         looks for 'ver' or 'hor' in the string, respectively
-    **plot_params : dict
+    plot_params : dict
         dictionary of plot formatting options and labels
         Keys used:
             'titles' : list of strings
@@ -294,11 +294,16 @@ def tri_figuremap(
                 cmaps,
                 pie_row=frac_df.loc[pie_idx],
                 cbar_flag=cbar_flag,
-                **plot_params,
+                plot_params=plot_params,
             )
         else:
             statsig_map(
-                gdf, axi, count, cmaps, pie_row=frac_df.loc[pie_idx], **plot_params
+                gdf,
+                axi,
+                count,
+                cmaps,
+                pie_row=frac_df.loc[pie_idx],
+                plot_params=plot_params,
             )
 
     return axs
