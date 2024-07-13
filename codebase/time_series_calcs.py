@@ -426,3 +426,12 @@ class TimeSeriesMetrics:
         if norm:
             y = normalize(y)
         ax.plot(y, **plot_kwargs)
+
+
+def resample_to_monthly(data: pd.DataFrame) -> pd.DataFrame:
+    from pandas import Timedelta
+
+    data_M = data.resample("M", label="left", closed="left").mean()
+    # resampling makes the index one day too early, corrects to first of the month
+    data_M.index = data_M.index + Timedelta("1D")
+    return data_M
