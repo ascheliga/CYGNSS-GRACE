@@ -520,18 +520,14 @@ def load_formatted_usbr_data(
     file_dir: str = "/global/scratch/users/ann_scheliga/dam_datasets/",
     monthly: bool = False,
 ) -> pd.DataFrame:
-    from pandas import Timedelta
-
     from codebase.dataprocessing import usbr_dataprocessing
+    from codebase.time_series_calcs import resample_to_monthly
 
     raw_data = load_usbr_data(name, file_dir)
     data = usbr_dataprocessing(raw_data)
 
     if monthly:
-        data_M = data.resample("M", label="left", closed="left").mean()
-        # resampling makes the index one day too early, corrects to first of the month
-        data_M.index = data_M.index + Timedelta("1D")
-        data = data_M
+        data = resample_to_monthly(data)
 
     return data
 
