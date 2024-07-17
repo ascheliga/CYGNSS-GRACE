@@ -428,10 +428,28 @@ class TimeSeriesMetrics:
         ax.plot(y, **plot_kwargs)
 
 
-def resample_to_monthly(data: pd.DataFrame) -> pd.DataFrame:
+def resample_to_monthly(data: pd.DataFrame, agg_function: Any = "mean") -> pd.DataFrame:
+    """
+    Resample a dataframe to monthly and fix the timestep index.
+
+    Inputs
+    ------
+    data: pd.DataFrame
+        dataframe to be aggregated
+    agg_function: Any
+        a str, function, or dictionary that determines aggregation calculation.
+        str must be an accepted name like 'mean' or 'sum' into .agg()
+        dictionary should be of the form {'col_name': agg_function,...}
+
+    Outputs
+    -------
+    data_M: pd.DataFrame
+        dataframe aggregated to monthly timestep
+        Index is the start of the month
+    """
     from pandas import Timedelta
 
-    data_M = data.resample("M", label="left", closed="left").mean()
+    data_M = data.resample("M", label="left", closed="left").agg(agg_function)
     # resampling makes the index one day too early, corrects to first of the month
     data_M.index = data_M.index + Timedelta("1D")
     return data_M
