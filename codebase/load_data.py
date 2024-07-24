@@ -519,19 +519,44 @@ def load_formatted_usbr_data(
     name: str,
     file_dir: str = "/global/scratch/users/ann_scheliga/dam_datasets/",
     monthly: bool = False,
+    agg_kwargs: dict | None = None,
 ) -> pd.DataFrame:
-    from pandas import Timedelta
+    """
+    Load USBR data by reservoir name.
 
-    from codebase.dataprocessing import usbr_dataprocessing
+    Inputs
+    ------
+    name: str
+        name of RESERVOIR
+    file_dir: str
+        directory the file is in
+    monthly: bool
+        whether to aggregate the data to monthly timesteps
+        uses `time_series_calcs.resample_to_monthly` function
+    agg_kwargs: dict
+        passes to `create_dict_for_agg_function`
+        accepted kwargs are 'default_agg' and 'custom_aggs'
+
+    Outputs
+    -------
+    data: pd.DataFrame
+        formatted dataframe with all columns
+    """
+    from codebase.dataprocessing import (
+        create_dict_for_agg_function,
+        usbr_dataprocessing,
+    )
+    from codebase.time_series_calcs import resample_to_monthly
+
+    if agg_kwargs is None:
+        agg_kwargs = {}
 
     raw_data = load_usbr_data(name, file_dir)
     data = usbr_dataprocessing(raw_data)
 
     if monthly:
-        data_M = data.resample("M", label="left", closed="left").mean()
-        # resampling makes the index one day too early, corrects to first of the month
-        data_M.index = data_M.index + Timedelta("1D")
-        data = data_M
+        agg_dict = create_dict_for_agg_function(data, **agg_kwargs)
+        data = resample_to_monthly(data, agg_dict)
 
     return data
 
