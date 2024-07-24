@@ -561,6 +561,37 @@ def load_formatted_usbr_data(
     return data
 
 
+def load_grealm_heights(
+    url_str: str = "https://ipad.fas.usda.gov/lakes/images/lake000462.10d.2.smooth.txt",
+    monthly: bool = False,
+) -> pd.DataFrame:
+    import pandas as pd
+
+    from codebase.time_series_calcs import resample_to_monthly
+
+    grealm_raw = pd.read_csv(url_str, header=12, sep=" ", skipinitialspace=True)
+    grealm_raw.rename(
+        columns={
+            "99999999": "Date",
+            "99": "Hour",
+            "99.1": "Minute",
+            "999.99": "height_var_JASON2",
+            "9999.99": "height_mMSL",
+        },
+        inplace=True,
+    )
+    grealm_nanfiltered = grealm_raw.loc[
+        (grealm_raw["Date"] != 99999999) & (grealm_raw["height_mMSL"] != 9999.99)
+    ]
+    grealm_nanfiltered.index = pd.to_datetime(
+        grealm_nanfiltered["Date"], format="%Y%m%d"
+    )
+    grealm_all_heights = grealm_nanfiltered[["height_var_JASON2", "height_mMSL"]]
+    if monthly:
+        grealm_all_heights = resample_to_monthly(grealm_all_heights)
+    return grealm_all_heights
+
+
 if __name__ == "__main__":
     test = load_GRACE()
     print(test)
