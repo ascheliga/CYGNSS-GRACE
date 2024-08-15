@@ -131,9 +131,6 @@ def area_frac_calc(
         for df in metrics_3dfs
     ]
 
-    print(km2_data.iloc[1, :])
-    # print(metrics_3dfs[0].iloc[:, area_cols[0]])
-    # print(area_cols[0])
     # divide km2 values by total area
     frac_data = [
         km2_data.iloc[0, :] / (metrics_3dfs[0].iloc[:, area_cols[0]].sum()),
