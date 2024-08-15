@@ -113,7 +113,7 @@ def area_frac_calc(
         idx_labels = [0, 1, 2]
     if col_labels is None:
         col_labels = ["pos", "neg"]
-    km2_data = [pos_neg_area_calc(df, pcut) for df in metrics_3dfs]
+    km2_data = np.array([pos_neg_area_calc(df, pcut) for df in metrics_3dfs])
 
     # Back-up version of km2_data calc
     # pos_area_0 , neg_area_0 = pos_neg_area_calc(metrics_3dfs[0],pcut)
@@ -131,6 +131,9 @@ def area_frac_calc(
         for df in metrics_3dfs
     ]
 
+    print(km2_data.iloc[1, :])
+    # print(metrics_3dfs[0].iloc[:, area_cols[0]])
+    # print(area_cols[0])
     # divide km2 values by total area
     frac_data = [
         km2_data.iloc[0, :] / (metrics_3dfs[0].iloc[:, area_cols[0]].sum()),
