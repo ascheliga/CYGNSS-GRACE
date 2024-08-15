@@ -565,9 +565,7 @@ def load_grealm_heights(
     url_str: str = "https://ipad.fas.usda.gov/lakes/images/lake000462.10d.2.smooth.txt",
     monthly: bool = False,
 ) -> pd.DataFrame:
-    """
-    Load G-REALM data from .txt url. Function contains several hardcoded processing steps.
-    """
+    """Load G-REALM data from .txt url. Function contains several hardcoded processing steps."""
     import pandas as pd
 
     from codebase.time_series_calcs import resample_to_monthly
