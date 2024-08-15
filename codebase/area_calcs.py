@@ -212,7 +212,7 @@ def cygnss_convert_to_binary(
 
 def grab_pixel_sizes_DA(
     input_DA: xr.DataArray, x_dim: str = "x", y_dim: str = "y", precision: int = 4
-) -> tuple[float | ArrayLike, float | ArrayLike]:
+) -> tuple[ArrayLike, ArrayLike]:
     _x = input_DA.coords[x_dim]
     _y = input_DA.coords[y_dim]
 
