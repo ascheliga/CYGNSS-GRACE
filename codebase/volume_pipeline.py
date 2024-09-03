@@ -537,6 +537,15 @@ def calculate_rough_volume(
     return vol_DA
 
 
-def calculate_trapezoidal_volume(area_vec: ArrayLike, elev_vec: ArrayLike) -> ArrayLike:
-    deltaV = (area_vec[1:].values + area_vec[:-1].values) * (elev_vec[1:].values - elev_vec[:-1].values)/2
+def calculate_trapezoidal_volume(area: ArrayLike, elev: ArrayLike) -> ArrayLike:
+    try:
+        area_vec = area.values
+    except AttributeError:
+        area_vec = area
+    try:
+        elev_vec = elev.values
+    except AttributeError:
+        elev_vec = elev
+
+    deltaV = (area_vec[1:] + area_vec[:-1]) * (elev_vec[1:] - elev_vec[:-1]) / 2
     return deltaV
