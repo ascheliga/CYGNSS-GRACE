@@ -453,3 +453,19 @@ def resample_to_monthly(data: pd.DataFrame, agg_function: Any = "mean") -> pd.Da
     # resampling makes the index one day too early, corrects to first of the month
     data_M.index = data_M.index + Timedelta("1D")
     return data_M
+
+
+def combo_timeframe_df(
+    series: list[pd.Series], col_names: list[str] | None = None, buffer: int = 1
+) -> pd.DataFrame:
+    """Slice to matching timeframe and combine sliced series into single dataframe."""
+    if col_names is None:
+        col_names = []
+    sliced_dfs = intersecting_timeframes(*series, buffer=buffer)
+    combo_df = pd.concat(sliced_dfs, axis=1)
+    try:
+        combo_df.index.to_pydatetime()
+        combo_df.columns = col_names
+    except AttributeError:
+        print("Non-datetime indices found. Check combo_timeframe_df function output.")
+    return combo_df
