@@ -45,7 +45,7 @@ def create_dict_for_agg_function(
     First, create a dictionary with all column names and the default agg_function.
     Second, replace the agg_funciton for certain columns.
     This function is useful for a wide DataFrame,
-    so you have to name the columns that need to differ.
+    so you only have to name the columns that need to differ.
 
     Inputs
     ------
