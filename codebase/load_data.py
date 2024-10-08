@@ -536,6 +536,7 @@ def load_formatted_usbr_data(
     agg_kwargs: dict
         passes to `create_dict_for_agg_function`
         accepted kwargs are 'default_agg' and 'custom_aggs'
+        method (mean, sum, etc.) to aggregate data if aggregated monthly
 
     Outputs
     -------
@@ -565,12 +566,15 @@ def load_grealm_heights(
     url_str: str = "https://ipad.fas.usda.gov/lakes/images/lake000462.10d.2.smooth.txt",
     monthly: bool = False,
 ) -> pd.DataFrame:
-    """Load G-REALM data from .txt url. Function contains several hardcoded processing steps."""
+    """Load G-REALM data from .txt url.
+    Function contains several hardcoded processing steps.
+    """
     import pandas as pd
 
     from codebase.time_series_calcs import resample_to_monthly
 
     grealm_raw = pd.read_csv(url_str, header=12, sep=" ", skipinitialspace=True)
+    # Default column names are the nan values of the column
     grealm_raw.rename(
         columns={
             "99999999": "Date",
