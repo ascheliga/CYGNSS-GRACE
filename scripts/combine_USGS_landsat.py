@@ -8,13 +8,11 @@
 
 import itertools
 import os
-import re
 
 from codebase.area_subsets import combine_landsat_geotiffs
 from codebase.utils import search_with_exception_handling
 
 dirpath = "/global/scratch/users/ann_scheliga/aux_dam_datasets/Landsat8/"
-
 
 ## Grab all date options
 # List all files in directory
@@ -24,7 +22,7 @@ all_files.sort()  # Order files for easier debugging
 search_pattern = r"(20[0-9]{5})"
 # Pull dates from all Landsat files
 all_dates = [
-    search_with_excpetion_handling(search_pattern, i_file).group(0)
+    search_with_exception_handling(search_pattern, i_file)
     for i_file in all_files
     if i_file.startswith("HLS")
 ]
