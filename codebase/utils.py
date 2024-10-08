@@ -67,3 +67,16 @@ def convert_from_m2_to_ac(value_m2: float | int) -> float:
     """Convert from acres to square meters."""
     value_ac = value_m2 / 4046.856
     return value_ac
+
+
+def search_with_exception_handling(r_pattern: str, item: str) -> str:
+    """Return regex search as a string, else return a blank string."""
+    import re
+
+    found = re.search(r_pattern, item)
+
+    if found:
+        output_str = found.group(0)
+    else:
+        output_str = ""
+    return output_str
