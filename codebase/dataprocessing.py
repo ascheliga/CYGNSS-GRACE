@@ -75,38 +75,3 @@ def create_dict_for_agg_function(
     for key, value in custom_aggs.items():
         agg_dict[key] = value
     return agg_dict
-
-
-def combine_landsat_geotiffs(
-    date_code: str = "",
-    band: str = "",
-    output_fn: str = "",
-    dir_path: str = "/global/scratch/users/ann_scheliga/aux_dam_datasets/Landsat8/",
-) -> None:
-    """Combine landsat geotiffs by common band and date."""
-    import glob
-    import os
-
-    from osgeo import gdal
-
-    # Input handling
-    date_code = str(date_code)
-    band = str(band)
-
-    # Create a useful default name for the output file
-    if not output_fn:
-        output_fn = "_".join(["landsat", date_code, band]) + ".tif"
-
-    # Create regex for searching through files in directory
-    search_criteria = "*" + date_code + "*" + band + ".tif"
-    print("Searching by:", search_criteria)
-    # Output file path and name
-    out_fp = dir_path + output_fn
-    # Query search
-    q = os.path.join(dir_path, search_criteria)
-    # Gets all the geotiff file paths inside the folder
-    files_to_mosaic = glob.glob(q)
-    # Function to Merge all files
-    gdal.Warp(out_fp, files_to_mosaic, format="GTiff")
-    # Flush the file to local and close it from memory
-    print("Created:", output_fn)
