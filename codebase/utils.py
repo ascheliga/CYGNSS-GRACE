@@ -1,3 +1,4 @@
+from re import Pattern
 from typing import Any
 
 import numpy as np
@@ -69,14 +70,46 @@ def convert_from_m2_to_ac(value_m2: float | int) -> float:
     return value_ac
 
 
-def search_with_exception_handling(r_pattern: str, item: str) -> str:
+def search_with_exception_handling(r_pattern: str | Pattern, item: str) -> str:
     """Return regex search as a string, else return a blank string."""
     import re
 
     found = re.search(r_pattern, item)
 
     if found:
-        output_str = found.group(0)
+        try:
+            output_str = found.group(1)
+        except Exception:
+            output_str = found.group(0)
     else:
         output_str = ""
     return output_str
+
+
+def search_list_unique_values(regex_str: Pattern, input_list: list) -> list:
+    """
+    Find regex substrings in list.
+
+    Long Description
+    ----------------
+    Use regex search to find the first occurrence of the pattern in each list item.
+    Return the set() of all matches as a list.
+
+    Inputs
+    ------
+    regex_str : re.Pattern
+        the pattern to search for
+        must compile beforehand (`re.compile()`) to a re.Pattern
+    input_list : list
+        list to search through
+
+    Outputs
+    -------
+    unique_matches : list
+        list of strings that match the pattern
+    """
+    all_matches = [
+        search_with_exception_handling(regex_str, list_item) for list_item in input_list
+    ]
+    unique_matches = list(set(all_matches))
+    return unique_matches
