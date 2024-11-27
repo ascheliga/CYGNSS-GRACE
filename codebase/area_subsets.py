@@ -10,7 +10,7 @@ def check_for_multiple_dams(
 ) -> pd.DataFrame:
     """
     Subset reservoir dataset by dam name and
-    select one reser voirif there are multiple of same name.
+    select one reservoir if there are multiple of same name.
 
     Inputs
     ------
@@ -182,7 +182,7 @@ def precip_point_subset(coords_i: tuple[float, float], precip: DataArray) -> pd.
 
 def cygnss_point_subset(coords_i: tuple[float, float], fw: DataArray) -> pd.Series:
     """
-    Subset the given DataArray to the time series at a simgle point.
+    Subset the given DataArray to the time series at a single point.
 
     Inputs
     ------
@@ -338,7 +338,7 @@ def precip_shape_subset(
     )
     return precip_subset_xr, precip_agg_series
 
-    
+
 def combine_landsat_geotiffs(
     date_code: str = "",
     band: str = "",
@@ -346,11 +346,6 @@ def combine_landsat_geotiffs(
     dir_path: str = "/global/scratch/users/ann_scheliga/aux_dam_datasets/Landsat8/",
 ) -> None:
     """Combine landsat geotiffs by common band and date."""
-    import glob
-    import os
-
-    from osgeo import gdal
-
     # Input handling
     date_code = str(date_code)
     band = str(band)
@@ -361,6 +356,32 @@ def combine_landsat_geotiffs(
 
     # Create regex for searching through files in directory
     search_criteria = "*" + date_code + "*" + band + ".tif"
+
+    combine_geotiffs(search_criteria, output_fn, dir_path)
+    # print("Searching by:", search_criteria)
+    # # Output file path and name
+    # out_fp = dir_path + output_fn
+    # # Query search
+    # q = os.path.join(dir_path, search_criteria)
+    # # Gets all the geotiff file paths inside the folder
+    # files_to_mosaic = glob.glob(q)
+    # # Function to Merge all files
+    # gdal.Warp(out_fp, files_to_mosaic, format="GTiff")
+    # # Flush the file to local and close it from memory
+    # print("Created:", output_fn)
+
+
+def combine_geotiffs(
+    search_criteria: str,
+    output_fn: str,
+    dir_path: str,
+) -> None:
+    """Combine geotiffs in directory matching search criteria."""
+    import glob
+    import os
+
+    from osgeo import gdal
+
     print("Searching by:", search_criteria)
     # Output file path and name
     out_fp = dir_path + output_fn
@@ -372,3 +393,12 @@ def combine_landsat_geotiffs(
     gdal.Warp(out_fp, files_to_mosaic, format="GTiff")
     # Flush the file to local and close it from memory
     print("Created:", output_fn)
+
+
+def hydroBASINS_by_PFAFID(
+    PFAF_ID: str | int, hydroBASINS_gdf: GeoDataFrame
+) -> GeoDataFrame:
+    """Select one or more watersheds from hydroBASINS based on beginning of PFAF_ID."""
+    PFAF_ID = str(PFAF_ID)
+    subset_rows = hydroBASINS_gdf["PFAF_ID"].astype(str).str.startswith(PFAF_ID)
+    return hydroBASINS_gdf[subset_rows]
