@@ -292,6 +292,19 @@ def xr_shape_subset(
     return clip_rxr
 
 
+def xr_shape_subset_from_filename(
+    full_filename: str,
+    subset_gpd: GeoDataFrame,
+    buffer_val: float = 0,
+    crs_code: int = 4326,
+) -> DataArray:
+    from xarray import open_dataarray
+
+    full_DA = open_dataarray(full_filename)
+    subset_DA = xr_shape_subset(subset_gpd, full_DA, buffer_val, crs_code)
+    return subset_DA
+
+
 def cygnss_shape_subset(
     subset_gpd: GeoDataFrame,
     input_xr: DataArray,
@@ -337,6 +350,29 @@ def precip_shape_subset(
         data=precip_subset_xr.sum(dim=["lat", "lon"]), index=precip_dates
     )
     return precip_subset_xr, precip_agg_series
+
+
+def era5_shape_subset_and_concat(
+    subset_gpd: GeoDataFrame,
+    ordered_filenames: list[str],
+    filepath: str,
+    subset_dict: None | dict = None,
+    concat_dict: None | dict = None,
+) -> DataArray:
+    if concat_dict is None:
+        concat_dict = {}
+    if subset_dict is None:
+        subset_dict = {}
+    from xarray import concat
+
+    items_to_concat = [None] * len(ordered_filenames)
+    for idx, filename in enumerate(ordered_filenames):
+        full_filename = filepath + filename
+        items_to_concat[idx] = xr_shape_subset_from_filename(
+            full_filename, subset_gpd, **subset_dict
+        )
+    concat_DA = concat(items_to_concat, **concat_dict)
+    return concat_DA
 
 
 def combine_landsat_geotiffs(
