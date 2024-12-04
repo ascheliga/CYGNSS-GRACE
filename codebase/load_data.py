@@ -597,6 +597,22 @@ def load_grealm_heights(
     return grealm_all_heights
 
 
+def load_hydroBASINS(
+    filepath: str = "/global/scratch/users/ann_scheliga/"
+    "aux_dam_datasets/HydroBASINS_NorAmer/",
+    continent: str = "na",
+    lvl: int = 3,
+) -> GeoDataFrame:
+    """Load hydroBASINS .shp file with variable level and continent.
+    Default is North America level 3.
+    """
+    from geopandas import read_file
+
+    filename = "hybas_" + continent + "_lev" + str(f"{lvl:02}") + "_v1c.shp"
+    hydroBASINS = read_file(filepath + filename)
+    return hydroBASINS
+
+
 if __name__ == "__main__":
     test = load_GRACE()
     print(test)
