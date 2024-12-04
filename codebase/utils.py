@@ -113,3 +113,12 @@ def search_list_unique_values(regex_str: Pattern, input_list: list) -> list:
     ]
     unique_matches = list(set(all_matches))
     return unique_matches
+
+
+def grab_matching_names_from_filepath(dir_to_search: str, input_pattern: str) -> list:
+    import os
+
+    allfiles = os.listdir(dir_to_search)
+    files_OI = [filename for filename in allfiles if input_pattern in filename]
+    files_OI.sort()
+    return files_OI
