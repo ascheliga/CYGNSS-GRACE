@@ -10,7 +10,7 @@ def check_for_multiple_dams(
 ) -> pd.DataFrame:
     """
     Subset reservoir dataset by dam name and
-    select one reser voirif there are multiple of same name.
+    select one reservoir if there are multiple of same name.
 
     Inputs
     ------
@@ -182,7 +182,7 @@ def precip_point_subset(coords_i: tuple[float, float], precip: DataArray) -> pd.
 
 def cygnss_point_subset(coords_i: tuple[float, float], fw: DataArray) -> pd.Series:
     """
-    Subset the given DataArray to the time series at a simgle point.
+    Subset the given DataArray to the time series at a single point.
 
     Inputs
     ------
@@ -292,6 +292,19 @@ def xr_shape_subset(
     return clip_rxr
 
 
+def xr_shape_subset_from_filename(
+    full_filename: str,
+    subset_gpd: GeoDataFrame,
+    buffer_val: float = 0,
+    crs_code: int = 4326,
+) -> DataArray:
+    from xarray import open_dataarray
+
+    full_DA = open_dataarray(full_filename)
+    subset_DA = xr_shape_subset(subset_gpd, full_DA, buffer_val, crs_code)
+    return subset_DA
+
+
 def cygnss_shape_subset(
     subset_gpd: GeoDataFrame,
     input_xr: DataArray,
@@ -338,7 +351,30 @@ def precip_shape_subset(
     )
     return precip_subset_xr, precip_agg_series
 
-    
+
+def era5_shape_subset_and_concat(
+    subset_gpd: GeoDataFrame,
+    ordered_filenames: list[str],
+    filepath: str,
+    subset_dict: None | dict = None,
+    concat_dict: None | dict = None,
+) -> DataArray:
+    if concat_dict is None:
+        concat_dict = {}
+    if subset_dict is None:
+        subset_dict = {}
+    from xarray import concat
+
+    items_to_concat = [None] * len(ordered_filenames)
+    for idx, filename in enumerate(ordered_filenames):
+        full_filename = filepath + filename
+        items_to_concat[idx] = xr_shape_subset_from_filename(
+            full_filename, subset_gpd, **subset_dict
+        )
+    concat_DA = concat(items_to_concat, **concat_dict)
+    return concat_DA
+
+
 def combine_landsat_geotiffs(
     date_code: str = "",
     band: str = "",
@@ -346,11 +382,6 @@ def combine_landsat_geotiffs(
     dir_path: str = "/global/scratch/users/ann_scheliga/aux_dam_datasets/Landsat8/",
 ) -> None:
     """Combine landsat geotiffs by common band and date."""
-    import glob
-    import os
-
-    from osgeo import gdal
-
     # Input handling
     date_code = str(date_code)
     band = str(band)
@@ -361,6 +392,32 @@ def combine_landsat_geotiffs(
 
     # Create regex for searching through files in directory
     search_criteria = "*" + date_code + "*" + band + ".tif"
+
+    combine_geotiffs(search_criteria, output_fn, dir_path)
+    # print("Searching by:", search_criteria)
+    # # Output file path and name
+    # out_fp = dir_path + output_fn
+    # # Query search
+    # q = os.path.join(dir_path, search_criteria)
+    # # Gets all the geotiff file paths inside the folder
+    # files_to_mosaic = glob.glob(q)
+    # # Function to Merge all files
+    # gdal.Warp(out_fp, files_to_mosaic, format="GTiff")
+    # # Flush the file to local and close it from memory
+    # print("Created:", output_fn)
+
+
+def combine_geotiffs(
+    search_criteria: str,
+    output_fn: str,
+    dir_path: str,
+) -> None:
+    """Combine geotiffs in directory matching search criteria."""
+    import glob
+    import os
+
+    from osgeo import gdal
+
     print("Searching by:", search_criteria)
     # Output file path and name
     out_fp = dir_path + output_fn
@@ -372,3 +429,12 @@ def combine_landsat_geotiffs(
     gdal.Warp(out_fp, files_to_mosaic, format="GTiff")
     # Flush the file to local and close it from memory
     print("Created:", output_fn)
+
+
+def hydroBASINS_by_PFAFID(
+    PFAF_ID: str | int, hydroBASINS_gdf: GeoDataFrame
+) -> GeoDataFrame:
+    """Select one or more watersheds from hydroBASINS based on beginning of PFAF_ID."""
+    PFAF_ID = str(PFAF_ID)
+    subset_rows = hydroBASINS_gdf["PFAF_ID"].astype(str).str.startswith(PFAF_ID)
+    return hydroBASINS_gdf[subset_rows]
