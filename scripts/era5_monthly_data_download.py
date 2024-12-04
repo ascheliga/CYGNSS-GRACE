@@ -24,4 +24,5 @@ request = {
 }
 
 client = cdsapi.Client()
-client.retrieve(dataset, request).download()
+output_file = '/global/scratch/users/ann_scheliga/era5_test_data/monthlytempK_precip.zip'
+client.retrieve(dataset, request).download(target = output_file)
