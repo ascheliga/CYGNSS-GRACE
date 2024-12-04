@@ -75,3 +75,20 @@ def create_dict_for_agg_function(
     for key, value in custom_aggs.items():
         agg_dict[key] = value
     return agg_dict
+
+
+def grdc_timeseries_data_processing(
+    df: pd.DataFrame, start_year: int, stop_year: int
+) -> pd.DataFrame:
+    """stop_year is exclusive."""
+    from pandas import to_datetime
+
+    df.rename(columns={"YYYY-MM-DD": "Date", " Value": "Q m3s"}, inplace=True)
+    df["Date"] = to_datetime(df["Date"])
+    df.drop(columns="hh:mm", inplace=True)
+    df.set_index("Date", inplace=True)
+    df = df[
+        (df.index >= to_datetime(str(start_year) + "-01-01"))
+        & (df.index < to_datetime(str(stop_year) + "-01-01"))
+    ]
+    return df

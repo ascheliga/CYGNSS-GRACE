@@ -613,6 +613,24 @@ def load_hydroBASINS(
     return hydroBASINS
 
 
+def load_GRDC_timeseries(
+    filename: str,
+    filepath: str = "/global/scratch/users/ann_scheliga/aux_dam_datasets/GRDC_CRB/",
+    start_year: int = 2000,
+    stop_year: int = 2025,
+) -> pd.DataFrame:
+    """Stop year is exclusive."""
+    import pandas as pd
+
+    from codebase.dataprocessing import grdc_timeseries_data_processing
+
+    full_df = pd.read_table(
+        filepath + filename, header=36, encoding="unicode_escape", delimiter=";"
+    )
+    output_df = grdc_timeseries_data_processing(full_df, start_year, stop_year)
+    return output_df
+
+
 if __name__ == "__main__":
     test = load_GRACE()
     print(test)
