@@ -369,7 +369,7 @@ def project_DA_from_crs_code(input_DA: xr.DataArray, epsg_code: float) -> xr.Dat
 def calculate_area_from_filename(
     filename: str,
     bbox_vals: np.ndarray,
-    filepath: str = "/global/scratch/users/ann_scheliga/CYGNSS_daily/powell/",
+    filepath: str = "/global/scratch/users/ann_scheliga/CYGNSS_daily/",
     ID_pattern: re.Pattern | str = "",
 ) -> tuple[str, float] | float:
     """

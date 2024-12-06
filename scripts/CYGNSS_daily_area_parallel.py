@@ -1,27 +1,31 @@
+import os
+
+import dask
+import dask.multiprocessing
+# from pandas import DataFrame
+from dask.distributed import Client, LocalCluster
+
+# import codebase
+
 ## DEFINE VARIABLES
-datadir = '/global/scratch/users/ann_scheliga/CYGNSS_daily/powell/'
-dam_name = 'glen canyon'
+datadir = "/global/scratch/users/ann_scheliga/CYGNSS_daily/"
+dam_name = "glen canyon"
 ## END DEFINE VARIABLES
 
 ## DASK PARALLELIZATION
 # Taken straight from Savio HPC Docs page.
 
-import dask
-import codebase
-import pandas as pd
 
 # Threads scheduler
-dask.config.set(scheduler='threads', num_workers = 24)
+dask.config.set(scheduler="threads", num_workers=2)
 
 # Processes scheduler
-import dask.multiprocessing
-dask.config.set(scheduler='processes', num_workers = 24)  
+dask.config.set(scheduler="processes", num_workers=2)
 
-# Distributed scheduler 
+# Distributed scheduler
 # Fine to use this on a single node and it provides some nice functionality
 # If you experience issues with worker memory then try the processes scheduler
-from dask.distributed import Client, LocalCluster
-cluster = LocalCluster(n_workers = 24)
+cluster = LocalCluster(n_workers=24)
 c = Client(cluster)
 ## END DASK SETUP
 
@@ -35,20 +39,22 @@ subset_bbox = subset_gpd.geometry.buffer(0).bounds
 # All the CYGNSS daily .nc files
 all_files = os.listdir(datadir)
 all_files.sort()
+some_files = all_files[:100]
 ## END LIST OF FILENAMES
 
 ## PARALLEL FOR LOOP
-futures = c.map(func = codebase.area_calcs.calculate_area_from_filename,
-    all_files,
-    filepath= datadir
-    bbox_vals = subset_bbox,
-    ID_pattern = r'[0-9]{4}-[0-9]{2}-[0-9]{2}
+futures = c.map(
+    codebase.area_calcs.calculate_area_from_filename,
+    some_files,
+    filepath=datadir,
+    bbox_vals=subset_bbox,
+    ID_pattern=r"[0-9]{4}-[0-9]{2}-[0-9]{2}",
 )
 ## END PARALLEL FOR LOOP
 
 ## COMPILE RESULTS
 results = c.gather(futures)
-df = pd.DataFrame(results, columns =['ID', 'Area sqm'])
-df.to_csv(datadir+'area_calc.csv')
+df = DataFrame(results, columns=["ID", "Area sqm"])
+df.to_csv("/global/scratch/users/ann_scheliga/CYGNSS_daily/test_area_calc.csv")
 
 ## END COMPILE RESULTS
