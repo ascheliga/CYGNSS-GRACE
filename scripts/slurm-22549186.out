@@ -1,0 +1,74 @@
+hello world
+Starting PRECIP TYPE
+Starting 2019
+2024-12-06 07:07:20,690 INFO [2024-09-28T00:00:00] **Welcome to the New Climate Data Store (CDS)!** This new system is in its early days of full operations and still undergoing enhancements and fine tuning. Some disruptions are to be expected. Your 
+[feedback](https://jira.ecmwf.int/plugins/servlet/desk/portal/1/create/202) is key to improve the user experience on the new CDS for the benefit of everyone. Thank you.
+2024-12-06 07:07:20,690 INFO [2024-09-26T00:00:00] Watch our [Forum](https://forum.ecmwf.int/) for Announcements, news and other discussed topics.
+2024-12-06 07:07:20,690 INFO [2024-09-16T00:00:00] Remember that you need to have an ECMWF account to use the new CDS. **Your old CDS credentials will not work in new CDS!**
+2024-12-06 07:07:20,690 WARNING [2024-06-16T00:00:00] CDS API syntax is changed and some keys or parameter names may have also changed. To avoid requests failing, please use the "Show API request code" tool on the dataset Download Form to check you are using the correct syntax for your API request.
+2024-12-06 07:07:23,617 INFO Request ID is 0fdcbbda-98db-457a-96cc-4cdb2f52f985
+2024-12-06 07:07:24,523 INFO status has been updated to accepted
+2024-12-06 07:07:35,169 INFO status has been updated to successful
+e7e707d9417cb781a9a6658a6bc8f059.nc:   0%|          | 0.00/61.5M [00:00<?, ?B/s]e7e707d9417cb781a9a6658a6bc8f059.nc:   2%|▏         | 1.00M/61.5M [00:01<01:24, 751kB/s]e7e707d9417cb781a9a6658a6bc8f059.nc:   3%|▎         | 2.00M/61.5M [00:01<00:39, 1.58MB/s]e7e707d9417cb781a9a6658a6bc8f059.nc:   7%|▋         | 4.00M/61.5M [00:01<00:17, 3.53MB/s]e7e707d9417cb781a9a6658a6bc8f059.nc:  11%|█▏        | 7.00M/61.5M [00:01<00:08, 6.69MB/s]e7e707d9417cb781a9a6658a6bc8f059.nc:  16%|█▋        | 10.0M/61.5M [00:02<00:05, 9.56MB/s]e7e707d9417cb781a9a6658a6bc8f059.nc:  21%|██        | 13.0M/61.5M [00:02<00:04, 12.0MB/s]e7e707d9417cb781a9a6658a6bc8f059.nc:  24%|██▍       | 15.0M/61.5M [00:02<00:03, 12.7MB/s]e7e707d9417cb781a9a6658a6bc8f059.nc:  29%|██▉       | 18.0M/61.5M [00:02<00:03, 14.8MB/s]e7e707d9417cb781a9a6658a6bc8f059.nc:  34%|███▍      | 21.0M/61.5M [00:02<00:02, 16.3MB/s]e7e707d9417cb781a9a6658a6bc8f059.nc:  39%|███▉      | 24.0M/61.5M [00:02<00:02, 17.4MB/s]e7e707d9417cb781a9a6658a6bc8f059.nc:  44%|████▍     | 27.0M/61.5M [00:02<00:01, 18.3MB/s]e7e707d9417cb781a9a6658a6bc8f059.nc:  49%|████▉     | 30.0M/61.5M [00:03<00:01, 18.9MB/s]e7e707d9417cb781a9a6658a6bc8f059.nc:  54%|█████▎    | 33.0M/61.5M [00:03<00:01, 19.3MB/s]e7e707d9417cb781a9a6658a6bc8f059.nc:  59%|█████▊    | 36.0M/61.5M [00:03<00:01, 19.6MB/s]e7e707d9417cb781a9a6658a6bc8f059.nc:  63%|██████▎   | 39.0M/61.5M [00:03<00:01, 19.9MB/s]e7e707d9417cb781a9a6658a6bc8f059.nc:  67%|██████▋   | 41.0M/61.5M [00:03<00:01, 19.9MB/s]e7e707d9417cb781a9a6658a6bc8f059.nc:  70%|██████▉   | 43.0M/61.5M [00:03<00:00, 19.9MB/s]e7e707d9417cb781a9a6658a6bc8f059.nc:  73%|███████▎  | 45.0M/61.5M [00:03<00:00, 20.1MB/s]e7e707d9417cb781a9a6658a6bc8f059.nc:  76%|███████▋  | 47.0M/61.5M [00:03<00:00, 20.0MB/s]e7e707d9417cb781a9a6658a6bc8f059.nc:  80%|███████▉  | 49.0M/61.5M [00:04<00:00, 20.1MB/s]e7e707d9417cb781a9a6658a6bc8f059.nc:  85%|████████▍ | 52.0M/61.5M [00:04<00:00, 20.2MB/s]e7e707d9417cb781a9a6658a6bc8f059.nc:  89%|████████▉ | 55.0M/61.5M [00:04<00:00, 20.3MB/s]e7e707d9417cb781a9a6658a6bc8f059.nc:  93%|█████████▎| 57.0M/61.5M [00:04<00:00, 20.4MB/s]e7e707d9417cb781a9a6658a6bc8f059.nc:  96%|█████████▌| 59.0M/61.5M [00:04<00:00, 19.7MB/s]e7e707d9417cb781a9a6658a6bc8f059.nc: 100%|██████████| 61.5M/61.5M [00:04<00:00, 20.9MB/s]                                                                                         Saved to /global/scratch/users/ann_scheliga/era5_test_data/2019daily_precip_type.nc
+inside script
+Starting PRECIP
+Starting 2019
+2024-12-06 07:07:42,825 INFO [2024-09-28T00:00:00] **Welcome to the New Climate Data Store (CDS)!** This new system is in its early days of full operations and still undergoing enhancements and fine tuning. Some disruptions are to be expected. Your 
+[feedback](https://jira.ecmwf.int/plugins/servlet/desk/portal/1/create/202) is key to improve the user experience on the new CDS for the benefit of everyone. Thank you.
+2024-12-06 07:07:42,825 INFO [2024-09-26T00:00:00] Watch our [Forum](https://forum.ecmwf.int/) for Announcements, news and other discussed topics.
+2024-12-06 07:07:42,826 INFO [2024-09-16T00:00:00] Remember that you need to have an ECMWF account to use the new CDS. **Your old CDS credentials will not work in new CDS!**
+2024-12-06 07:07:42,826 WARNING [2024-06-16T00:00:00] CDS API syntax is changed and some keys or parameter names may have also changed. To avoid requests failing, please use the "Show API request code" tool on the dataset Download Form to check you are using the correct syntax for your API request.
+2024-12-06 07:07:45,265 INFO Request ID is 24606ebd-66d2-49b4-b5ce-30c075fe709a
+2024-12-06 07:07:46,470 INFO status has been updated to accepted
+2024-12-06 07:07:55,450 INFO Daily reduction: sum {'time_shift': {'hours': -1}, 'remove_partial_periods': True}
+2024-12-06 07:07:55,450 INFO status has been updated to running
+2024-12-06 07:08:00,704 INFO status has been updated to successful
+29c5025c1c3e70a68a70baab499a30c0.nc:   0%|          | 0.00/34.5k [00:00<?, ?B/s]29c5025c1c3e70a68a70baab499a30c0.nc: 100%|██████████| 34.5k/34.5k [00:00<00:00, 55.7kB/s]                                                                                         Saved to /global/scratch/users/ann_scheliga/era5_test_data/2019daiy_tot_precip.nc
+Starting 2020
+2024-12-06 07:08:03,587 INFO [2024-09-28T00:00:00] **Welcome to the New Climate Data Store (CDS)!** This new system is in its early days of full operations and still undergoing enhancements and fine tuning. Some disruptions are to be expected. Your 
+[feedback](https://jira.ecmwf.int/plugins/servlet/desk/portal/1/create/202) is key to improve the user experience on the new CDS for the benefit of everyone. Thank you.
+2024-12-06 07:08:03,587 INFO [2024-09-26T00:00:00] Watch our [Forum](https://forum.ecmwf.int/) for Announcements, news and other discussed topics.
+2024-12-06 07:08:03,587 INFO [2024-09-16T00:00:00] Remember that you need to have an ECMWF account to use the new CDS. **Your old CDS credentials will not work in new CDS!**
+2024-12-06 07:08:03,587 WARNING [2024-06-16T00:00:00] CDS API syntax is changed and some keys or parameter names may have also changed. To avoid requests failing, please use the "Show API request code" tool on the dataset Download Form to check you are using the correct syntax for your API request.
+2024-12-06 07:08:05,402 INFO Request ID is ecd1ce66-7404-4ab1-96a0-39d81d6cfd5e
+2024-12-06 07:08:05,703 INFO status has been updated to accepted
+2024-12-06 07:08:14,810 INFO status has been updated to running
+2024-12-06 07:08:20,123 INFO Daily reduction: sum {'time_shift': {'hours': -1}, 'remove_partial_periods': True}
+2024-12-06 07:08:20,123 INFO status has been updated to successful
+5a50bfd2485b2198102ceda64028119c.nc:   0%|          | 0.00/34.5k [00:00<?, ?B/s]5a50bfd2485b2198102ceda64028119c.nc: 100%|██████████| 34.5k/34.5k [00:00<00:00, 56.0kB/s]                                                                                         Saved to /global/scratch/users/ann_scheliga/era5_test_data/2020daiy_tot_precip.nc
+Starting 2021
+2024-12-06 07:08:25,013 INFO [2024-09-28T00:00:00] **Welcome to the New Climate Data Store (CDS)!** This new system is in its early days of full operations and still undergoing enhancements and fine tuning. Some disruptions are to be expected. Your 
+[feedback](https://jira.ecmwf.int/plugins/servlet/desk/portal/1/create/202) is key to improve the user experience on the new CDS for the benefit of everyone. Thank you.
+2024-12-06 07:08:25,013 INFO [2024-09-26T00:00:00] Watch our [Forum](https://forum.ecmwf.int/) for Announcements, news and other discussed topics.
+2024-12-06 07:08:25,013 INFO [2024-09-16T00:00:00] Remember that you need to have an ECMWF account to use the new CDS. **Your old CDS credentials will not work in new CDS!**
+2024-12-06 07:08:25,013 WARNING [2024-06-16T00:00:00] CDS API syntax is changed and some keys or parameter names may have also changed. To avoid requests failing, please use the "Show API request code" tool on the dataset Download Form to check you are using the correct syntax for your API request.
+2024-12-06 07:08:26,840 INFO Request ID is 04c0cd0c-9b33-4dcf-9f20-8078bc873644
+2024-12-06 07:08:27,230 INFO status has been updated to accepted
+2024-12-06 07:08:36,547 INFO status has been updated to running
+2024-12-06 07:08:41,798 INFO Daily reduction: sum {'time_shift': {'hours': -1}, 'remove_partial_periods': True}
+2024-12-06 07:08:49,675 INFO status has been updated to successful
+20de92098a77a69edcd40dd0f4894b53.nc:   0%|          | 0.00/34.5k [00:00<?, ?B/s]20de92098a77a69edcd40dd0f4894b53.nc: 100%|██████████| 34.5k/34.5k [00:00<00:00, 54.8kB/s]                                                                                         Saved to /global/scratch/users/ann_scheliga/era5_test_data/2021daiy_tot_precip.nc
+Starting 2022
+2024-12-06 07:08:51,892 INFO [2024-09-28T00:00:00] **Welcome to the New Climate Data Store (CDS)!** This new system is in its early days of full operations and still undergoing enhancements and fine tuning. Some disruptions are to be expected. Your 
+[feedback](https://jira.ecmwf.int/plugins/servlet/desk/portal/1/create/202) is key to improve the user experience on the new CDS for the benefit of everyone. Thank you.
+2024-12-06 07:08:51,892 INFO [2024-09-26T00:00:00] Watch our [Forum](https://forum.ecmwf.int/) for Announcements, news and other discussed topics.
+2024-12-06 07:08:51,892 INFO [2024-09-16T00:00:00] Remember that you need to have an ECMWF account to use the new CDS. **Your old CDS credentials will not work in new CDS!**
+2024-12-06 07:08:51,892 WARNING [2024-06-16T00:00:00] CDS API syntax is changed and some keys or parameter names may have also changed. To avoid requests failing, please use the "Show API request code" tool on the dataset Download Form to check you are using the correct syntax for your API request.
+2024-12-06 07:08:52,679 INFO Request ID is 3fe22c5b-3e78-4c8e-9801-d2ce1d6613ec
+2024-12-06 07:08:53,538 INFO status has been updated to accepted
+2024-12-06 07:09:01,404 INFO status has been updated to running
+2024-12-06 07:09:06,975 INFO Daily reduction: sum {'time_shift': {'hours': -1}, 'remove_partial_periods': True}
+2024-12-06 07:09:12,302 INFO status has been updated to successful
+71cf63148fc341a7355c7af0d84d6487.nc:   0%|          | 0.00/34.5k [00:00<?, ?B/s]71cf63148fc341a7355c7af0d84d6487.nc: 100%|██████████| 34.5k/34.5k [00:00<00:00, 52.3kB/s]                                                                                         Saved to /global/scratch/users/ann_scheliga/era5_test_data/2022daiy_tot_precip.nc
+Starting 2023
+2024-12-06 07:09:16,726 INFO [2024-09-28T00:00:00] **Welcome to the New Climate Data Store (CDS)!** This new system is in its early days of full operations and still undergoing enhancements and fine tuning. Some disruptions are to be expected. Your 
+[feedback](https://jira.ecmwf.int/plugins/servlet/desk/portal/1/create/202) is key to improve the user experience on the new CDS for the benefit of everyone. Thank you.
+2024-12-06 07:09:16,726 INFO [2024-09-26T00:00:00] Watch our [Forum](https://forum.ecmwf.int/) for Announcements, news and other discussed topics.
+2024-12-06 07:09:16,726 INFO [2024-09-16T00:00:00] Remember that you need to have an ECMWF account to use the new CDS. **Your old CDS credentials will not work in new CDS!**
+2024-12-06 07:09:16,726 WARNING [2024-06-16T00:00:00] CDS API syntax is changed and some keys or parameter names may have also changed. To avoid requests failing, please use the "Show API request code" tool on the dataset Download Form to check you are using the correct syntax for your API request.
+2024-12-06 07:09:18,008 INFO Request ID is b90e9dbb-bc15-4517-a74b-398c2146ff3c
+2024-12-06 07:09:18,429 INFO status has been updated to accepted
+2024-12-06 07:09:28,087 INFO Daily reduction: sum {'time_shift': {'hours': -1}, 'remove_partial_periods': True}
+2024-12-06 07:09:28,087 INFO status has been updated to running
+2024-12-06 07:09:33,324 INFO status has been updated to successful
+dbbfe0c773e6ea086bb1086b46d89641.nc:   0%|          | 0.00/34.5k [00:00<?, ?B/s]dbbfe0c773e6ea086bb1086b46d89641.nc: 100%|██████████| 34.5k/34.5k [00:00<00:00, 51.5kB/s]                                                                                         Saved to /global/scratch/users/ann_scheliga/era5_test_data/2023daiy_tot_precip.nc

@@ -5,12 +5,12 @@ print('Starting PRECIP TYPE',flush=True)
 
 year_list = list(arange(2019,2020).astype(str))
 for year_str in year_list:
-    output_file = '/global/scratch/users/ann_scheliga/era5_test_data/' + year_str + 'daiy_precip_type.nc'
+    output_file = '/global/scratch/users/ann_scheliga/era5_test_data/' + year_str + 'daily_precip_type.nc'
     print('Starting', year_str,flush=True)
     dataset = "derived-era5-single-levels-daily-statistics"
     request = {
         "product_type": "reanalysis",
-        "variable": ["total_precipitation"],
+        "variable": ["precipitation_type"],
         "year": year_str,
         "month": [
             "01", "02", "03",
@@ -31,7 +31,7 @@ for year_str in year_list:
             "28", "29", "30",
             "31"
         ],
-        "daily_statistic": "daily_sum",
+        "daily_statistic": "daily_mean",
         "time_zone": "utc+00:00",
         "frequency": "6_hourly",
         "area": [40, -180, -40, 180]
