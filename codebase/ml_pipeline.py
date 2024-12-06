@@ -1,5 +1,7 @@
 import numpy as np
 import pandas as pd
+from tensorflow.keras.models import Model
+
 
 def LSTM_preprocessing(
     res_name: str,
@@ -82,62 +84,106 @@ def LSTM_preprocessing(
 
     return all_data
 
-def split_data_and_reshape(all_data):
-    from sklearn.model_selection import train_test_split
-    X = all_data.drop(columns=['Q m3s'])[:-6].values
-    y = all_data['Q m3s'][:-6].values
 
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.5, random_state=23,shuffle=False)
-    X_train = X_train.reshape(1,X_train.shape[0],X_train.shape[1])
-    X_test = X_test.reshape(1,X_test.shape[0],X_test.shape[1])
-    y_train = y_train.reshape(1,y_train.shape[0],1)
-    y_test = y_test.reshape(1,y_test.shape[0],1)
-    print(f'X train shape: {X_train.shape}; y train shape: {y_train.shape}')
-    print(f'X test shape: {X_test.shape}; y test shape: {y_test.shape}')
+def split_data_and_reshape(all_data: pd.DataFrame) -> tuple[np.ndarray, ...]:
+    from sklearn.model_selection import train_test_split
+
+    X = all_data.drop(columns=["Q m3s"])[:-6].values
+    y = all_data["Q m3s"][:-6].values
+
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=0.5, random_state=23, shuffle=False
+    )
+    X_train = X_train.reshape(1, X_train.shape[0], X_train.shape[1])
+    X_test = X_test.reshape(1, X_test.shape[0], X_test.shape[1])
+    y_train = y_train.reshape(1, y_train.shape[0], 1)
+    y_test = y_test.reshape(1, y_test.shape[0], 1)
+    print(f"X train shape: {X_train.shape}; y train shape: {y_train.shape}")
+    print(f"X test shape: {X_test.shape}; y test shape: {y_test.shape}")
 
     return X_train, X_test, y_train, y_test
 
-def met_split(X_train_X_test):
-    X_met_train = X_train[:,:,:-1].copy()
-    X_met_test = X_test[:,:,:-1].copy()
+
+def met_split(X_train: np.ndarray, X_test: np.ndarray) -> tuple[np.ndarray, ...]:
+    X_met_train = X_train[:, :, :-1].copy()
+    X_met_test = X_test[:, :, :-1].copy()
     return X_met_train, X_met_test
 
-def make_LSTM_model(n_timesteps_in,n_features):
-    from tensorflow.keras.models import Sequential, Model
-    from tensorflow.keras.layers import LSTM
-    from tensorflow.keras.layers import Dense, Flatten
+
+def make_LSTM_model(n_timesteps_in: int, n_features: int) -> Model:
     from tensorflow.keras import Input
-    from tensorflow.keras.layers import TimeDistributed
-    from tensorflow.keras.layers import RepeatVector
+    from tensorflow.keras.layers import (
+        LSTM,
+        Dense,
+        RepeatVector,
+    )
+    from tensorflow.keras.models import Sequential
+
     model = Sequential()
-    model.add(Input(shape=(n_timesteps_in,n_features)))
+    model.add(Input(shape=(n_timesteps_in, n_features)))
     # model.add(Dense(128, activation='sigmoid'))
-    model.add(LSTM(150,dropout=0.2))
+    model.add(LSTM(150, dropout=0.2))
     model.add(RepeatVector(n_timesteps_in))
     model.add(LSTM(150, return_sequences=False))
     # model.add(TimeDistributed(Dense(n_features, activation='softmax')))
-    
-    model.add(Dense(n_timesteps_in, activation= "relu"))
-    model.compile(loss='MeanSquaredError', optimizer='adam', 
-                  metrics=['MeanAbsoluteError'])
-    print(model_nw.summary())
+
+    model.add(Dense(n_timesteps_in, activation="relu"))
+    model.compile(
+        loss="MeanSquaredError", optimizer="adam", metrics=["MeanAbsoluteError"]
+    )
+    print(model.summary())
     return model
 
-def compare_epoch_error(history_nw, history_sw, error_metric:str = 'MeanAbsoluteError', fig_name = ''):
+
+def compare_epoch_error(
+    history_nw: dict,
+    history_sw: dict,
+    error_metric: str = "MeanAbsoluteError",
+    fig_name: str = "",
+) -> None:
     import matplotlib.pyplot as plt
+
     error_nw = history_nw[error_metric]
-    val_error_nw = history_nw['val_'+error_metric]
+    val_error_nw = history_nw["val_" + error_metric]
     error_sw = history_sw[error_metric]
-    val_error_sw = history_sw['val_'+error_metric]
+    val_error_sw = history_sw["val_" + error_metric]
     epochs = range(1, len(error_nw) + 1)
-    plt.plot(epochs, error_nw, color = 'navy', linestyle=':', alpha = 0.8, label='Training MAE met only')
-    plt.plot(epochs, val_error_nw, color = 'green', linestyle=':', alpha = 0.8, label='Validation MAE met only')
-    plt.plot(epochs, error_sw, color = 'navy', linestyle='-', alpha = 0.8, label='Training MAE with SW')
-    plt.plot(epochs, val_error_sw, color = 'green', linestyle='-', alpha = 0.8, label='Validation MAE with SW')
-    plt.title('Training and validation MAE')
-    plt.xlabel('Epochs')
-    plt.ylabel('MAE')
+    plt.plot(
+        epochs,
+        error_nw,
+        color="navy",
+        linestyle=":",
+        alpha=0.8,
+        label="Training MAE met only",
+    )
+    plt.plot(
+        epochs,
+        val_error_nw,
+        color="green",
+        linestyle=":",
+        alpha=0.8,
+        label="Validation MAE met only",
+    )
+    plt.plot(
+        epochs,
+        error_sw,
+        color="navy",
+        linestyle="-",
+        alpha=0.8,
+        label="Training MAE with SW",
+    )
+    plt.plot(
+        epochs,
+        val_error_sw,
+        color="green",
+        linestyle="-",
+        alpha=0.8,
+        label="Validation MAE with SW",
+    )
+    plt.title("Training and validation MAE")
+    plt.xlabel("Epochs")
+    plt.ylabel("MAE")
     plt.legend()
     if fig_name:
-        plt.savefig('../figures/'+fig_name+'.png')
+        plt.savefig("../figures/" + fig_name + ".png")
     return plt.show()
