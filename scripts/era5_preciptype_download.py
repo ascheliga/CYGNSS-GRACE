@@ -3,7 +3,7 @@ from numpy import arange
 
 print('Starting PRECIP TYPE',flush=True)
 
-year_list = list(arange(2019,2020).astype(str))
+year_list = list(arange(2020,2024).astype(str))
 for year_str in year_list:
     output_file = '/global/scratch/users/ann_scheliga/era5_test_data/' + year_str + 'daily_precip_type.nc'
     print('Starting', year_str,flush=True)
