@@ -1,5 +1,6 @@
 # Import packages
 import re
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -389,3 +390,48 @@ def calculate_area_from_filename(
     else:
         output = output_area
     return output
+
+
+def CYGNSS_001_areal_aggregation(
+    function: Any,
+    cygnss_DA: xr.DataArray,
+    x_dim: str = "x",
+    y_dim: str = "y",
+    with_index: str = "",
+) -> np.ndarray | pd.Series:
+    """
+    Calculate a given function over the provided DataArray with reprojection.
+
+    Long Description
+    ----------------
+    First reprojects to equal area or checks that the projection is equal area,
+    then executes the function.
+
+    Inputs
+    ------
+    cygnss_DA : xarray.DataArray
+        all non-nan values in the DataArray will contribute to the average.
+    with_index : str
+        coordinate in DataArray to serve as Pandas index
+        ex: 'time'
+    """
+    from pandas import Series
+
+    if "area" not in cygnss_DA.spatial_ref.grid_mapping_name:
+        cygnss_DA = cygnss_DA.rio.reproject("ESRI:54017")
+        # Rename dims
+        x_dim = next(dim for dim in cygnss_DA.dims if "x" in dim)
+        y_dim = next(dim for dim in cygnss_DA.dims if "y" in dim)
+        print("Projected to equal area")
+    elif not check_regular_area_DA(cygnss_DA, {"x_dim": x_dim, "y_dim": y_dim}):
+        raise Exception("Unequal pixel areas")
+
+    # Average across spatial dims
+    _x_dim_idx = cygnss_DA.dims.index(x_dim)
+    _y_dim_idx = cygnss_DA.dims.index(y_dim)
+    aggregate = function(cygnss_DA.values, axis=(_x_dim_idx, _y_dim_idx))
+
+    if with_index:
+        aggregate = Series(data=aggregate, index=cygnss_DA[with_index])
+
+    return aggregate

@@ -688,6 +688,15 @@ def load_GRDC_station_data_by_ID(
     timeseries_dict: dict | None = None,
     filename_str: str = "_Q_Day.Cmd.txt",
 ) -> tuple[GeoDataFrame, pd.DataFrame]:
+    """
+    Load timeseries data and watershed shapefile.
+
+    Inputs
+    ------
+    timeseries_dict : dict
+        kwargs to pass onto `load_data.load_GRDC_timeseries`
+        accepted kwargs: 'start_year' (inclusive) and 'stop_year' (exclusive)
+    """
     if timeseries_dict is None:
         timeseries_dict = {}
     station_gpd = load_GRDC_station_metadata(id_no, filepath)
