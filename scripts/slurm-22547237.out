@@ -1,0 +1,2 @@
+hello world
+/global/software/rocky-8.x86_64/python-3.11.6/python-3.11.6/python/3.11.6-gcc/bin/python: Error while finding module specification for 'codebase.CYGNSS_daily_area_nonparallel' (ModuleNotFoundError: No module named 'codebase')
