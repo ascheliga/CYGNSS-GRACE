@@ -1,4 +1,6 @@
 # Import packages
+import re
+
 import numpy as np
 import pandas as pd
 import xarray as xr
@@ -254,8 +256,11 @@ def grab_dims(input_DA: xr.DataArray) -> tuple[str, str]:
 
 
 def CYGNSS_001_areal_average(
-    cygnss_DA: xr.DataArray, x_dim: str = "x", y_dim: str = "y"
-) -> np.ndarray:
+    cygnss_DA: xr.DataArray,
+    x_dim: str = "x",
+    y_dim: str = "y",
+    with_index: str = "",
+) -> np.ndarray | pd.Series:
     """
     Calculate the average of values in the provided DataArray.
 
@@ -268,8 +273,12 @@ def CYGNSS_001_areal_average(
     ------
     cygnss_DA : xarray.DataArray
         all non-nan values in the DataArray will contribute to the average.
+    with_index : str
+        coordinate in DataArray to serve as Pandas index
+        ex: 'time'
     """
     import numpy as np
+    from pandas import Series
 
     if "area" not in cygnss_DA.spatial_ref.grid_mapping_name:
         cygnss_DA = cygnss_DA.rio.reproject("ESRI:54017")
@@ -284,6 +293,9 @@ def CYGNSS_001_areal_average(
     _x_dim_idx = cygnss_DA.dims.index(x_dim)
     _y_dim_idx = cygnss_DA.dims.index(y_dim)
     average = np.nanmean(cygnss_DA.values, axis=(_x_dim_idx, _y_dim_idx))
+
+    if with_index:
+        average = Series(data=average, index=cygnss_DA[with_index])
 
     return average
 
@@ -352,3 +364,28 @@ def project_DA_from_crs_code(input_DA: xr.DataArray, epsg_code: float) -> xr.Dat
         new_crs = pycrs.utils.crscode_to_string("epsg", epsg_code, "ogcwkt")
         output_DA = input_DA.rio.reproject(new_crs)
     return output_DA
+
+
+def calculate_area_from_filename(
+    filename: str,
+    bbox_vals: np.ndarray,
+    filepath: str = "/global/scratch/users/ann_scheliga/CYGNSS_daily/powell/",
+    ID_pattern: re.Pattern | str = "",
+) -> tuple[str, float] | float:
+    """
+    Calculate area of CYGNSS extent from filename and bounding box.
+
+    Useful wrapper for parallelization.
+    Meant to step through separate daily .nc files.
+    """
+    from codebase.load_data import load_CYGNSS_001_daily
+    from codebase.utils import search_with_exception_handling
+
+    subset_DA = load_CYGNSS_001_daily(filename, bbox_vals, filepath)
+    output_area = CYGNSS_001_area_calculation(subset_DA, with_index=False)[0]
+    if ID_pattern:
+        ID = search_with_exception_handling(ID_pattern, filename)
+        output = ID, output_area
+    else:
+        output = output_area
+    return output

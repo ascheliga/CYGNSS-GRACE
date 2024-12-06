@@ -68,10 +68,14 @@ def load_CYGNSS_001_1month(
     import xarray as xr
 
     global_xrDS = xr.open_dataset(filepath + filename, decode_times=False)
+
+    if "watermask" in global_xrDS.data_vars:
+        global_xrDS = global_xrDS.rename_vars({"watermask": "Watermask"})
+
     dem_full_rxr = global_xrDS["Watermask"].rio.write_crs(4326)
     del global_xrDS
     dem_full_rxr.rio.set_spatial_dims("lon", "lat", inplace=True)
-    clipped_rxr = dem_full_rxr.rio.clip_box(*bbox_vals)
+    clipped_rxr = dem_full_rxr.rio.clip_box(**bbox_vals)
     del dem_full_rxr
     return clipped_rxr
 
@@ -118,6 +122,42 @@ def load_CYGNSS_001_all_months(
         list_of_xr, pd.Index(time_idx, name="time"), combine_attrs="drop_conflicts"
     )
     return cygnss_allmonths_xr
+
+
+def load_CYGNSS_001_daily(
+    filename: str,
+    bbox_vals: np.ndarray,
+    filepath: str = "/global/scratch/users/ann_scheliga/CYGNSS_daily/powell/",
+) -> DataArray:
+    """
+    Load and subset a single day of data by filename.
+
+    Inputs
+    ------
+    filename : str
+        Name of one month of data
+        Typical form of 'cyg.ddmi.2023-12-26.l3.uc-berkeley-watermask-daily.a32.d33.nc'
+    bbox_vals : np.ndarray
+        order of values: 'minx', 'miny', 'maxx', 'maxy'
+        array of 4 values to feed to DataArray.rio.clip_box()
+    filepath : str
+        default: "/global/scratch/users/ann_scheliga/CYGNSS_daily/powell/"
+        filepath to CYGNSS data
+
+    Outputs
+    -------
+    clipped_rxr: xr.DataArray
+
+    """
+    import xarray as xr
+
+    global_xrDS = xr.open_dataset(filepath + filename, decode_times=False)
+    dem_full_rxr = global_xrDS["watermask"].rio.write_crs(4326)
+    del global_xrDS
+    dem_full_rxr.rio.set_spatial_dims("lon", "lat", inplace=True)
+    clipped_rxr = dem_full_rxr.rio.clip_box(**bbox_vals)
+    del dem_full_rxr
+    return clipped_rxr
 
 
 def load_GRACE_uncertainty(f: h5py.File) -> pd.DataFrame:
