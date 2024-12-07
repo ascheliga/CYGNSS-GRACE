@@ -83,6 +83,7 @@ def LSTM_preprocessing(
 
 
 def split_data_and_reshape(all_data: pd.DataFrame) -> tuple[np.ndarray, ...]:
+    """Split into X & y and train & test. Reshapes to 3D for input into LSTM."""
     from sklearn.model_selection import train_test_split
 
     X = all_data.drop(columns=["Q m3s"])[:-6].values
@@ -102,12 +103,17 @@ def split_data_and_reshape(all_data: pd.DataFrame) -> tuple[np.ndarray, ...]:
 
 
 def met_split(X_train: np.ndarray, X_test: np.ndarray) -> tuple[np.ndarray, ...]:
+    """Remove the last column of data, where SW area is stored."""
     X_met_train = X_train[:, :, :-1].copy()
     X_met_test = X_test[:, :, :-1].copy()
     return X_met_train, X_met_test
 
 
 def make_LSTM_model(n_timesteps_in: int, n_features: int) -> Model:
+    """
+    Create a keras model.
+    Stores the model as a function, so all experiments get the same model.
+    """
     from tensorflow.keras import Input
     from tensorflow.keras.layers import (
         LSTM,
@@ -162,7 +168,7 @@ def compare_epoch_error(
         as fig_name.png
     legend : bool
         default = True
-        whether to include a legend 
+        whether to include a legend
 
     Outputs
     -------
@@ -207,7 +213,7 @@ def compare_epoch_error(
         alpha=0.8,
         label="Validation error with SW",
     )
-    plt.title("Training and validation"+error_metric)
+    plt.title("Training and validation" + error_metric)
     plt.xlabel("Epochs")
     plt.ylabel(error_metric)
     if legend:
