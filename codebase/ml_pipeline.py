@@ -15,8 +15,6 @@ def LSTM_preprocessing(
 
     import codebase
 
-    codebase.load_data.load_GRanD()
-
     ## import sw_area
     sw_area = codebase.load_data.load_daily_reservoir_CYGNSS_area(
         dam_name, filepath=res_dir
@@ -139,7 +137,37 @@ def compare_epoch_error(
     history_sw: dict,
     error_metric: str = "MeanAbsoluteError",
     fig_name: str = "",
+    legend: bool = True,
 ) -> None:
+    """
+    Plot training and val error for two models.
+
+    Long Description
+    ----------------
+    Labels are set up for met-only vs met+SW area model comparison.
+    Saves the plot if a fig_name is provided.
+
+    Inputs
+    ------
+    history_nw, history_sw : dict
+        dictionary from keras History.history
+        History object is output from fitting a model.
+        _nw for "no water"
+        _sw for "surface water"
+    error_metric : str
+        key for history dictionaries
+    fig_name : str
+        default = ""
+        if string is given, saves the plot in ../figures/
+        as fig_name.png
+    legend : bool
+        default = True
+        whether to include a legend 
+
+    Outputs
+    -------
+    None
+    """
     import matplotlib.pyplot as plt
 
     error_nw = history_nw[error_metric]
@@ -153,7 +181,7 @@ def compare_epoch_error(
         color="navy",
         linestyle=":",
         alpha=0.8,
-        label="Training MAE met only",
+        label="Training error met only",
     )
     plt.plot(
         epochs,
@@ -161,7 +189,7 @@ def compare_epoch_error(
         color="green",
         linestyle=":",
         alpha=0.8,
-        label="Validation MAE met only",
+        label="Validation error met only",
     )
     plt.plot(
         epochs,
@@ -169,7 +197,7 @@ def compare_epoch_error(
         color="navy",
         linestyle="-",
         alpha=0.8,
-        label="Training MAE with SW",
+        label="Training error with SW",
     )
     plt.plot(
         epochs,
@@ -177,12 +205,13 @@ def compare_epoch_error(
         color="green",
         linestyle="-",
         alpha=0.8,
-        label="Validation MAE with SW",
+        label="Validation error with SW",
     )
-    plt.title("Training and validation MAE")
+    plt.title("Training and validation"+error_metric)
     plt.xlabel("Epochs")
-    plt.ylabel("MAE")
-    plt.legend()
+    plt.ylabel(error_metric)
+    if legend:
+        plt.legend()
     if fig_name:
         plt.savefig("../figures/" + fig_name + ".png")
     return plt.show()
