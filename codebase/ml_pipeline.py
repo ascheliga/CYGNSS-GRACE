@@ -18,7 +18,9 @@ def LSTM_preprocessing(
     codebase.load_data.load_GRanD()
 
     ## import sw_area
-    sw_area = codebase.load_data.load_daily_reservoir_CYGNSS_area(dam_name)
+    sw_area = codebase.load_data.load_daily_reservoir_CYGNSS_area(
+        dam_name, filepath=res_dir
+    )
 
     ## import GRDC
     watershed_gpd, grdc_Q = codebase.load_data.load_GRDC_station_data_by_ID(
