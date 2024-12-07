@@ -375,6 +375,35 @@ def era5_shape_subset_and_concat(
     return concat_DA
 
 
+def era5_shape_subset_and_concat_from_file_pattern(
+    filepath: str,
+    input_pattern: str,
+    subset_gpd: GeoDataFrame,
+    concat_dict: dict | None = None,
+    agg_function: Any = None,
+) -> tuple[DataArray, pd.Series | None]:
+    if concat_dict is None:
+        concat_dict = {}
+    from codebase.area_calcs import CYGNSS_001_areal_aggregation
+    from codebase.utils import grab_matching_names_from_filepath
+
+    filenames = grab_matching_names_from_filepath(filepath, input_pattern)
+    xr_DA = era5_shape_subset_and_concat(
+        ordered_filenames=filenames,
+        filepath=filepath,
+        concat_dict=concat_dict,
+        subset_gpd=subset_gpd,
+    )
+
+    if agg_function:
+        agg_series = CYGNSS_001_areal_aggregation(
+            agg_function, xr_DA, with_index=concat_dict["dim"]
+        )
+    else:
+        agg_series = None
+    return xr_DA, agg_series
+
+
 def combine_landsat_geotiffs(
     date_code: str = "",
     band: str = "",
