@@ -256,6 +256,49 @@ def grab_dims(input_DA: xr.DataArray) -> tuple[str, str]:
     return x_dim, y_dim
 
 
+def reproject_to_equal_area(
+    DA: xr.DataArray, x_dim: str, y_dim: str
+) -> tuple[xr.DataArray, str, str]:
+    """
+    Reprojects to equal area projection and passes names of spatial dims.
+
+    Long Description
+    ----------------
+    If crs name does not include 'area', reprojects to equal area ("ESRI:54017").
+    If already projected, checks that the projection is equal area.
+
+    Inputs
+    ------
+    DA: xarray.DataArray
+    x_dim: str
+        name of x-dimension in DataArray
+        typical values: 'longitude', 'x'
+    y_dim: str
+        name of y-dimension in DataArray
+        typical values: 'latitude', 'y'
+
+    Outputs
+    -------
+    DA: xarray.DataArray
+        reprojected DataArray
+    x_dim: str
+        name of x-dimension in reprojected DataArray
+        typical values: 'longitude', 'x'
+    y_dim: str
+        name of y-dimension in reprojected DataArray
+        typical values: 'latitude', 'y'
+    """
+    if "area" not in DA.spatial_ref.grid_mapping_name:
+        DA = DA.rio.reproject("ESRI:54017")
+        # Rename dims
+        x_dim = next(dim for dim in DA.dims if "x" in dim)
+        y_dim = next(dim for dim in DA.dims if "y" in dim)
+        print("Projected to equal area")
+    elif not check_regular_area_DA(DA, {"x_dim": x_dim, "y_dim": y_dim}):
+        raise Exception("Unequal pixel areas")
+    return DA, x_dim, y_dim
+
+
 def CYGNSS_001_areal_average(
     cygnss_DA: xr.DataArray,
     x_dim: str = "x",
@@ -281,14 +324,7 @@ def CYGNSS_001_areal_average(
     import numpy as np
     from pandas import Series
 
-    if "area" not in cygnss_DA.spatial_ref.grid_mapping_name:
-        cygnss_DA = cygnss_DA.rio.reproject("ESRI:54017")
-        # Rename dims
-        x_dim = next(dim for dim in cygnss_DA.dims if "x" in dim)
-        y_dim = next(dim for dim in cygnss_DA.dims if "y" in dim)
-        print("Projected to equal area")
-    elif not check_regular_area_DA(cygnss_DA, {"x_dim": x_dim, "y_dim": y_dim}):
-        raise Exception("Unequal pixel areas")
+    cygnss_DA, x_dim, y_dim = reproject_to_equal_area(cygnss_DA, x_dim, y_dim)
 
     # Average across spatial dims
     _x_dim_idx = cygnss_DA.dims.index(x_dim)
@@ -320,14 +356,7 @@ def CYGNSS_001_area_calculation(
     import numpy as np
     from pandas import Series
 
-    if "area" not in cygnss_DA.spatial_ref.grid_mapping_name:
-        cygnss_DA = cygnss_DA.rio.reproject("ESRI:54017")
-        # Rename dims
-        x_dim = next(dim for dim in cygnss_DA.dims if "x" in dim)
-        y_dim = next(dim for dim in cygnss_DA.dims if "y" in dim)
-        print("Projected to equal area")
-    elif not check_regular_area_DA(cygnss_DA, {"x_dim": x_dim, "y_dim": y_dim}):
-        raise Exception("Unequal pixel areas")
+    cygnss_DA, x_dim, y_dim = reproject_to_equal_area(cygnss_DA, x_dim, y_dim)
 
     _x_width, _y_width = grab_pixel_sizes_DA(cygnss_DA, x_dim, y_dim)
 
@@ -417,14 +446,7 @@ def CYGNSS_001_areal_aggregation(
     """
     from pandas import Series
 
-    if "area" not in cygnss_DA.spatial_ref.grid_mapping_name:
-        cygnss_DA = cygnss_DA.rio.reproject("ESRI:54017")
-        # Rename dims
-        x_dim = next(dim for dim in cygnss_DA.dims if "x" in dim)
-        y_dim = next(dim for dim in cygnss_DA.dims if "y" in dim)
-        print("Projected to equal area")
-    elif not check_regular_area_DA(cygnss_DA, {"x_dim": x_dim, "y_dim": y_dim}):
-        raise Exception("Unequal pixel areas")
+    cygnss_DA, x_dim, y_dim = reproject_to_equal_area(cygnss_DA, x_dim, y_dim)
 
     # Average across spatial dims
     _x_dim_idx = cygnss_DA.dims.index(x_dim)
