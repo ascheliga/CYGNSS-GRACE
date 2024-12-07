@@ -18,10 +18,7 @@ def LSTM_preprocessing(
     codebase.load_data.load_GRanD()
 
     ## import sw_area
-    sw_area = pd.read_csv(res_dir + dam_name + "_area.csv", index_col=0)
-    sw_area.index = pd.to_datetime(sw_area.index)
-    sw_area = sw_area.loc[sw_area.index < pd.to_datetime("2024-01-01"), "Area m2"]
-    sw_area = (sw_area / 10**6).rename("Area km2", inplace=True)
+    sw_area = codebase.load_data.load_daily_reservoir_CYGNSS_area(dam_name)
 
     ## import GRDC
     watershed_gpd, grdc_Q = codebase.load_data.load_GRDC_station_data_by_ID(
@@ -78,9 +75,9 @@ def LSTM_preprocessing(
     ## aggregate data
     all_data = pd.concat([tempK_1dim, precip_1dim, sw_area, grdc_Q], axis=1)
     all_data.interpolate(
-        method="linear", axis=0, inplace=True, limit = 7
+        method="linear", axis=0, inplace=True, limit=7
     )  # interpolate missing interiror values
-    all_data.bfill(inplace=True,limit=2)  # backfill missing first precip value
+    all_data.bfill(inplace=True, limit=2)  # backfill missing first precip value
 
     return all_data
 

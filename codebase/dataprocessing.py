@@ -92,3 +92,18 @@ def grdc_timeseries_data_processing(
         & (df.index < to_datetime(str(stop_year) + "-01-01"))
     ]
     return df
+
+
+def daily_CYGNSS_area_data_processing(
+    sw_df: pd.DataFrame, start_year: int = 2000, stop_year: int = 2025
+) -> pd.Series:
+    from pandas import to_datetime
+
+    sw_df.index = to_datetime(sw_df.index)
+    sw_area = sw_df.loc[
+        (sw_df.index >= to_datetime(str(start_year) + "-01-01"))
+        & (sw_df.index < to_datetime(str(stop_year) + "-01-01")),
+        "Area m2",
+    ]
+    sw_area = (sw_area / 10**6).rename("Area km2", inplace=True)
+    return sw_area

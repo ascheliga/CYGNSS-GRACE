@@ -705,6 +705,21 @@ def load_GRDC_station_data_by_ID(
     return station_gpd, station_timeseries
 
 
+def load_daily_reservoir_CYGNSS_area(
+    dam_name: str,
+    filepath: str = "/global/scratch/users/ann_scheliga/CYGNSS_daily/",
+    formatting: bool = True,
+) -> pd.Series:
+    import pandas as pd
+
+    from codebase.dataprocessing import daily_CYGNSS_area_data_processing
+
+    sw_area = pd.read_csv(filepath + dam_name + "_area.csv", index_col=0)
+    if formatting:
+        sw_area = daily_CYGNSS_area_data_processing(sw_area)
+    return sw_area
+
+
 if __name__ == "__main__":
     test = load_GRACE()
     print(test)
