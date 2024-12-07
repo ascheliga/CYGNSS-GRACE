@@ -1,17 +1,13 @@
 import numpy as np
-import pandas as pd
-from xarray import DataArray
 
-from codebase.area_calcs import CYGNSS_001_areal_aggregation
 from codebase import testing
+from codebase.area_calcs import CYGNSS_001_areal_aggregation
+
 
 def test_sum_3Darray() -> None:
     DA = testing.create_sampleDA_3D(0)
-    output_val = 
-    DA1_aligned, DA2_aligned = CYGNSS_001_areal_aggregation(DA)
-    np.testing.assert_equal(
-        DA1_aligned.coords["lat"].values, DA2_aligned.coords["lat"].values
-    )
+    CYGNSS_001_areal_aggregation(DA)
+    np.testing.assert_allclose(output_val, expected_val)
     np.testing.assert_equal(
         DA1_aligned.coords["lon"].values, DA2_aligned.coords["lon"].values
     )
