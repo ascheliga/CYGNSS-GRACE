@@ -75,7 +75,7 @@ def LSTM_preprocessing(
     ## aggregate data
     all_data = pd.concat([tempK_1dim, precip_1dim, sw_area, grdc_Q], axis=1)
     all_data.interpolate(
-        method="linear", axis=0, inplace=True, limit=7
+        method="linear", axis=0, inplace=True#, limit=7
     )  # interpolate missing interiror values
     all_data.bfill(inplace=True, limit=2)  # backfill missing first precip value
 
@@ -108,8 +108,30 @@ def met_split(X_train: np.ndarray, X_test: np.ndarray) -> tuple[np.ndarray, ...]
     X_met_test = X_test[:, :, :-1].copy()
     return X_met_train, X_met_test
 
+def make_LSTM_1layer_model(n_timesteps_in: int, n_features: int) -> Model:
+    """
+    Create a keras model.
+    Stores the model as a function, so all experiments get the same model.
+    """
+    from tensorflow.keras import Input
+    from tensorflow.keras.layers import (
+        LSTM,
+        Dense,
+        RepeatVector,
+    )
+    from tensorflow.keras.models import Sequential
 
-def make_LSTM_model(n_timesteps_in: int, n_features: int) -> Model:
+    model = Sequential()
+    model.add(Input(shape=(n_timesteps_in, n_features)))
+    model.add(LSTM(150, dropout=0.2))
+    model.add(Dense(n_timesteps_in, activation="relu"))
+    model.compile(
+        loss="MeanSquaredError", optimizer="adam", metrics=["MeanAbsoluteError"]
+    )
+    print(model.summary())
+    return model
+    
+def make_LSTM_2layer_model(n_timesteps_in: int, n_features: int) -> Model:
     """
     Create a keras model.
     Stores the model as a function, so all experiments get the same model.
