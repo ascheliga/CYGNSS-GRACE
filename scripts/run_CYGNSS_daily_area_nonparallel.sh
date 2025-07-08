@@ -1,18 +1,14 @@
 #!/bin/bash
-#SBATCH --job-name=CYGNSS_powell_daily_area_attempt3
+#SBATCH --job-name=CYGNSS_HUC_daily_area_attempt27
 #SBATCH --account=fc_ecohydrology
 #SBATCH --partition=savio2_htc
-#SBATCH --time=00:00:15
+#SBATCH --time=00:11:15
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=2
 
 ## Command(s) to run:
 
-echo "hello world"
-
-
 eval "$(conda shell.bash hook)"
 
-conda activate rio_keras
-module load python
-python -m codebase.CYGNSS_daily_area_nonparallel
+conda activate rioxarray_env
+python CYGNSS_daily_area_nonparallel_nonGRanD.py
