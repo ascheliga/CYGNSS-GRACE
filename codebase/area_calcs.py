@@ -341,17 +341,19 @@ def CYGNSS_001_area_calculation(
     cygnss_DA: xr.DataArray, x_dim: str = "x", y_dim: str = "y", with_index: bool = True
 ) -> np.ndarray | pd.Series:
     """
-    Calculate the average of values in the provided DataArray.
+    Calculate the sum of values in the provided DataArray.
 
     Long Description
     ----------------
     First reprojects to equal area or checks that the projection is equal area,
-    then takes the unweighted average using np.nanmean.
+    then takes the summation using np.sum.
 
     Inputs
     ------
     cygnss_DA : xarray.DataArray
         all non-nan values in the DataArray will contribute to the average.
+    with_index : bool
+        whether to convert the array into a Series indexed on "time"
     """
     import numpy as np
     from pandas import Series
