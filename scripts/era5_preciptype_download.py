@@ -1,11 +1,14 @@
 import cdsapi
+import os
 from numpy import arange
 
-print('Starting PRECIP TYPE',flush=True)
+start_year = int(os.environ['start_year'])
+end_year_ex = int(os.environ['end_year_ex']) # exclusive of this year
 
-year_list = list(arange(2020,2024).astype(str))
+print('Starting PRECIP_TYPE',flush = True)
+year_list = list(arange(start_year,end_year_ex).astype(str))
 for year_str in year_list:
-    output_file = '/global/scratch/users/ann_scheliga/era5_test_data/' + year_str + 'daily_precip_type.nc'
+    output_file = '/global/scratch/users/ann_scheliga/era5_data/' + year_str + 'daily_precip_type.nc'
     print('Starting', year_str,flush=True)
     dataset = "derived-era5-single-levels-daily-statistics"
     request = {

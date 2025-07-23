@@ -1,10 +1,14 @@
 import cdsapi
+import os
 from numpy import arange
 
+start_year = int(os.environ['start_year'])
+end_year_ex = int(os.environ['end_year_ex']) # exclusive of this year
+
 print('Starting TEMPERATURE',flush = True)
-year_list = list(arange(2019,2020).astype(str))
+year_list = list(arange(start_year,end_year_ex).astype(str))
 for year_str in year_list:
-    output_file = '/global/scratch/users/ann_scheliga/era5_test_data/' + year_str + 'daiy_tempK.nc'
+    output_file = '/global/scratch/users/ann_scheliga/era5_data/' + year_str + 'daily_tempK.nc'
     print('Starting', year_str,flush=True)
     dataset = "derived-era5-single-levels-daily-statistics"
     request = {
