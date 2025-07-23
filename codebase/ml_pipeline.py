@@ -75,8 +75,8 @@ def LSTM_preprocessing(
     ## aggregate data
     all_data = pd.concat([tempK_1dim, precip_1dim, sw_area, grdc_Q], axis=1)
     all_data.interpolate(
-        method="linear", axis=0, inplace=True  # , limit=7
-    )  # interpolate missing interiror values
+        method="linear", axis=0, inplace=True  , limit=7
+    )  # interpolate missing interior values
     all_data.bfill(inplace=True, limit=2)  # backfill missing first precip value
 
     return all_data
