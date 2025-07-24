@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=download_era5_met_systematic_attempt06
+#SBATCH --job-name=download_era5_met_systematic_attempt08
 #SBATCH --account=fc_ecohydrology
 #SBATCH --partition=savio2_htc
 #SBATCH --time=05:02:35
