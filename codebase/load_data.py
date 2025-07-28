@@ -720,6 +720,68 @@ def load_daily_reservoir_CYGNSS_area(
     return sw_area
 
 
+def add_era5_met_data_by_shp(
+    input_gpd: GeoDataFrame,
+    filepath: str,
+    col_suffix: str = "",
+    start_year: int = -1,
+    stop_year_ex: int = -1,
+) -> pd.DataFrame:
+    """
+    Load areal aggregated temp and precip based on provided gpd.
+
+    Long Description
+    ----------------
+    Uses `area_subsets.era5_shape_subset_and_concat_from_file_pattern`
+    for each variable.
+    Searches for all instances of a substring (ex: 'daily_tempK'),
+    and concatenates all found files according to hard-coded concat_dict dimensions.
+    For precipitation, aggregates using np.nansum
+    For temperature, aggregates using np.nanmean.
+    start and stop year not used, but included in case useful in future edits.
+
+    Inputs
+    ------
+    input_gpd : geopandas.GeoDataFrame
+        geometry to subset data
+    col_suffix : str
+        default = "" (empty)
+        added to column names in final output dataframe
+        useful when using this function multiple times
+    start_year, stop_year_ex : int
+        default = -1
+        not used, passed in case future edits need the bounds
+        for pattern parsing or filtering.
+    """
+    from codebase.area_subsets import era5_shape_subset_and_concat_from_file_pattern
+
+    concat_dict = {"dim": "valid_time"}
+
+    __, tempK_1dim = era5_shape_subset_and_concat_from_file_pattern(
+        filepath=filepath,
+        input_pattern=r"daily_tempK",
+        subset_gpd=input_gpd,
+        concat_dict=concat_dict,
+        agg_function=np.nanmean,
+    )
+    if tempK_1dim is None:
+        tempK_1dim = pd.Series()
+    tempK_1dim.rename("tempK", inplace=True)
+
+    __, precip_1dim = era5_shape_subset_and_concat_from_file_pattern(
+        filepath=filepath,
+        input_pattern=r"daily_tot_precip",
+        subset_gpd=input_gpd,
+        concat_dict=concat_dict,
+        agg_function=np.nansum,
+    )
+    if precip_1dim is None:
+        precip_1dim = pd.Series()
+    precip_1dim.rename("precipm", inplace=True)
+    met_df = pd.concat([tempK_1dim, precip_1dim], axis=1).add_suffix(col_suffix)
+    return met_df
+
+
 if __name__ == "__main__":
     test = load_GRACE()
     print(test)
