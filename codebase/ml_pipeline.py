@@ -17,6 +17,45 @@ def LSTM_preprocessing_nh(
     basin_data_dir: str = "/global/scratch/users/ann_scheliga/basin_forcing_processed/",
     save_output: bool = True,
 ) -> pd.DataFrame:
+    """
+    Subset and consolidate met, surface water, and streamflow daily time series for neuralhydrology LSTM input.
+
+    Long Description
+    ----------------
+
+    Inputs
+    ------
+    grdc_id: int
+        GRDC ID of the main (largest) basin
+    grdc_sub_ids: list | None
+        list must be in downstream (largest) to upstream (smallest)
+        GRDC IDs of stream gauges further upstream
+    dam_name: str
+        name of dam as appears in GRanD database
+    start_year: int
+        time series starts on the first day of this year
+    stop_year_ex: int
+        time series ends on the first day of this year
+    grdc_dir: str
+        default = "/global/scratch/users/ann_scheliga/aux_dam_datasets/GRDC_CRB/"
+        where GRDC streamflow data stored
+    met_dir: str
+        default = "/global/scratch/users/ann_scheliga/era5_data/"
+        where semi-global, annual ERA5 met data stored
+    res_dir: str
+        default = "/global/scratch/users/ann_scheliga/CYGNSS_daily/"
+        where reservoir daily time series stored
+    basin_data_dir: str 
+        default = "/global/scratch/users/ann_scheliga/basin_forcing_processed/"
+        where output will be stored
+    save_output: bool 
+        default = True
+        whether to write the consolidated dataframe as a neuralhydrology-ready .pkl
+
+    Outputs
+    -------
+    output_df : pd.DataFrame
+    """
     import pickle
 
     import codebase
@@ -72,6 +111,7 @@ def LSTM_preprocessing_nh(
     all_shps = pd.concat([subsets_geoms, XOR_geoms]).rename("geometry")
 
     ## Load met data of all geometries
+    # Consider adding Pool.map() for parallelization
     met_list = [
         codebase.load_data.add_era5_met_data_by_shp(
             all_shps.loc[[idx]], filepath=met_dir, col_suffix=idx
