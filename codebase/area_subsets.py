@@ -1,7 +1,7 @@
 from typing import Any
 
 import pandas as pd
-from geopandas import GeoDataFrame
+from geopandas import GeoDataFrame, GeoSeries
 from xarray import DataArray
 
 
@@ -467,3 +467,49 @@ def hydroBASINS_by_PFAFID(
     PFAF_ID = str(PFAF_ID)
     subset_rows = hydroBASINS_gdf["PFAF_ID"].astype(str).str.startswith(PFAF_ID)
     return hydroBASINS_gdf[subset_rows]
+
+
+def create_XOR_subasins(
+    list_of_shps: list[GeoDataFrame], base_gpd: GeoDataFrame
+) -> GeoSeries:
+    """
+    Create a geoSeries of exclusive areas from a list of gpd.GeoDataFrames.
+
+    Long Description
+    ----------------
+    Subtracts the area of each geometry in the list IN ORDER.
+    Uses gpd.difference() method.
+    Starts by subtracting the first list item from base_gpd.
+    Next, subtracts the second list item from the base and first.
+
+    Inputs
+    ------
+    list_of_shps : list[GeoDataFrame]
+        list of single row GeoDataFrames
+        each item is a subbasin.
+        list must be in downstream (largest) to upstream (smallest)
+    base_gpd : GeoDataFrame
+        base (largest) geometry from which to subtract all list items
+        crs is applied to output series
+
+    Outputs
+    -------
+    processed_shps : gpd.GeoSeries
+        GeoSeries with non-overlapping geometries of inputs
+        index labels: _ex0, _ex1, ...
+        _ex0 corresponds to base_gpd
+        _ex1 corresponds to the first list item
+    """
+    processed_shps = base_gpd.iloc[:, -1]
+    processed_shps.rename({processed_shps.index.values[0]: "_ex0"}, inplace=True)
+    processed_shps.index.rename("relative_order", inplace=True)
+
+    for idx, shp in enumerate(list_of_shps):
+        shp_to_diff = shp.iloc[0, -1]
+        processed_shps = processed_shps.difference(shp_to_diff)
+        processed_shps.loc["_ex" + str(idx + 1)] = shp_to_diff
+
+    # Using the .difference() method wth a shapely shape removes the crs
+    processed_shps.set_crs(base_gpd.crs, inplace=True)
+
+    return processed_shps
