@@ -1,6 +1,98 @@
+from datetime import date
+
 import numpy as np
 import pandas as pd
 from tensorflow.keras.models import Model
+
+
+def LSTM_preprocessing_nh(
+    grdc_id: int,
+    grdc_sub_ids: list | None,  ## MUST BE ORDERED DOWNSTREAM (first) TO UPSTREAM (last)
+    dam_name: str,
+    start_year: int,
+    stop_year_ex: int,
+    grdc_dir: str = "/global/scratch/users/ann_scheliga/aux_dam_datasets/GRDC_CRB/",
+    met_dir: str = "/global/scratch/users/ann_scheliga/era5_data/",
+    res_dir: str = "/global/scratch/users/ann_scheliga/CYGNSS_daily/",
+    basin_data_dir: str = "/global/scratch/users/ann_scheliga/basin_forcing_processed/",
+    save_output: bool = True,
+) -> pd.DataFrame:
+    import pickle
+
+    import codebase
+
+    if grdc_sub_ids is None:
+        grdc_sub_ids = []
+
+    ## Create output dataframe
+    full_time = pd.date_range(
+        start=date(start_year, 1, 1), end=date(stop_year_ex, 1, 1), freq="D"
+    )
+    output_df = pd.DataFrame(index=full_time)
+
+    ## import sw_area
+    sw_area = codebase.load_data.load_daily_reservoir_CYGNSS_area(
+        dam_name, filepath=res_dir
+    )
+    output_df["SW_area"] = sw_area
+
+    ## Calculate SW_flag
+    output_df["SW_flag"] = (~output_df["SW_area"].isna()).astype(int)
+    # where SW_area has a value, SW_flag is true
+
+    ## Import basin watershed
+    ## import GRDC
+    watershed_gpd, grdc_Q = codebase.load_data.load_GRDC_station_data_by_ID(
+        grdc_id,
+        filepath=grdc_dir,
+        timeseries_dict={"start_year": start_year, "stop_year": stop_year_ex},
+    )
+    output_df["Q"] = grdc_Q
+
+    ## Get subbasin geometries
+    subbasins_GRDC = [
+        codebase.load_data.load_GRDC_station_data_by_ID(
+            grdc_id,
+            filepath=grdc_dir,
+            timeseries_dict={"start_year": start_year, "stop_year": stop_year_ex},
+        )
+        for grdc_id in grdc_sub_ids
+    ]
+    # drop flow timeseries tuple from list, leave just the geoDataFrame(s)
+    subbasin_shps = [output[0] for output in subbasins_GRDC]
+
+    ## Create exclusive area geometries
+    XOR_geoms = codebase.area_subsets.create_XOR_subasins(subbasin_shps, watershed_gpd)
+
+    ## Consolidate overlapping area geometries
+    subsets_gpd = pd.concat([watershed_gpd, *subbasin_shps])
+    subsets_geoms = subsets_gpd["geometry"].reset_index(drop=True).add_prefix("_tot")
+
+    ## Consolidate all (sub)basin geometries
+    all_shps = pd.concat([subsets_geoms, XOR_geoms]).rename("geometry")
+
+    ## Load met data of all geometries
+    met_list = [
+        codebase.load_data.add_era5_met_data_by_shp(
+            all_shps.loc[[idx]], filepath=met_dir, col_suffix=idx
+        )
+        for idx in all_shps.index
+    ]
+    met_df = pd.concat(met_list, axis=1)
+    output_df = output_df.join(met_df, how="left")
+
+    ## Final formatting
+    output_df.interpolate(
+        method="linear", axis=0, inplace=True, limit=7
+    )  # interpolate missing interior values
+    output_df.index.name = "date"
+
+    if save_output:
+        output_dict = {grdc_id: output_df}
+        filename = str(grdc_id) + ".pkl"
+        pickle.dump(output_dict, open(basin_data_dir + filename, "wb"))
+
+    return output_df
 
 
 def LSTM_preprocessing(
@@ -75,7 +167,7 @@ def LSTM_preprocessing(
     ## aggregate data
     all_data = pd.concat([tempK_1dim, precip_1dim, sw_area, grdc_Q], axis=1)
     all_data.interpolate(
-        method="linear", axis=0, inplace=True  , limit=7
+        method="linear", axis=0, inplace=True, limit=7
     )  # interpolate missing interior values
     all_data.bfill(inplace=True, limit=2)  # backfill missing first precip value
 
