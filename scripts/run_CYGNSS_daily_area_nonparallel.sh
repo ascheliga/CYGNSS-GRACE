@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=CYGNSS_HUC_daily_area_attempt27
+#SBATCH --job-name=CYGNSS_daily_area_glen_canyon_att0
 #SBATCH --account=fc_ecohydrology
 #SBATCH --partition=savio2_htc
 #SBATCH --time=00:11:15
@@ -11,4 +11,4 @@
 eval "$(conda shell.bash hook)"
 
 conda activate rioxarray_env
-python CYGNSS_daily_area_nonparallel_nonGRanD.py
+python CYGNSS_daily_area_nonparallel.py
