@@ -50,7 +50,7 @@ with Pool() as pool:
 
 print("Finish area calculation")
 ## END AREA CALCULATION
-result_df = pd.DataFrame(result, columns=[0, "Area m2"], index=IDs)
+result_df = pd.DataFrame(result, columns=["Area m2"], index=IDs)
 print(result_df.head(), flush=True)
 ## SAVE RESULTS
 filename = dam_name.replace(" ", "_") + "_area_parallel.csv"

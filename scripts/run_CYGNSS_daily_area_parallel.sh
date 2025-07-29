@@ -1,10 +1,10 @@
 #!/bin/bash
-#SBATCH --job-name=CYGNSS_powell_daily_area_mp_att9
+#SBATCH --job-name=CYGNSS_powell_daily_area_mp_att10
 #SBATCH --account=fc_ecohydrology
 #SBATCH --partition=savio2_htc
 #SBATCH --time=00:05:15
 #SBATCH --nodes=1
-#SBATCH --ntasks-per-node=2
+#SBATCH --ntasks-per-node=3
 
 ## Command(s) to run:
 
