@@ -1,5 +1,6 @@
 import glob
 import os
+from pathlib import Path
 
 import pandas as pd
 
@@ -8,6 +9,7 @@ import codebase
 ## DEFINE VARIABLES
 datadir = "/global/scratch/users/ann_scheliga/CYGNSS_daily/"
 dam_name = "glen canyon"
+print('Start CYGNSS daily area calculation for:', dam_name)
 ## END DEFINE VARIABLES
 
 ## DEFINE BBOX
@@ -33,13 +35,16 @@ df = pd.DataFrame(nc_list, columns=["Filename"], index=IDs)
 ## END CREATE EMPTY-ISH DATAFRAME
 
 ## AREA CALCULATION
+print('Start area calculation')
 df["Filename"].apply(
     codebase.area_calcs.calculate_area_from_filename,
     bbox_vals=subset_bbox,
     filepath=datadir,
 )
+print('Finish area calculation')
 ## END AREA CALCULATION
 
 ## SAVE RESULTS
-df.to_csv(datadir + dam_name + "test_area.csv")
+filename = dam_name.replace(' ', '_') + "_area.csv"
+df.to_csv(datadir + filename)
 ## END SAVE RESULTS
