@@ -134,7 +134,7 @@ def LSTM_preprocessing_nh(
 
     if save_output:
         output_dict = {grdc_id: output_df}
-        filename = str(grdc_id) + "_" + dam_name.lower() + ".pkl"
+        filename = (str(grdc_id) + "_" + dam_name.lower() + ".pkl").replace(' ','_')
         pickle.dump(output_dict, open(basin_data_dir + filename, "wb"))
         print(".pkl output saved in", basin_data_dir, "as", filename)
 
