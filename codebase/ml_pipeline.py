@@ -2,7 +2,8 @@ from datetime import date
 
 import numpy as np
 import pandas as pd
-from tensorflow.keras.models import Model
+
+# from tensorflow.keras.models import Model
 
 
 def LSTM_preprocessing_nh(
@@ -11,6 +12,7 @@ def LSTM_preprocessing_nh(
     dam_name: str,
     start_year: int,
     stop_year_ex: int,
+    basin_str: str,
     grdc_dir: str = "/global/scratch/users/ann_scheliga/aux_dam_datasets/GRDC_CRB/",
     met_dir: str = "/global/scratch/users/ann_scheliga/era5_data/",
     res_dir: str = "/global/scratch/users/ann_scheliga/CYGNSS_daily/",
@@ -18,7 +20,8 @@ def LSTM_preprocessing_nh(
     save_output: bool = True,
 ) -> pd.DataFrame:
     """
-    Subset and consolidate met, surface water, and streamflow daily time series for neuralhydrology LSTM input.
+    Subset and consolidate meteorological, surface water, and streamflow daily
+     time series for neuralhydrology LSTM input.
 
     Long Description
     ----------------
@@ -45,10 +48,10 @@ def LSTM_preprocessing_nh(
     res_dir: str
         default = "/global/scratch/users/ann_scheliga/CYGNSS_daily/"
         where reservoir daily time series stored
-    basin_data_dir: str 
+    basin_data_dir: str
         default = "/global/scratch/users/ann_scheliga/basin_forcing_processed/"
         where output will be stored
-    save_output: bool 
+    save_output: bool
         default = True
         whether to write the consolidated dataframe as a neuralhydrology-ready .pkl
 
@@ -85,6 +88,7 @@ def LSTM_preprocessing_nh(
         grdc_id,
         filepath=grdc_dir,
         timeseries_dict={"start_year": start_year, "stop_year": stop_year_ex},
+        basin_str=basin_str,
     )
     output_df["Q"] = grdc_Q
 
@@ -94,6 +98,7 @@ def LSTM_preprocessing_nh(
             grdc_id,
             filepath=grdc_dir,
             timeseries_dict={"start_year": start_year, "stop_year": stop_year_ex},
+            basin_str=basin_str,
         )
         for grdc_id in grdc_sub_ids
     ]
@@ -129,8 +134,9 @@ def LSTM_preprocessing_nh(
 
     if save_output:
         output_dict = {grdc_id: output_df}
-        filename = str(grdc_id) + ".pkl"
+        filename = str(grdc_id) + "_" + dam_name.lower() + ".pkl"
         pickle.dump(output_dict, open(basin_data_dir + filename, "wb"))
+        print(".pkl output saved in", basin_data_dir, "as", filename)
 
     return output_df
 
@@ -241,56 +247,56 @@ def met_split(X_train: np.ndarray, X_test: np.ndarray) -> tuple[np.ndarray, ...]
     return X_met_train, X_met_test
 
 
-def make_LSTM_1layer_model(n_timesteps_in: int, n_features: int) -> Model:
-    """
-    Create a keras model.
-    Stores the model as a function, so all experiments get the same model.
-    """
-    from tensorflow.keras import Input
-    from tensorflow.keras.layers import (
-        LSTM,
-        Dense,
-    )
-    from tensorflow.keras.models import Sequential
+# def make_LSTM_1layer_model(n_timesteps_in: int, n_features: int) -> Model:
+#     """
+#     Create a keras model.
+#     Stores the model as a function, so all experiments get the same model.
+#     """
+#     from tensorflow.keras import Input
+#     from tensorflow.keras.layers import (
+#         LSTM,
+#         Dense,
+#     )
+#     from tensorflow.keras.models import Sequential
 
-    model = Sequential()
-    model.add(Input(shape=(n_timesteps_in, n_features)))
-    model.add(LSTM(150, dropout=0.2))
-    model.add(Dense(n_timesteps_in, activation="relu"))
-    model.compile(
-        loss="MeanSquaredError", optimizer="adam", metrics=["MeanAbsoluteError"]
-    )
-    print(model.summary())
-    return model
+#     model = Sequential()
+#     model.add(Input(shape=(n_timesteps_in, n_features)))
+#     model.add(LSTM(150, dropout=0.2))
+#     model.add(Dense(n_timesteps_in, activation="relu"))
+#     model.compile(
+#         loss="MeanSquaredError", optimizer="adam", metrics=["MeanAbsoluteError"]
+#     )
+#     print(model.summary())
+#     return model
 
 
-def make_LSTM_2layer_model(n_timesteps_in: int, n_features: int) -> Model:
-    """
-    Create a keras model.
-    Stores the model as a function, so all experiments get the same model.
-    """
-    from tensorflow.keras import Input
-    from tensorflow.keras.layers import (
-        LSTM,
-        Dense,
-        RepeatVector,
-    )
-    from tensorflow.keras.models import Sequential
+# def make_LSTM_2layer_model(n_timesteps_in: int, n_features: int) -> Model:
+#     """
+#     Create a keras model.
+#     Stores the model as a function, so all experiments get the same model.
+#     """
+#     from tensorflow.keras import Input
+#     from tensorflow.keras.layers import (
+#         LSTM,
+#         Dense,
+#         RepeatVector,
+#     )
+#     from tensorflow.keras.models import Sequential
 
-    model = Sequential()
-    model.add(Input(shape=(n_timesteps_in, n_features)))
-    # model.add(Dense(128, activation='sigmoid'))
-    model.add(LSTM(150, dropout=0.2))
-    model.add(RepeatVector(n_timesteps_in))
-    model.add(LSTM(150, return_sequences=False))
-    # model.add(TimeDistributed(Dense(n_features, activation='softmax')))
+#     model = Sequential()
+#     model.add(Input(shape=(n_timesteps_in, n_features)))
+#     # model.add(Dense(128, activation='sigmoid'))
+#     model.add(LSTM(150, dropout=0.2))
+#     model.add(RepeatVector(n_timesteps_in))
+#     model.add(LSTM(150, return_sequences=False))
+#     # model.add(TimeDistributed(Dense(n_features, activation='softmax')))
 
-    model.add(Dense(n_timesteps_in, activation="relu"))
-    model.compile(
-        loss="MeanSquaredError", optimizer="adam", metrics=["MeanAbsoluteError"]
-    )
-    print(model.summary())
-    return model
+#     model.add(Dense(n_timesteps_in, activation="relu"))
+#     model.compile(
+#         loss="MeanSquaredError", optimizer="adam", metrics=["MeanAbsoluteError"]
+#     )
+#     print(model.summary())
+#     return model
 
 
 def compare_epoch_error(

@@ -674,10 +674,14 @@ def load_GRDC_timeseries(
 def load_GRDC_station_metadata(
     id_no: int | float,
     filepath: str = "/global/scratch/users/ann_scheliga/aux_dam_datasets/GRDC_CRB/",
+    basin_str: str = "",
 ) -> GeoDataFrame:
     from geopandas import read_file
 
-    all_stations_meta = read_file(filepath + "stationbasins.geojson")
+    if (len(basin_str) > 0) & ~basin_str.endswith("_"):
+        basin_str = basin_str + "_"
+
+    all_stations_meta = read_file(filepath + basin_str + "stationbasins.geojson")
     station_meta = all_stations_meta.loc[all_stations_meta["grdc_no"] == id_no]
     return station_meta
 
@@ -686,6 +690,7 @@ def load_GRDC_station_data_by_ID(
     id_no: float | int,
     filepath: str,
     timeseries_dict: dict | None = None,
+    basin_str: str = "",
     filename_str: str = "_Q_Day.Cmd.txt",
 ) -> tuple[GeoDataFrame, pd.DataFrame]:
     """
@@ -699,7 +704,7 @@ def load_GRDC_station_data_by_ID(
     """
     if timeseries_dict is None:
         timeseries_dict = {}
-    station_gpd = load_GRDC_station_metadata(id_no, filepath)
+    station_gpd = load_GRDC_station_metadata(id_no, filepath, basin_str)
     filename = str(int(id_no)) + filename_str
     station_timeseries = load_GRDC_timeseries(filename, filepath, **timeseries_dict)
     return station_gpd, station_timeseries
