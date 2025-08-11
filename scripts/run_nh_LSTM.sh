@@ -1,8 +1,8 @@
 #!/bin/bash
-#SBATCH --job-name=run_nh_LSTM_EXP00_att00
+#SBATCH --job-name=run_nh_LSTM_EXP00_att08
 #SBATCH --account=fc_ecohydrology
 #SBATCH --partition=savio2_htc
-#SBATCH --time=01:01:15
+#SBATCH --time=00:05:15
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=2
 
@@ -12,7 +12,7 @@ eval "$(conda shell.bash hook)"
 conda activate rioxarray_env
 
 # pre-processing
-python LSTM_preprocessing.py
+# python LSTM_preprocessing.py
 
 
 conda activate neuralhydrology

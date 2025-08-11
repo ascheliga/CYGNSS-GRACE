@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=CYGNSS_powell_daily_area_mp_att10
+#SBATCH --job-name=CYGNSS_kainji_att01
 #SBATCH --account=fc_ecohydrology
 #SBATCH --partition=savio2_htc
 #SBATCH --time=00:05:15

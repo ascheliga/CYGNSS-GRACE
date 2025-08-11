@@ -10,7 +10,7 @@ import codebase
 
 ## DEFINE VARIABLES
 datadir = "/global/scratch/users/ann_scheliga/CYGNSS_daily/"
-dam_name = "glen canyon"
+dam_name = "Kainji"
 print("Start CYGNSS daily area calculation for:", dam_name)
 ## END DEFINE VARIABLES
 
@@ -53,7 +53,7 @@ print("Finish area calculation")
 result_df = pd.DataFrame(result, columns=["Area m2"], index=IDs)
 print(result_df.head(), flush=True)
 ## SAVE RESULTS
-filename = dam_name.replace(" ", "_") + "_area_parallel.csv"
+filename = dam_name.replace(" ", "_").lower() + "_area.csv"
 fullpath = Path(datadir) / "time_series" / filename
 result_df.to_csv(fullpath)
 ## END SAVE RESULTS
