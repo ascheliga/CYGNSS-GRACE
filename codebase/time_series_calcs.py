@@ -387,13 +387,15 @@ class TimeSeriesMetrics:
             mean = m_mean
 
             self.ts_detrend = pd.DataFrame(output, index=self.ts_detrend.index)[0]
-            months_list = list(calendar.month_name[start_month:]) + list(
-                calendar.month_name[1 : (start_month - 13)]
-            )
-            _seasonality = pd.DataFrame(mean, index=months_list)[0]
-            self.seasonality: pd.DataFrame = _seasonality.reindex(
-                calendar.month_name[1:13]
-            )
+            if reps == 12:
+                months_list = list(calendar.month_name[start_month:]) + list(
+                    calendar.month_name[1 : (start_month - 13)]
+                )
+                _seasonality = pd.DataFrame(mean, index=months_list)[0]
+                _seaonality = _seasonality.reindex(calendar.month_name[1:13])
+            else:
+                _seasonality = pd.DataFrame(mean)
+            self.seasonality: pd.DataFrame = _seasonality
 
     def plot_anomalies(
         self,
