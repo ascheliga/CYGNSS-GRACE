@@ -7,13 +7,13 @@ from numpy import arange
 start_year = int(os.environ["start_year"])
 end_year_ex = int(os.environ["end_year_ex"])  # exclusive of this year
 
-print("Starting TEMPERATURE", flush=True)
+print("Starting MAX TEMPERATURE", flush=True)
 year_list = list(arange(start_year, end_year_ex).astype(str))
 
 
 def yearly_temp_request(year_str: str) -> None:
     output_file = (
-        "/global/scratch/users/ann_scheliga/era5_data/" + year_str + "daily_tempK.nc"
+        "/global/scratch/users/ann_scheliga/era5_data/" + year_str + "daily_max_tempK.nc"
     )
     print("Starting", year_str, flush=True)
     dataset = "derived-era5-single-levels-daily-statistics"
@@ -68,7 +68,7 @@ def yearly_temp_request(year_str: str) -> None:
             "30",
             "31",
         ],
-        "daily_statistic": "daily_mean",
+        "daily_statistic": "daily_maximum",
         "time_zone": "utc+00:00",
         "frequency": "6_hourly",
         "area": [40, -180, -40, 180],
