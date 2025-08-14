@@ -762,16 +762,27 @@ def add_era5_met_data_by_shp(
 
     concat_dict = {"dim": "valid_time"}
 
-    __, tempK_1dim = era5_shape_subset_and_concat_from_file_pattern(
+    __, max_tempK_1dim = era5_shape_subset_and_concat_from_file_pattern(
         filepath=filepath,
-        input_pattern=r"daily_tempK",
+        input_pattern=r"daily_max_tempK",
         subset_gpd=input_gpd,
         concat_dict=concat_dict,
         agg_function=np.nanmean,
     )
-    if tempK_1dim is None:
-        tempK_1dim = pd.Series()
-    tempK_1dim.rename("tempK", inplace=True)
+    if max_tempK_1dim is None:
+        max_tempK_1dim = pd.Series()
+    max_tempK_1dim.rename("max_tempK", inplace=True)
+
+    __, min_tempK_1dim = era5_shape_subset_and_concat_from_file_pattern(
+        filepath=filepath,
+        input_pattern=r"daily_min_tempK",
+        subset_gpd=input_gpd,
+        concat_dict=concat_dict,
+        agg_function=np.nanmean,
+    )
+    if min_tempK_1dim is None:
+        min_tempK_1dim = pd.Series()
+    min_tempK_1dim.rename("min_tempK", inplace=True)
 
     __, precip_1dim = era5_shape_subset_and_concat_from_file_pattern(
         filepath=filepath,
@@ -783,7 +794,21 @@ def add_era5_met_data_by_shp(
     if precip_1dim is None:
         precip_1dim = pd.Series()
     precip_1dim.rename("precipm", inplace=True)
-    met_df = pd.concat([tempK_1dim, precip_1dim], axis=1).add_suffix(col_suffix)
+
+    __, dewpoint_1dim = era5_shape_subset_and_concat_from_file_pattern(
+        filepath=filepath,
+        input_pattern=r"daily_dewpoint_K",
+        subset_gpd=input_gpd,
+        concat_dict=concat_dict,
+        agg_function=np.nanmean,
+    )
+    if dewpoint_1dim is None:
+        dewpoint_1dim = pd.Series()
+    dewpoint_1dim.rename("dewpointK", inplace=True)
+
+    met_df = pd.concat(
+        [max_tempK_1dim, min_tempK_1dim, precip_1dim, dewpoint_1dim], axis=1
+    ).add_suffix(col_suffix)
     return met_df
 
 
