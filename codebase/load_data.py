@@ -664,10 +664,14 @@ def load_GRDC_timeseries(
 
     from codebase.dataprocessing import grdc_timeseries_data_processing
 
-    full_df = pd.read_table(
-        filepath + filename, header=36, encoding="unicode_escape", delimiter=";"
-    )
-    output_df = grdc_timeseries_data_processing(full_df, start_year, stop_year)
+    try:
+        full_df = pd.read_table(
+            filepath + filename, header=36, encoding="unicode_escape", delimiter=";"
+        )
+    except FileNotFoundError:
+        output_df = pd.DataFrame()
+    else:
+        output_df = grdc_timeseries_data_processing(full_df, start_year, stop_year)
     return output_df
 
 
