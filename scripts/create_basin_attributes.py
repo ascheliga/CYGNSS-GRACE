@@ -12,13 +12,12 @@ basin_data_dir = "/global/scratch/users/ann_scheliga/basin_forcing_processed/"
 ## TOPO ATTRIBUTES ##
 station_fns = [Path(grdc_dir) / f for f in os.listdir(grdc_dir) if "stationbasins" in f]
 
-output_path = Path(basin_data_dir) / "basin_attributes" / "topo_attr.txt"
+output_path = Path(basin_data_dir) / "attributes" / "topo_attr.csv"
 _ = [dataprocessing.write_topo_features(fn, output_path) for fn in station_fns]
-
 
 _ = dataprocessing.sort_csv_from_file(
     output_path,
     "grdc_no",
     read_kwargs={"sep": ";"},
-    write_kwargs={"header": True, "sep": ";", "index": False},
+    write_kwargs={"header": True, "index": False},
 )
