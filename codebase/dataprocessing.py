@@ -1,4 +1,7 @@
+import os
 from collections.abc import Callable
+from pathlib import Path
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -107,3 +110,38 @@ def daily_CYGNSS_area_data_processing(
     ]
     sw_area = (sw_area / 10**6).rename("Area km2", inplace=True)
     return sw_area
+
+
+def write_topo_features(
+    stations_meta: Path | str | pd.DataFrame, output_path: Path | str
+) -> pd.DataFrame:
+    from geopandas import read_file
+
+    if isinstance(stations_meta, Path | str):
+        stations_meta = read_file(stations_meta)
+    topo_df = stations_meta[["grdc_no", "lat_pp", "long_pp", "area_calc"]]
+    topo_df.to_csv(
+        output_path,
+        mode="a",
+        header=not os.path.exists(output_path),
+        sep=";",
+        index=False,
+    )
+    print("Saved to", output_path)
+    return topo_df
+
+
+def sort_csv_from_file(
+    output_path: Path | str,
+    col_name: str,
+    read_kwargs: dict[str, Any] | None = None,
+    write_kwargs: dict[str, Any] | None = None,
+) -> pd.DataFrame:
+    if write_kwargs is None:
+        write_kwargs = {}
+    if read_kwargs is None:
+        read_kwargs = {}
+    full_df = pd.read_csv(output_path, **read_kwargs)
+    sorted_df = full_df.sort_values(by=col_name)
+    sorted_df.to_csv(output_path, **write_kwargs)
+    return sorted_df
