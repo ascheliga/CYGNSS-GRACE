@@ -120,6 +120,7 @@ def write_topo_features(
     if isinstance(stations_meta, Path | str):
         stations_meta = read_file(stations_meta)
     topo_df = stations_meta[["grdc_no", "lat_pp", "long_pp", "area_calc"]]
+    topo_df["grdc_no"] = topo_df["grdc_no"].astype(int).copy()
     topo_df.to_csv(
         output_path,
         mode="a",
