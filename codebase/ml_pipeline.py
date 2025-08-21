@@ -128,7 +128,7 @@ def LSTM_preprocessing_nh(
     output_df = output_df.join(met_df, how="left")
 
     ## Final formatting
-    output_df['SW_area'].fillna(output_df['SW_area'].mean(),inplace=True)
+    output_df["SW_area"].fillna(output_df["SW_area"].mean(), inplace=True)
     output_df.interpolate(
         method="linear", axis=0, inplace=True, limit=7
     )  # interpolate missing interior values
