@@ -1,4 +1,5 @@
 import os
+import pickle
 from collections.abc import Callable
 from pathlib import Path
 from typing import Any
@@ -146,3 +147,48 @@ def sort_csv_from_file(
     sorted_df = full_df.sort_values(by=col_name)
     sorted_df.to_csv(output_path, **write_kwargs)
     return sorted_df
+
+
+def standard_precip_mean(basin_clim: pd.DataFrame) -> float:
+    """
+    Calculate the mean basin precipitation from processed_basin_forcing data.
+
+    Long Description
+    ----------------
+    Hard-coded subsetting to [2000,2024) time range for standard climatology.
+    """
+    from datetime import date
+
+    precip_ts = basin_clim["precipm_tot0"].loc[
+        (basin_clim["precipm_tot0"].index.date >= date(2000, 1, 1))
+        * (basin_clim["precipm_tot0"].index.date < date(2024, 1, 1))
+    ]
+    p_mean = precip_ts.mean()
+    return p_mean
+
+
+def write_clim_features(
+    basin_clim: Path | str | pd.DataFrame, output_path: Path | str, grdc_id: str = ""
+) -> pd.DataFrame:
+    if isinstance(basin_clim, Path | str):
+        data_dict = pickle.load(open(basin_clim, "rb"))
+        grdc_id = next(iter(data_dict.keys()))
+        print("GRDC ID:", grdc_id)
+        basin_clim = data_dict[grdc_id]
+    p_mean = standard_precip_mean(basin_clim)
+
+    clim_df = pd.DataFrame(
+        columns=["grdc_no", "p_mean"], data=np.array([[grdc_id, p_mean]])
+    )
+    clim_df["grdc_no"] = clim_df["grdc_no"].astype(int)
+    print(clim_df)
+
+    clim_df.to_csv(
+        output_path,
+        mode="a",
+        header=not os.path.exists(output_path),
+        sep=";",
+        index=False,
+    )
+    print("Saved to", output_path)
+    return clim_df
