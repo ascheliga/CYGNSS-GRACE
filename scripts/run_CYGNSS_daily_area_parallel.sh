@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=CYGNSS_somerset_att01
+#SBATCH --job-name=CYGNSS_sam_rayburn_att00
 #SBATCH --account=fc_ecohydrology
 #SBATCH --partition=savio2_htc
 #SBATCH --time=00:04:15
