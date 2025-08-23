@@ -1,8 +1,8 @@
 #!/bin/bash
-#SBATCH --job-name=write_clim_att00
+#SBATCH --job-name=write_clim_sc_att01
 #SBATCH --account=fc_ecohydrology
 #SBATCH --partition=savio2_htc
-#SBATCH --time=00:05:15
+#SBATCH --time=00:04:15
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
 

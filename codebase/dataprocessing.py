@@ -126,7 +126,7 @@ def write_topo_features(
         output_path,
         mode="a",
         header=not os.path.exists(output_path),
-        sep=";",
+        sep=",",
         index=False,
     )
     print("Saved to", output_path)
@@ -187,7 +187,7 @@ def write_clim_features(
         output_path,
         mode="a",
         header=not os.path.exists(output_path),
-        sep=";",
+        sep=",",
         index=False,
     )
     print("Saved to", output_path)
