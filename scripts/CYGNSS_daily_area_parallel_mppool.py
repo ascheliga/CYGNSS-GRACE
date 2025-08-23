@@ -10,7 +10,7 @@ import codebase
 
 ## DEFINE VARIABLES
 datadir = "/global/scratch/users/ann_scheliga/CYGNSS_daily/"
-dam_name = "Sam Rayburn Dam and Reservoir"
+dam_name = "Saluda"
 print("Start CYGNSS daily area calculation for:", dam_name)
 ## END DEFINE VARIABLES
 
