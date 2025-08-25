@@ -10,14 +10,14 @@ import codebase
 
 ## DEFINE VARIABLES
 datadir = "/global/scratch/users/ann_scheliga/CYGNSS_daily/"
-dam_name = "Saluda"
+dam_name = "glen canyon"
 print("Start CYGNSS daily area calculation for:", dam_name)
 ## END DEFINE VARIABLES
 
 ## DEFINE BBOX
 res_shp = codebase.load_data.load_GRanD()
 subset_gpd = codebase.area_subsets.check_for_multiple_dams(dam_name, res_shp)
-subset_bbox = subset_gpd.geometry.buffer(0).bounds
+subset_bbox = subset_gpd.geometry.buffer(0.15).bounds
 ## END DEFINE BBOX
 
 ## LIST OF FILENAMES

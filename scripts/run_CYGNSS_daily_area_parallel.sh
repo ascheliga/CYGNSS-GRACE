@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=CYGNSS_saluda_att00
+#SBATCH --job-name=CYGNSS_glen_canyon_buffer_att00
 #SBATCH --account=fc_ecohydrology
 #SBATCH --partition=savio2_htc
 #SBATCH --time=00:04:15
